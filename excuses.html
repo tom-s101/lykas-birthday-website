@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The No Machine &middot; for lyka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --cream: #faf6f1;
+        --warm: #f5ede2;
+        --blush: #f5e1de;
+        --rose: #c4727f;
+        --rose-light: #e0a8b0;
+        --rose-pale: #f0d4d8;
+        --sage: #9aa78f;
+        --sage-pale: #d8e0d2;
+        --gold: #d4a574;
+        --gold-light: #e8c597;
+        --text: #4a3f3a;
+        --text-light: #7a6a64;
+        --text-faint: #b8a8a3;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: var(--cream); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; -webkit-font-smoothing: antialiased; }
+    body {
+        min-height: 100vh; min-height: 100svh;
+        background:
+            radial-gradient(circle at 12% 10%, var(--blush) 0%, transparent 35%),
+            radial-gradient(circle at 88% 86%, var(--sage-pale) 0%, transparent 38%),
+            radial-gradient(circle at 50% 60%, rgba(255,250,245,0.6) 0%, transparent 50%),
+            var(--cream);
+        background-attachment: fixed;
+        overflow-x: hidden;
+    }
+
+    .wrap { max-width: 480px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; position: relative; }
+
+    /* Tiny back link */
+    .back-link {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+        color: var(--text-faint); text-decoration: none; margin-bottom: 2rem;
+        transition: color 0.25s ease;
+    }
+    .back-link:hover { color: var(--rose); }
+    .back-link svg { width: 12px; height: 12px; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 1.5rem; }
+    .label { font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--sage); margin-bottom: 0.75rem; }
+    .heading {
+        font-family: 'Cormorant Garamond', serif; font-weight: 400;
+        font-size: 2rem; line-height: 1.2; color: var(--text);
+        margin-bottom: 0.75rem;
+    }
+    .heading em { font-style: italic; color: var(--rose); }
+    .sub {
+        font-family: 'Cormorant Garamond', serif; font-style: italic;
+        color: var(--text-light); font-size: 1.05rem; line-height: 1.5;
+        max-width: 300px; margin: 0 auto;
+    }
+
+    /* Note card with tape */
+    .stage {
+        position: relative; margin: 2.5rem auto 1.5rem;
+        background: #fffefa;
+        border-radius: 6px;
+        padding: 2.25rem 1.5rem 2rem;
+        min-height: 200px;
+        box-shadow:
+            0 1px 3px rgba(120, 80, 60, 0.05),
+            0 8px 24px rgba(120, 80, 60, 0.06),
+            0 14px 40px rgba(120, 80, 60, 0.04);
+        transform: rotate(-0.4deg);
+        transition: transform 0.25s ease;
+    }
+    .stage::before, .stage::after {
+        content: '';
+        position: absolute; width: 56px; height: 16px;
+        background: linear-gradient(135deg, rgba(245, 230, 205, 0.85), rgba(238, 220, 195, 0.75));
+        border-left: 1px dashed rgba(180, 150, 120, 0.2);
+        border-right: 1px dashed rgba(180, 150, 120, 0.2);
+        box-shadow: 0 2px 4px rgba(120, 80, 60, 0.08);
+        pointer-events: none;
+    }
+    .stage::before { top: -7px; left: 18px; transform: rotate(-7deg); }
+    .stage::after { top: -7px; right: 18px; transform: rotate(6deg); }
+
+    .reason-display {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.4rem; line-height: 1.5;
+        color: var(--text);
+        text-align: center;
+        min-height: 4.5rem;
+        position: relative;
+    }
+    .reason-display.empty {
+        color: var(--text-faint); font-style: italic;
+        font-size: 1.15rem;
+    }
+    .reason-display .quote-mark {
+        font-family: 'Cormorant Garamond', serif;
+        color: var(--rose-pale); font-size: 3rem;
+        line-height: 0; vertical-align: -0.55em;
+        margin: 0 0.1em;
+    }
+    .reason-display .cursor {
+        display: inline-block; width: 2px; height: 1em;
+        background: var(--rose); vertical-align: -0.15em;
+        margin-left: 2px; animation: blink 0.9s steps(2) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .meta-row {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 1.5rem; padding-top: 1rem;
+        border-top: 1px dashed var(--rose-pale);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+        color: var(--text-faint);
+    }
+    .copy-btn {
+        background: none; border: none; cursor: pointer;
+        font-family: 'Inter', sans-serif; font-size: 0.65rem;
+        letter-spacing: 2px; text-transform: uppercase;
+        color: var(--text-faint);
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        transition: color 0.25s ease;
+        padding: 0;
+    }
+    .copy-btn:hover { color: var(--rose); }
+    .copy-btn svg { width: 12px; height: 12px; }
+    .copy-btn.copied { color: var(--sage); }
+
+    /* Big button */
+    .btn-row { text-align: center; margin: 2rem 0 1rem; }
+    .no-btn {
+        font-family: 'Cormorant Garamond', serif; font-style: italic;
+        font-size: 1.4rem;
+        background: var(--rose); color: var(--cream);
+        border: none; cursor: pointer;
+        padding: 1rem 2.5rem;
+        border-radius: 100px;
+        transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.2s ease;
+        box-shadow: 0 4px 14px rgba(196, 114, 127, 0.35);
+        position: relative;
+    }
+    .no-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(196, 114, 127, 0.4); }
+    .no-btn:active { transform: translateY(0); }
+    .no-btn:disabled { opacity: 0.6; cursor: wait; }
+    .no-btn.shake { animation: shake 0.45s ease; }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-6px) rotate(-1deg); }
+        40% { transform: translateX(6px) rotate(1deg); }
+        60% { transform: translateX(-4px) rotate(-0.5deg); }
+        80% { transform: translateX(4px) rotate(0.5deg); }
+    }
+
+    .btn-hint {
+        margin-top: 0.75rem;
+        font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+        color: var(--text-faint);
+    }
+    .counter {
+        display: block; margin-top: 0.4rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic; font-size: 0.95rem;
+        color: var(--rose-light);
+    }
+    .counter strong { color: var(--rose); font-weight: 500; }
+
+    /* Suggestion chips */
+    .suggestions {
+        margin: 2rem 0 1rem;
+        text-align: center;
+    }
+    .suggestion-label {
+        font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+        color: var(--text-faint); margin-bottom: 0.75rem;
+    }
+    .chip-row {
+        display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;
+    }
+    .chip {
+        font-family: 'Inter', sans-serif; font-size: 0.7rem;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--rose-pale);
+        color: var(--text-light);
+        padding: 0.5rem 0.9rem;
+        border-radius: 100px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .chip:hover {
+        background: var(--rose);
+        color: var(--cream);
+        border-color: var(--rose);
+        transform: translateY(-1px);
+    }
+
+    /* History */
+    .history-section {
+        margin-top: 3rem;
+    }
+    .history-heading {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic; font-size: 1.1rem;
+        color: var(--text-light); text-align: center;
+        margin-bottom: 1rem;
+    }
+    .history-list {
+        list-style: none;
+    }
+    .history-item {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.95rem; line-height: 1.4;
+        color: var(--text-light);
+        padding: 0.8rem 1rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-left: 2px solid var(--rose-pale);
+        margin-bottom: 0.5rem;
+        border-radius: 0 6px 6px 0;
+        position: relative;
+        opacity: 0;
+        transform: translateX(-8px);
+        animation: slideIn 0.5s ease forwards;
+    }
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+    .history-empty {
+        text-align: center; font-size: 0.7rem;
+        color: var(--text-faint); letter-spacing: 1px;
+        padding: 1rem 0;
+    }
+    .history-clear {
+        display: block; margin: 1rem auto 0;
+        background: none; border: none;
+        font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+        color: var(--text-faint); cursor: pointer;
+        padding: 0.4rem 0.8rem;
+        transition: color 0.2s ease;
+    }
+    .history-clear:hover { color: var(--rose); }
+
+    /* Page nav dots */
+    .page-nav {
+        position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+        display: flex; gap: 0.5rem; z-index: 50;
+    }
+    .page-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        border: 1px solid var(--rose-pale);
+        transition: all 0.3s ease;
+        display: block;
+    }
+    .page-dot.active { background: var(--rose); border-color: var(--rose); }
+    .page-nav a { line-height: 0; }
+
+    /* Floating decorative elements */
+    .floating-no {
+        position: fixed; pointer-events: none;
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic; color: var(--rose-pale);
+        font-size: 1.5rem; opacity: 0.4;
+        animation: floatBy 18s linear infinite;
+    }
+
+    @keyframes floatBy {
+        0% { transform: translate(0, 0) rotate(-8deg); opacity: 0; }
+        15% { opacity: 0.3; }
+        85% { opacity: 0.3; }
+        100% { transform: translate(20vw, -25vh) rotate(8deg); opacity: 0; }
+    }
+
+    /* Footer */
+    .footer-note {
+        text-align: center; margin-top: 3rem;
+        font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+        color: var(--text-faint);
+    }
+    .footer-note a { color: var(--rose-light); text-decoration: none; }
+    .footer-note a:hover { color: var(--rose); }
+
+    @media (min-width: 768px) {
+        .wrap { max-width: 540px; padding-top: 4rem; }
+        .heading { font-size: 2.5rem; }
+        .reason-display { font-size: 1.6rem; }
+        .stage { padding: 2.5rem 2rem 2rem; }
+        .no-btn { font-size: 1.6rem; padding: 1.1rem 3rem; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Decorative floating no's -->
+<div class="floating-no" style="left: 8%; top: 90vh; animation-delay: 0s;">no</div>
+<div class="floating-no" style="left: 70%; top: 95vh; animation-delay: -6s;">nope</div>
+<div class="floating-no" style="left: 30%; top: 100vh; animation-delay: -12s;">no thanks</div>
+
+<div class="wrap">
+    <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        back home
+    </a>
+
+    <div class="header">
+        <p class="label">a tiny gift for the girl who can't say no</p>
+        <h1 class="heading">the <em>no</em> machine</h1>
+        <p class="sub">For when someone asks too much &amp; you need a creative way out. Press the button. Let the universe do the rejecting.</p>
+    </div>
+
+    <div class="stage" id="stage">
+        <div class="reason-display empty" id="reasonDisplay">
+            press the button below for your first no <span class="cursor"></span>
+        </div>
+        <div class="meta-row" id="metaRow" style="display:none;">
+            <span id="metaTime">just now</span>
+            <button class="copy-btn" id="copyBtn" aria-label="copy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span id="copyLabel">copy</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="btn-row">
+        <button class="no-btn" id="noBtn">give me an excuse</button>
+        <p class="btn-hint">tap as many times as you need</p>
+        <span class="counter" id="counter" style="display:none;">you've collected <strong><span id="countNum">0</span></strong> no's so far</span>
+    </div>
+
+    <div class="suggestions">
+        <p class="suggestion-label">or use one of these as inspiration</p>
+        <div class="chip-row">
+            <button class="chip" data-context="plans this weekend">declining plans</button>
+            <button class="chip" data-context="extra work">saying no at work</button>
+            <button class="chip" data-context="a date">declining a date</button>
+            <button class="chip" data-context="getting out of bed">staying in bed</button>
+            <button class="chip" data-context="answering a text">ignoring a text</button>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <p class="history-heading">your recent no's</p>
+        <ul class="history-list" id="historyList">
+            <li class="history-empty">nothing yet &mdash; the universe is waiting</li>
+        </ul>
+        <button class="history-clear" id="clearBtn" style="display:none;">clear history</button>
+    </div>
+
+    <p class="footer-note">
+        powered by <a href="https://github.com/hotheadhacker/no-as-a-service" target="_blank" rel="noopener">no-as-a-service</a> &middot; made for lyka
+    </p>
+</div>
+
+<!-- Page nav dots -->
+<div class="page-nav">
+    <a href="index.html"><span class="page-dot"></span></a>
+    <a href="globe.html"><span class="page-dot"></span></a>
+    <a href="voice-note.html"><span class="page-dot"></span></a>
+    <span class="page-dot active"></span>
+    <a href="card.html"><span class="page-dot"></span></a>
+    <a href="newspaper.html"><span class="page-dot"></span></a>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // Local fallback list (used if API is unreachable)
+    var FALLBACK = [
+        "I have to wash my hair. Yes, all of it. Yes, today.",
+        "My horoscope specifically said no.",
+        "I just remembered I'm allergic to that.",
+        "My couch and I have a standing appointment.",
+        "I'm in my 'gentle no' era.",
+        "This feels like something Future Me would yell at Present Me for agreeing to.",
+        "I already gave at the office.",
+        "I'd love to, but I made eye contact with a cat earlier and now I'm spoken for.",
+        "My energy budget for this week is in the red.",
+        "I'm currently saving up my yes's for something more important.",
+        "I have a deeply held philosophical objection to that activity.",
+        "The vibes are simply not vibing.",
+        "I'm fasting from obligations this month.",
+        "Sorry, my plant needs me.",
+        "Mercury is in microwave, I shouldn't make decisions.",
+        "I'm in the middle of pretending to be busy.",
+        "I forgot how to be a person today.",
+        "My therapist says I'm allowed to opt out of things.",
+        "I'm conserving my social battery for an emergency.",
+        "Going outside? In this economy?",
+        "I have an unbreakable commitment to lying down.",
+        "I'm waiting for a sign and the sign hasn't come.",
+        "The introvert in me filed a formal complaint.",
+        "I've already used up my weekly quota of being nice.",
+        "I'm currently on a strict diet of saying no.",
+        "Unfortunately my doctor said no fun.",
+        "I'm trying not to peak this week.",
+        "My to-do list literally laughed at me when I asked.",
+        "I'm in a committed relationship with my pillow.",
+        "I'd rather be doing absolutely nothing in HD.",
+        "I have to attend a thing I just made up.",
+        "My cat would be devastated.",
+        "I'm too busy being beautifully unbothered.",
+        "I'm having a personal renaissance and I cannot be disturbed.",
+        "I'd love to, but I'm currently being held emotionally hostage by a tv show.",
+        "It would compromise my ongoing nap research.",
+        "I'm allergic to most plans before noon.",
+        "My 26-year-old self said absolutely not.",
+        "The stars have aligned and they are saying nope.",
+        "I'm preserving my mystery."
+    ];
+
+    var API_URL = 'https://naas.isalman.dev/no';
+    var STORAGE_KEY = 'lyka_no_machine_history';
+    var COUNT_KEY = 'lyka_no_machine_count';
+    var HISTORY_LIMIT = 8;
+
+    var stage = document.getElementById('stage');
+    var reasonDisplay = document.getElementById('reasonDisplay');
+    var metaRow = document.getElementById('metaRow');
+    var metaTime = document.getElementById('metaTime');
+    var copyBtn = document.getElementById('copyBtn');
+    var copyLabel = document.getElementById('copyLabel');
+    var noBtn = document.getElementById('noBtn');
+    var counter = document.getElementById('counter');
+    var countNum = document.getElementById('countNum');
+    var historyList = document.getElementById('historyList');
+    var clearBtn = document.getElementById('clearBtn');
+
+    var currentReason = '';
+    var typingInterval = null;
+
+    // ===== Storage helpers =====
+    function loadHistory() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch(e) { return []; }
+    }
+    function saveHistory(list) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch(e) {}
+    }
+    function loadCount() {
+        try { return parseInt(localStorage.getItem(COUNT_KEY) || '0', 10); } catch(e) { return 0; }
+    }
+    function saveCount(n) {
+        try { localStorage.setItem(COUNT_KEY, String(n)); } catch(e) {}
+    }
+
+    // ===== Render history =====
+    function renderHistory() {
+        var list = loadHistory();
+        historyList.innerHTML = '';
+        if (list.length === 0) {
+            var li = document.createElement('li');
+            li.className = 'history-empty';
+            li.textContent = 'nothing yet — the universe is waiting';
+            historyList.appendChild(li);
+            clearBtn.style.display = 'none';
+        } else {
+            list.forEach(function(text, i) {
+                var li = document.createElement('li');
+                li.className = 'history-item';
+                li.style.animationDelay = (i * 0.06) + 's';
+                li.textContent = text;
+                historyList.appendChild(li);
+            });
+            clearBtn.style.display = 'block';
+        }
+    }
+
+    function renderCount() {
+        var n = loadCount();
+        if (n > 0) {
+            counter.style.display = 'block';
+            countNum.textContent = n;
+        }
+    }
+
+    // ===== Typewriter =====
+    function typeOut(text) {
+        if (typingInterval) { clearInterval(typingInterval); }
+        reasonDisplay.classList.remove('empty');
+        reasonDisplay.innerHTML = '<span class="quote-mark">&ldquo;</span><span id="typed"></span><span class="cursor"></span>';
+        var typed = document.getElementById('typed');
+        var i = 0;
+        var speed = Math.max(18, 45 - text.length * 0.15);
+        typingInterval = setInterval(function() {
+            if (i >= text.length) {
+                clearInterval(typingInterval);
+                typingInterval = null;
+                // Add closing quote, remove cursor
+                reasonDisplay.innerHTML = '<span class="quote-mark">&ldquo;</span>' + text + '<span class="quote-mark">&rdquo;</span>';
+                metaRow.style.display = 'flex';
+                metaTime.textContent = 'just now';
+                return;
+            }
+            typed.textContent += text.charAt(i);
+            i++;
+        }, speed);
+    }
+
+    // ===== Fetch a no =====
+    function fetchNo() {
+        return fetch(API_URL, { method: 'GET' })
+            .then(function(r) {
+                if (!r.ok) throw new Error('bad status');
+                return r.json();
+            })
+            .then(function(j) {
+                if (j && typeof j.reason === 'string') return j.reason;
+                throw new Error('bad shape');
+            })
+            .catch(function() {
+                // Fallback to local list
+                return FALLBACK[Math.floor(Math.random() * FALLBACK.length)];
+            });
+    }
+
+    // ===== Main click handler =====
+    function getExcuse() {
+        if (noBtn.disabled) return;
+        noBtn.disabled = true;
+        noBtn.classList.remove('shake');
+        // force reflow then re-add for repeated clicks
+        void noBtn.offsetWidth;
+        noBtn.classList.add('shake');
+
+        // Show loading state
+        reasonDisplay.classList.add('empty');
+        reasonDisplay.innerHTML = 'consulting the universe<span class="cursor"></span>';
+        metaRow.style.display = 'none';
+
+        fetchNo().then(function(reason) {
+            currentReason = reason;
+            typeOut(reason);
+
+            // Save to history
+            var list = loadHistory();
+            // de-dupe: remove exact match if it's already there
+            list = list.filter(function(x) { return x !== reason; });
+            list.unshift(reason);
+            if (list.length > HISTORY_LIMIT) list.length = HISTORY_LIMIT;
+            saveHistory(list);
+            renderHistory();
+
+            // Increment count
+            var n = loadCount() + 1;
+            saveCount(n);
+            renderCount();
+
+            // Re-enable after typing roughly finishes
+            var ms = Math.min(2200, reason.length * 25 + 200);
+            setTimeout(function() { noBtn.disabled = false; }, ms);
+        });
+    }
+
+    noBtn.addEventListener('click', getExcuse);
+
+    // Suggestion chips also just trigger a new no (the no-as-a-service API
+    // doesn't accept context — the chips are flavor only)
+    document.querySelectorAll('.chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            // small context hint above before the fetch
+            var label = chip.textContent;
+            reasonDisplay.classList.add('empty');
+            reasonDisplay.innerHTML = 'looking up: <em style="color:var(--rose);font-style:italic;">' + label + '</em><span class="cursor"></span>';
+            setTimeout(getExcuse, 280);
+        });
+    });
+
+    // Copy button
+    copyBtn.addEventListener('click', function() {
+        if (!currentReason) return;
+        var doFallback = function() {
+            try {
+                var ta = document.createElement('textarea');
+                ta.value = currentReason;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showCopied();
+            } catch(e) {}
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(currentReason).then(showCopied).catch(doFallback);
+        } else {
+            doFallback();
+        }
+    });
+
+    function showCopied() {
+        copyBtn.classList.add('copied');
+        copyLabel.textContent = 'copied!';
+        setTimeout(function() {
+            copyBtn.classList.remove('copied');
+            copyLabel.textContent = 'copy';
+        }, 1600);
+    }
+
+    // Clear history
+    clearBtn.addEventListener('click', function() {
+        if (!confirm('clear all your saved no\'s?')) return;
+        saveHistory([]);
+        renderHistory();
+    });
+
+    // Keyboard: spacebar / enter for a new no
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+        if (e.code === 'Space' || e.code === 'Enter') {
+            e.preventDefault();
+            getExcuse();
+        }
+    });
+
+    // Initial render
+    renderHistory();
+    renderCount();
+})();
+</script>
+</body>
+</html>

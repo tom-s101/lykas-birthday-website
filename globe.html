@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Lyka — Out of 8 Billion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rose: #c4727f;
+            --rose-light: #e8a0aa;
+            --rose-pale: #f5dde0;
+            --blush: #faf0f2;
+            --sage: #8a9a7b;
+            --sage-light: #b5c4a8;
+            --text-light: #7a7070;
+            --text-faint: #b0a5a5;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            background: #0a0a12;
+            color: #e8e0e0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== STARFIELD ===== */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .star.pink { background: var(--rose-light); }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== NAV ===== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-back {
+            color: rgba(232, 160, 170, 0.6);
+            text-decoration: none;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-back:hover { color: var(--rose-light); }
+
+        .nav-back svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .nav-indicator {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            border: 1px solid rgba(232, 160, 170, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--rose-light);
+            border-color: var(--rose-light);
+        }
+
+        /* ===== HERO: GLOBE ===== */
+        .globe-hero {
+            min-height: 100vh;
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .globe-wrapper {
+            position: relative;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: globeFadeIn 2s ease 0.5s forwards;
+        }
+
+        @keyframes globeFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .globe {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            box-shadow:
+                0 0 60px rgba(100, 180, 255, 0.08),
+                -5px 0 8px #c3f4ff22 inset,
+                15px 2px 25px #000 inset,
+                -24px -2px 34px rgba(195, 244, 255, 0.15) inset,
+                200px 0 44px rgba(0, 0, 0, 0.4) inset,
+                130px 0 38px rgba(0, 0, 0, 0.6) inset;
+        }
+
+        .globe-surface {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/globe.jpeg');
+            background-size: cover;
+            background-position: left;
+            animation: earthRotate 30s linear infinite;
+        }
+
+        @keyframes earthRotate {
+            0% { background-position: 0 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        /* Atmosphere glow */
+        .globe::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(195, 244, 255, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* Orbiting ring of light */
+        .globe-ring {
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            border: 1px solid rgba(196, 114, 127, 0.12);
+            animation: ringPulse 4s ease-in-out infinite;
+        }
+
+        .globe-ring:nth-child(2) {
+            inset: -35px;
+            border-color: rgba(196, 114, 127, 0.06);
+            animation-delay: -1.5s;
+        }
+
+        @keyframes ringPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.04); opacity: 0.5; }
+        }
+
+        /* Twinkling stars around globe */
+        .globe-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .globe-hero-label {
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(232, 160, 170, 0.5);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 1s forwards;
+        }
+
+        .globe-hero-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: 2.2rem;
+            line-height: 1.3;
+            color: #e8e0e0;
+            max-width: 340px;
+            opacity: 0;
+            animation: fadeUp 1s ease 1.3s forwards;
+        }
+
+        .globe-hero-heading em {
+            font-style: italic;
+            color: var(--rose-light);
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeUp 1s ease 2s forwards;
+        }
+
+        .scroll-hint-line {
+            width: 1px;
+            height: 36px;
+            background: rgba(232, 160, 170, 0.3);
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .scroll-hint-line::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -1px;
+            width: 3px;
+            height: 10px;
+            background: var(--rose-light);
+            border-radius: 2px;
+            animation: scrollBob 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollBob {
+            0%, 100% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(8px); opacity: 0.4; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== NUMBERS SECTION ===== */
+        .numbers-section {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 1.5rem;
+            text-align: center;
+        }
+
+        .number-block {
+            max-width: 400px;
+            margin: 0 auto 5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .number-block.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .number-block:last-child { margin-bottom: 0; }
+
+        .big-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            font-size: 4rem;
+            line-height: 1;
+            color: var(--rose-light);
+            margin-bottom: 0.75rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .number-unit {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(232, 160, 170, 0.4);
+            margin-bottom: 1rem;
+        }
+
+        .number-text {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: rgba(232, 224, 224, 0.55);
+        }
+
+        .number-divider {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, rgba(196, 114, 127, 0.3), transparent);
+            margin: 0 auto 5rem;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .number-divider.visible { opacity: 1; }
+
+        /* ===== MESSAGE SECTION ===== */
+        .message-section {
+            position: relative;
+            z-index: 1;
+            padding: 4rem 1.5rem 6rem;
+            text-align: center;
+        }
+
+        .msg-label {
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(196, 114, 127, 0.4);
+            margin-bottom: 1.5rem;
+        }
+
+        .msg-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: 2rem;
+            line-height: 1.4;
+            max-width: 420px;
+            margin: 0 auto 2.5rem;
+            color: #e8e0e0;
+        }
+
+        .msg-heading em {
+            font-style: italic;
+            color: var(--rose-light);
+        }
+
+        .msg-body {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .msg-body p {
+            font-size: 0.9rem;
+            line-height: 1.9;
+            color: rgba(232, 224, 224, 0.5);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Text reveal */
+        .reveal-char {
+            transition: opacity 0.12s ease;
+        }
+
+        .msg-sign {
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(196, 114, 127, 0.15);
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.3rem;
+            color: var(--rose-light);
+        }
+
+        /* ===== FINAL SECTION ===== */
+        .final-section {
+            position: relative;
+            z-index: 1;
+            padding: 5rem 1.5rem 4rem;
+            text-align: center;
+        }
+
+        .final-heart {
+            font-size: 2rem;
+            color: var(--rose-light);
+            opacity: 0.3;
+            margin-bottom: 2rem;
+            animation: heartbeat 3s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+            60% { transform: scale(1); }
+        }
+
+        .final-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-style: italic;
+            font-size: 1.5rem;
+            line-height: 1.5;
+            color: rgba(232, 224, 224, 0.6);
+            max-width: 360px;
+            margin: 0 auto 3rem;
+        }
+
+        .final-text em { color: var(--rose-light); font-style: italic; }
+
+        .back-btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            border: 1px solid rgba(196, 114, 127, 0.3);
+            color: var(--rose-light);
+            border-radius: 100px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(196, 114, 127, 0.1);
+            border-color: var(--rose-light);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(232, 224, 224, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer span { color: rgba(196, 114, 127, 0.4); }
+
+        /* ===== SCROLL REVEAL ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ===== SHOOTING STAR ===== */
+        .shooting-star {
+            position: fixed;
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(232, 160, 170, 0.6), transparent);
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateX(300px) translateY(150px); opacity: 0; }
+        }
+
+        /* ===== DESKTOP ===== */
+        @media (min-width: 768px) {
+            .globe {
+                width: 300px;
+                height: 300px;
+            }
+
+            .globe-hero-heading { font-size: 3rem; max-width: 450px; }
+            .big-number { font-size: 5.5rem; }
+            .number-text { font-size: 1rem; }
+            .msg-heading { font-size: 2.5rem; }
+            .msg-body p { font-size: 1rem; }
+            .final-text { font-size: 1.8rem; }
+        }
+
+        @media (min-width: 1024px) {
+            .globe {
+                width: 340px;
+                height: 340px;
+            }
+
+            .globe-hero-heading { font-size: 3.5rem; }
+            .big-number { font-size: 6.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== STARFIELD ===== -->
+    <div class="starfield" id="starfield"></div>
+
+    <!-- ===== NAV ===== -->
+    <nav class="nav">
+        <a href="index.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back
+        </a>
+        <div class="nav-indicator">
+            <a href="index.html"><div class="nav-dot"></div></a>
+            <div class="nav-dot active"></div>
+            <a href="voice-note.html"><div class="nav-dot"></div></a>
+            <a href="excuses.html"><div class="nav-dot"></div></a>
+            <a href="card.html"><div class="nav-dot"></div></a>
+            <a href="newspaper.html"><div class="nav-dot"></div></a>
+        </div>
+    </nav>
+
+    <!-- ===== GLOBE HERO ===== -->
+    <section class="globe-hero">
+        <div class="globe-wrapper">
+            <div class="globe-ring"></div>
+            <div class="globe-ring"></div>
+            <div class="globe">
+                <div class="globe-surface"></div>
+            </div>
+            <!-- Stars around globe -->
+            <div class="globe-star" style="left:-25px;top:10px;animation:twinkle 3s infinite"></div>
+            <div class="globe-star" style="left:-40px;top:60px;animation:twinkle 2s infinite 0.5s"></div>
+            <div class="globe-star" style="right:-30px;top:30px;animation:twinkle 4s infinite 1s"></div>
+            <div class="globe-star" style="right:-15px;bottom:40px;animation:twinkle 2.5s infinite 0.3s"></div>
+            <div class="globe-star" style="left:50px;bottom:-20px;animation:twinkle 3.5s infinite 0.8s"></div>
+            <div class="globe-star" style="right:40px;top:-15px;animation:twinkle 2s infinite 1.2s"></div>
+        </div>
+
+        <p class="globe-hero-label">Out of everyone</p>
+        <h1 class="globe-hero-heading">In a world of <em>8 billion</em>, somehow we found each other</h1>
+
+        <div class="scroll-hint">
+            <div class="scroll-hint-line"></div>
+        </div>
+    </section>
+
+    <!-- ===== NUMBERS ===== -->
+    <section class="numbers-section">
+        <div class="number-block">
+            <div class="big-number" data-count-to="8000000000">0</div>
+            <div class="number-unit">people on earth</div>
+            <p class="number-text">Eight billion stories unfolding at this very moment. Eight billion paths being walked. And somehow, two of them found a way to cross.</p>
+        </div>
+
+        <div class="number-divider"></div>
+
+        <div class="number-block">
+            <div class="big-number" data-count-to="370000">0</div>
+            <div class="number-unit">share your exact birthday</div>
+            <p class="number-text">Out of everyone alive, roughly 370,000 people were born on June 28, 2000. The same day, the same year. But there is only one Lyka.</p>
+        </div>
+
+        <div class="number-divider"></div>
+
+        <div class="number-block">
+            <div class="big-number">195</div>
+            <div class="number-unit">countries in the world</div>
+            <p class="number-text">Across every continent, every city, every street. The world is impossibly vast. And yet here we are, in each other's lives. That's not an accident.</p>
+        </div>
+
+        <div class="number-divider"></div>
+
+        <div class="number-block">
+            <div class="big-number" style="font-size:inherit;color:var(--rose-light);">
+                <span style="font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:500;">1</span>
+            </div>
+            <div class="number-unit">you</div>
+            <p class="number-text">Out of all those billions, out of every birthday shared and every path that could have crossed but didn't — there is exactly one you. And God made sure our paths would meet.</p>
+        </div>
+    </section>
+
+    <!-- ===== MESSAGE ===== -->
+    <section class="message-section">
+        <div class="reveal">
+            <p class="msg-label">What I want you to know</p>
+            <h2 class="msg-heading">This wasn't <em>random</em></h2>
+        </div>
+        <div class="msg-body reveal">
+            <p data-text-reveal>Out of 8 billion people walking this earth, with roughly 370,000 sharing your exact birthday and year, God allowed our paths to cross. That's not coincidence. That's not luck. That's something much bigger.</p>
+            <p data-text-reveal>You were placed in my life for a reason. Every laugh we've shared, every conversation that went on too long, every quiet moment that didn't need words — none of it was by accident.</p>
+            <p data-text-reveal>You are one in 8 billion, Lyka. Not because of the math, but because of who you are. The world got it right when it made you.</p>
+            <div class="msg-sign">Grateful for you, always</div>
+        </div>
+    </section>
+
+    <!-- ===== FINAL ===== -->
+    <section class="final-section">
+        <div class="reveal">
+            <div class="final-heart">&hearts;</div>
+            <p class="final-text">One planet. Eight billion people. And somehow, <em>you</em> ended up in my life.</p>
+            <a href="voice-note.html" class="back-btn" style="background:rgba(196,114,127,0.12);border-color:rgba(196,114,127,0.3);color:var(--rose-light);">Listen to a voice note</a>
+            <a href="index.html" class="back-btn" style="margin-top:0.8rem;">Back to your birthday</a>
+        </div>
+    </section>
+
+    <footer class="footer">made with <span>&hearts;</span> for lyka</footer>
+
+    <script>
+    // ===== STARFIELD =====
+    (function() {
+        const field = document.getElementById('starfield');
+        const count = 200;
+        for (let i = 0; i < count; i++) {
+            const star = document.createElement('div');
+            star.className = 'star' + (Math.random() > 0.85 ? ' pink' : '');
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = (Math.random() * 2 + 1) + 'px';
+            star.style.height = star.style.width;
+            star.style.animation = 'twinkle ' + (1.5 + Math.random() * 3.5) + 's infinite ' + (Math.random() * 3) + 's';
+            star.style.opacity = Math.random() * 0.5 + 0.1;
+            field.appendChild(star);
+        }
+    })();
+
+    // ===== SHOOTING STARS =====
+    function shootStar() {
+        const star = document.createElement('div');
+        star.className = 'shooting-star';
+        star.style.top = Math.random() * 50 + '%';
+        star.style.left = Math.random() * 60 + '%';
+        star.style.transform = 'rotate(' + (15 + Math.random() * 20) + 'deg)';
+        star.style.animation = 'shoot ' + (0.8 + Math.random() * 0.5) + 's linear forwards';
+        document.body.appendChild(star);
+        setTimeout(function() { star.remove(); }, 2000);
+    }
+
+    setInterval(shootStar, 4000 + Math.random() * 3000);
+    setTimeout(shootStar, 3000);
+
+    // ===== COUNTING ANIMATION =====
+    function animateCount(el, target) {
+        const duration = 2500;
+        const start = performance.now();
+
+        function formatBig(n) {
+            if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+            if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e8 ? 0 : 1).replace(/\.0$/, '') + 'M';
+            if (n >= 1e3) return Math.round(n).toLocaleString();
+            return Math.round(n).toString();
+        }
+
+        function tick(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = eased * target;
+            el.textContent = formatBig(current);
+            if (progress < 1) requestAnimationFrame(tick);
+        }
+
+        requestAnimationFrame(tick);
+    }
+
+    // ===== TEXT REVEAL =====
+    function initTextReveal() {
+        document.querySelectorAll('[data-text-reveal]').forEach(function(el) {
+            var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+            var textNodes = [];
+            while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+            var totalChars = textNodes.reduce(function(sum, n) { return sum + n.textContent.length; }, 0);
+            el.setAttribute('data-total-chars', totalChars);
+
+            var charCount = 0;
+            textNodes.forEach(function(node) {
+                var text = node.textContent;
+                var parent = node.parentNode;
+                var frag = document.createDocumentFragment();
+                for (var i = 0; i < text.length; i++) {
+                    var span = document.createElement('span');
+                    span.className = 'reveal-char';
+                    span.textContent = text[i];
+                    span.style.opacity = '0.08';
+                    span.setAttribute('data-char-idx', charCount);
+                    frag.appendChild(span);
+                    charCount++;
+                }
+                parent.replaceChild(frag, node);
+            });
+        });
+    }
+
+    function updateTextReveal() {
+        var vh = window.innerHeight;
+        document.querySelectorAll('[data-text-reveal]').forEach(function(el) {
+            var rect = el.getBoundingClientRect();
+            var total = parseInt(el.getAttribute('data-total-chars')) || 1;
+            var progress = Math.max(0, Math.min(1, (vh * 0.82 - rect.top) / (rect.height + vh * 0.15)));
+            var revealPoint = progress * 1.3;
+
+            el.querySelectorAll('.reveal-char').forEach(function(span) {
+                var idx = parseInt(span.getAttribute('data-char-idx'));
+                var charPos = idx / total;
+                var opacity = Math.max(0.08, Math.min(1, (revealPoint - charPos) * 5));
+                span.style.opacity = opacity;
+            });
+        });
+    }
+
+    // ===== SCROLL HANDLER =====
+    var reveals = document.querySelectorAll('.reveal');
+    var numberBlocks = document.querySelectorAll('.number-block');
+    var dividers = document.querySelectorAll('.number-divider');
+    var countAnimated = new Set();
+
+    function onScroll() {
+        var vh = window.innerHeight;
+
+        reveals.forEach(function(el) {
+            if (el.getBoundingClientRect().top < vh * 0.88) el.classList.add('visible');
+        });
+
+        numberBlocks.forEach(function(block, i) {
+            var rect = block.getBoundingClientRect();
+            if (rect.top < vh * 0.85) {
+                setTimeout(function() { block.classList.add('visible'); }, 0);
+
+                // Count animation
+                var numEl = block.querySelector('[data-count-to]');
+                if (numEl && !countAnimated.has(numEl)) {
+                    countAnimated.add(numEl);
+                    var target = parseInt(numEl.getAttribute('data-count-to'));
+                    setTimeout(function() { animateCount(numEl, target); }, 300);
+                }
+            }
+        });
+
+        dividers.forEach(function(d) {
+            if (d.getBoundingClientRect().top < vh * 0.85) d.classList.add('visible');
+        });
+
+        updateTextReveal();
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ===== INIT =====
+    initTextReveal();
+    onScroll();
+    </script>
+</body>
+</html>
