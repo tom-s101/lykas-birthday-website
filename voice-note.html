@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Lyka — A Voice Note</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rose: #c4727f;
+            --rose-light: #e8a0aa;
+            --rose-pale: #f5dde0;
+            --blush: #faf0f2;
+            --sage: #8a9a7b;
+            --sage-light: #b5c4a8;
+            --text-light: #7a7070;
+            --text-faint: #b0a5a5;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            background: #0a0a12;
+            color: #e8e0e0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            min-height: 100svh;
+        }
+
+        /* ===== STARFIELD ===== */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .star.pink { background: var(--rose-light); }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== NAV ===== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-back {
+            color: rgba(232, 160, 170, 0.6);
+            text-decoration: none;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-back:hover { color: var(--rose-light); }
+
+        .nav-back svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .nav-indicator {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            border: 1px solid rgba(232, 160, 170, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--rose-light);
+            border-color: var(--rose-light);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: 2rem 1.5rem;
+        }
+
+        .label {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(232, 160, 170, 0.5);
+            margin-bottom: 1.2rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.3s forwards;
+        }
+
+        .heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.3;
+            color: #e8e0e0;
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.6s forwards;
+        }
+
+        .heading em {
+            font-style: italic;
+            color: var(--rose-light);
+        }
+
+        /* ===== MUSIC BOX ===== */
+        .music-box {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, rgba(196, 114, 127, 0.15), rgba(10, 10, 18, 0.6));
+            border: 1px solid rgba(232, 160, 170, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.9s forwards;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .music-box:hover {
+            border-color: rgba(232, 160, 170, 0.3);
+            box-shadow: 0 0 40px rgba(196, 114, 127, 0.1);
+        }
+
+        .music-box.playing {
+            border-color: rgba(232, 160, 170, 0.4);
+            box-shadow: 0 0 60px rgba(196, 114, 127, 0.15);
+        }
+
+        .play-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            color: var(--rose-light);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .music-box:hover .play-icon { opacity: 1; }
+        .music-box.playing .play-icon { opacity: 1; }
+
+        .play-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: rgba(232, 160, 170, 0.6);
+            transition: color 0.3s ease;
+        }
+
+        .music-box:hover .play-label { color: var(--rose-light); }
+        .music-box.playing .play-label { color: var(--rose-light); }
+
+        /* Sound wave animation */
+        .sound-waves {
+            display: none;
+            gap: 3px;
+            align-items: center;
+            height: 24px;
+            margin-bottom: 1rem;
+        }
+
+        .music-box.playing .sound-waves { display: flex; }
+        .music-box.playing .play-icon { display: none; }
+
+        .wave-bar {
+            width: 3px;
+            border-radius: 2px;
+            background: var(--rose-light);
+            animation: wave 1.2s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 16px; animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { height: 24px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { height: 16px; animation-delay: 0.45s; }
+        .wave-bar:nth-child(5) { height: 8px; animation-delay: 0.6s; }
+
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        /* Progress ring */
+        .progress-ring {
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke: var(--rose-light);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        /* ===== PHOTOS ===== */
+        .photos-section {
+            margin-top: 3rem;
+            width: 100%;
+            max-width: 600px;
+            opacity: 0;
+            animation: fadeUp 1s ease 1.2s forwards;
+        }
+
+        .photos-grid {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .photo-item {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(232, 160, 170, 0.15);
+            opacity: 0;
+            animation: fadeScale 0.6s ease forwards;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.08);
+            border-color: rgba(232, 160, 170, 0.4);
+            box-shadow: 0 0 20px rgba(196, 114, 127, 0.15);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.9s forwards;
+        }
+
+        .empty-icon {
+            width: 60px;
+            height: 60px;
+            color: rgba(232, 160, 170, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .empty-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: rgba(232, 160, 170, 0.4);
+        }
+
+        /* ===== LIGHTBOX ===== */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(232, 160, 170, 0.25);
+        }
+
+        .footer span { color: var(--rose); }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .heading { font-size: 1.7rem; }
+            .music-box { width: 220px; height: 220px; }
+            .photo-item { width: 80px; height: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== STARFIELD ===== -->
+    <div class="starfield" id="starfield"></div>
+
+    <!-- ===== NAV ===== -->
+    <nav class="nav">
+        <a href="globe.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back
+        </a>
+        <div class="nav-indicator">
+            <a href="index.html"><div class="nav-dot"></div></a>
+            <a href="globe.html"><div class="nav-dot"></div></a>
+            <div class="nav-dot active"></div>
+            <a href="excuses.html"><div class="nav-dot"></div></a>
+            <a href="card.html"><div class="nav-dot"></div></a>
+            <a href="newspaper.html"><div class="nav-dot"></div></a>
+        </div>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="content" id="content">
+        <p class="label">Press play</p>
+        <h1 class="heading">I recorded this <em>just for you</em></h1>
+
+        <!-- Music box (shown when audio exists) -->
+        <div class="music-box" id="musicBox" style="display:none;">
+            <svg class="progress-ring" viewBox="0 0 284 284">
+                <circle id="progressCircle" cx="142" cy="142" r="140" stroke-dasharray="879.6" stroke-dashoffset="879.6"/>
+            </svg>
+            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5.14v14l11-7-11-7z"/>
+            </svg>
+            <div class="sound-waves">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+            <span class="play-label" id="playLabel">tap to listen</span>
+        </div>
+
+        <!-- Empty state (shown when no audio) -->
+        <div class="empty-state" id="emptyState">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+            </svg>
+            <p class="empty-text">A voice note is on its way...</p>
+        </div>
+
+        <!-- Photos grid -->
+        <div class="photos-section" id="photosSection" style="display:none;">
+            <div class="photos-grid" id="photosGrid"></div>
+        </div>
+    </div>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div class="lightbox" id="lightbox">
+        <img id="lightboxImg" src="" alt="">
+    </div>
+
+    <footer class="footer">made with <span>&hearts;</span> for lyka</footer>
+
+    <script>
+    // ===== STARFIELD =====
+    (function() {
+        const field = document.getElementById('starfield');
+        const count = 200;
+        for (let i = 0; i < count; i++) {
+            const star = document.createElement('div');
+            star.className = Math.random() < 0.1 ? 'star pink' : 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+            star.style.animation = `twinkle ${2 + Math.random() * 4}s infinite ${Math.random() * 4}s`;
+            field.appendChild(star);
+        }
+    })();
+
+    // ===== INDEXEDDB HELPERS =====
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('lyka-bday-uploads', 1);
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                if (!db.objectStoreNames.contains('files')) {
+                    db.createObjectStore('files', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function getFile(id) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readonly');
+            const store = tx.objectStore('files');
+            const req = store.get(id);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function getAllFiles() {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readonly');
+            const store = tx.objectStore('files');
+            const req = store.getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    // ===== AUDIO PLAYER =====
+    const musicBox = document.getElementById('musicBox');
+    const emptyState = document.getElementById('emptyState');
+    const playLabel = document.getElementById('playLabel');
+    const progressCircle = document.getElementById('progressCircle');
+    const circumference = 879.6;
+    let audio = null;
+    let isPlaying = false;
+
+    function setProgress(pct) {
+        progressCircle.style.strokeDashoffset = circumference - (pct * circumference);
+    }
+
+    function togglePlay() {
+        if (!audio) return;
+        if (isPlaying) {
+            audio.pause();
+            musicBox.classList.remove('playing');
+            playLabel.textContent = 'tap to continue';
+            isPlaying = false;
+        } else {
+            audio.play();
+            musicBox.classList.add('playing');
+            playLabel.textContent = 'playing...';
+            isPlaying = true;
+        }
+    }
+
+    musicBox.addEventListener('click', togglePlay);
+
+    // ===== PHOTOS =====
+    const photosSection = document.getElementById('photosSection');
+    const photosGrid = document.getElementById('photosGrid');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+
+    lightbox.addEventListener('click', () => {
+        lightbox.classList.remove('active');
+    });
+
+    function showPhoto(src) {
+        lightboxImg.src = src;
+        lightbox.classList.add('active');
+    }
+
+    // ===== LOAD CONTENT =====
+    async function loadContent() {
+        try {
+            const files = await getAllFiles();
+            const voiceNote = files.find(f => f.type === 'audio');
+            const photos = files.filter(f => f.type === 'photo');
+
+            if (voiceNote) {
+                const blob = new Blob([voiceNote.data], { type: voiceNote.mime });
+                const url = URL.createObjectURL(blob);
+                audio = new Audio(url);
+
+                audio.addEventListener('timeupdate', () => {
+                    if (audio.duration) {
+                        setProgress(audio.currentTime / audio.duration);
+                    }
+                });
+
+                audio.addEventListener('ended', () => {
+                    musicBox.classList.remove('playing');
+                    playLabel.textContent = 'tap to replay';
+                    isPlaying = false;
+                    setProgress(0);
+                });
+
+                musicBox.style.display = 'flex';
+                emptyState.style.display = 'none';
+            } else {
+                musicBox.style.display = 'none';
+                emptyState.style.display = 'block';
+            }
+
+            if (photos.length > 0) {
+                photosSection.style.display = 'block';
+                photosGrid.innerHTML = '';
+                photos.forEach((photo, i) => {
+                    const blob = new Blob([photo.data], { type: photo.mime });
+                    const url = URL.createObjectURL(blob);
+                    const div = document.createElement('div');
+                    div.className = 'photo-item';
+                    div.style.animationDelay = (1.2 + i * 0.15) + 's';
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = 'Memory';
+                    img.addEventListener('click', () => showPhoto(url));
+                    div.appendChild(img);
+                    photosGrid.appendChild(div);
+                });
+            }
+        } catch (err) {
+            console.error('Error loading content:', err);
+            musicBox.style.display = 'none';
+            emptyState.style.display = 'block';
+        }
+    }
+
+    loadContent();
+    </script>
+</body>
+</html>

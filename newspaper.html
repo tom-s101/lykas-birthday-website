@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=4">
+<title>The June 28th Chronicle &middot; for lyka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --cream: #faf6f1;
+        --warm: #f5ede2;
+        --paper: #ebe1cf;
+        --paper-edge: #c9b896;
+        --rose: #c4727f;
+        --rose-light: #e0a8b0;
+        --rose-pale: #f0d4d8;
+        --sage: #9aa78f;
+        --ink: #3a322c;
+        --ink-light: #6b5c52;
+        --ink-faint: #a89888;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+        background: #1f1a16;
+        color: var(--cream);
+        font-family: 'Inter', sans-serif;
+        font-weight: 300;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+    body {
+        min-height: 100vh; min-height: 100svh;
+        background:
+            radial-gradient(ellipse at center top, rgba(196, 114, 127, 0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at center bottom, rgba(154, 167, 143, 0.05) 0%, transparent 50%),
+            #1f1a16;
+        position: relative;
+        padding: 1.5rem 0.75rem 5rem;
+    }
+
+    /* Subtle paper-grain texture overlay across the whole page */
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 30%, rgba(255,255,255,0.015) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(255,255,255,0.015) 0%, transparent 40%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .back-link {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+        color: rgba(250, 246, 241, 0.45); text-decoration: none;
+        transition: color 0.25s ease;
+        position: relative; z-index: 5;
+        margin-left: 0.75rem;
+    }
+    .back-link:hover { color: var(--rose-light); }
+    .back-link svg { width: 12px; height: 12px; }
+
+    /* Top inscription */
+    .header {
+        text-align: center;
+        margin: 1.75rem auto 1.25rem;
+        max-width: 360px;
+        position: relative;
+        z-index: 2;
+    }
+    .label {
+        font-size: 0.55rem; letter-spacing: 5px; text-transform: uppercase;
+        color: rgba(224, 168, 176, 0.7);
+        margin-bottom: 0.6rem;
+    }
+    .heading {
+        font-family: 'Cormorant Garamond', serif;
+        font-weight: 400; font-style: italic;
+        font-size: 1.5rem; line-height: 1.3;
+        color: var(--cream);
+    }
+    .heading em {
+        color: var(--rose-light);
+        font-style: italic;
+    }
+    .sub {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 0.85rem;
+        color: rgba(250, 246, 241, 0.55);
+        margin-top: 0.5rem;
+    }
+
+    /* ===== PAPER STAGE ===== */
+    .paper-wrap {
+        position: relative;
+        max-width: 720px;
+        margin: 1rem auto 0;
+        padding: 0 0.5rem;
+        z-index: 2;
+    }
+
+    .paper {
+        position: relative;
+        width: 100%;
+        background: var(--paper);
+        border-radius: 2px;
+        box-shadow:
+            0 1px 0 rgba(255,255,255,0.4) inset,
+            0 0 0 1px rgba(60, 40, 25, 0.18),
+            0 25px 60px rgba(0, 0, 0, 0.55),
+            0 50px 90px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        transform-origin: center top;
+        animation: unfold 1.6s cubic-bezier(0.5, 0, 0.2, 1) 0.2s backwards;
+        cursor: zoom-in;
+    }
+    @keyframes unfold {
+        0% {
+            opacity: 0;
+            transform: rotateX(-75deg) scale(0.92);
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 1;
+            transform: rotateX(0) scale(1);
+        }
+    }
+
+    .paper img {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* The vertical fold crease */
+    .paper::after {
+        content: '';
+        position: absolute;
+        top: 0; bottom: 0;
+        left: 50%;
+        width: 1px;
+        background: linear-gradient(to bottom,
+            transparent 0%,
+            rgba(60, 40, 25, 0.10) 8%,
+            rgba(60, 40, 25, 0.10) 92%,
+            transparent 100%);
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    /* Subtle vignette / aged-edges overlay */
+    .paper::before {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+            radial-gradient(ellipse at center, transparent 60%, rgba(120, 80, 40, 0.10) 100%),
+            linear-gradient(135deg, transparent 92%, rgba(120, 80, 40, 0.18) 100%),
+            linear-gradient(-135deg, transparent 92%, rgba(120, 80, 40, 0.18) 100%);
+        pointer-events: none;
+        mix-blend-mode: multiply;
+    }
+
+    /* Caption below */
+    .caption {
+        text-align: center;
+        margin: 1.5rem auto 0;
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 0.95rem;
+        color: rgba(250, 246, 241, 0.6);
+        max-width: 480px;
+    }
+
+    .caption .signature {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--rose-light);
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+
+    .zoom-hint {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        margin-top: 1.25rem;
+        padding: 0.5rem 1rem;
+        background: rgba(196, 114, 127, 0.12);
+        border: 1px solid rgba(196, 114, 127, 0.25);
+        border-radius: 100px;
+        font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+        color: var(--rose-light);
+    }
+    .zoom-hint svg { width: 11px; height: 11px; }
+
+    /* ===== MODAL / LIGHTBOX FOR ZOOM ===== */
+    .lightbox {
+        position: fixed; inset: 0;
+        background: rgba(15, 12, 10, 0.95);
+        z-index: 100;
+        display: none;
+        cursor: zoom-out;
+        animation: fadeBg 0.3s ease;
+    }
+    .lightbox.open {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        overflow: auto;
+        padding: 1rem;
+    }
+    @keyframes fadeBg {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .lightbox img {
+        max-width: none;
+        width: auto;
+        height: auto;
+        display: block;
+        margin: auto;
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+        animation: zoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.85); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .lightbox-close {
+        position: fixed; top: 1rem; right: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--cream);
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        z-index: 101;
+        transition: all 0.2s ease;
+    }
+    .lightbox-close:hover {
+        background: rgba(196, 114, 127, 0.35);
+        border-color: var(--rose);
+    }
+
+    /* Page nav */
+    .page-nav {
+        position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+        display: flex; gap: 0.5rem; z-index: 50;
+    }
+    .page-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        border: 1px solid rgba(196, 114, 127, 0.5);
+        transition: all 0.3s ease;
+        display: block;
+    }
+    .page-dot.active { background: var(--rose); border-color: var(--rose); }
+    .page-nav a { line-height: 0; }
+
+    /* Floating petals decoration (subtle, dim) */
+    .petal {
+        position: fixed;
+        width: 8px; height: 8px;
+        background: var(--rose-pale);
+        border-radius: 50% 0 50% 0;
+        opacity: 0;
+        pointer-events: none;
+        animation: petalFall 18s linear infinite;
+    }
+    @keyframes petalFall {
+        0% { opacity: 0; transform: translateY(-10vh) rotate(0); }
+        10% { opacity: 0.25; }
+        90% { opacity: 0.25; }
+        100% { opacity: 0; transform: translateY(110vh) rotate(360deg); }
+    }
+
+    @media (min-width: 768px) {
+        .heading { font-size: 1.8rem; }
+        body { padding-top: 2.5rem; }
+        .paper-wrap { max-width: 760px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Subtle floating petals -->
+<div class="petal" style="left: 8%; animation-delay: 0s;"></div>
+<div class="petal" style="left: 28%; animation-delay: -4s;"></div>
+<div class="petal" style="left: 52%; animation-delay: -9s;"></div>
+<div class="petal" style="left: 76%; animation-delay: -13s;"></div>
+<div class="petal" style="left: 92%; animation-delay: -16s;"></div>
+
+<a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    back home
+</a>
+
+<div class="header">
+    <p class="label">extra! extra!</p>
+    <h1 class="heading">the news of the day <em>you arrived</em></h1>
+    <p class="sub">delivered fresh from June 28th, 2000</p>
+</div>
+
+<div class="paper-wrap">
+    <div class="paper" id="paper">
+        <img src="newspaper.png" alt="The June 28th Chronicle — A Record of the Day Lyka Came Into the World" id="paperImg" onerror="this.onerror=null; this.src='newspaper.jpg';">
+    </div>
+    <p class="caption">
+        the front page of the world the day you walked into it.
+        <span class="signature">&mdash; tap the paper to read it up close &mdash;</span>
+    </p>
+    <p style="text-align:center;">
+        <span class="zoom-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            tap to zoom
+        </span>
+    </p>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Newspaper zoomed view">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close zoom">&times;</button>
+    <img src="" alt="The June 28th Chronicle (full size)" id="lightboxImg">
+</div>
+
+<!-- Page nav dots -->
+<div class="page-nav">
+    <a href="index.html"><span class="page-dot"></span></a>
+    <a href="globe.html"><span class="page-dot"></span></a>
+    <a href="voice-note.html"><span class="page-dot"></span></a>
+    <a href="excuses.html"><span class="page-dot"></span></a>
+    <a href="card.html"><span class="page-dot"></span></a>
+    <span class="page-dot active"></span>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    var paper = document.getElementById('paper');
+    var paperImg = document.getElementById('paperImg');
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+    var lightboxClose = document.getElementById('lightboxClose');
+
+    function openZoom() {
+        var src = paperImg.currentSrc || paperImg.src;
+        lightboxImg.src = src;
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeZoom() {
+        lightbox.classList.remove('open');
+        document.body.style.overflow = '';
+        // small delay before clearing src so close animation doesn't pop
+        setTimeout(function() { lightboxImg.src = ''; }, 250);
+    }
+
+    paper.addEventListener('click', openZoom);
+    paper.addEventListener('keydown', function(e) {
+        if (e.code === 'Enter' || e.code === 'Space') {
+            e.preventDefault();
+            openZoom();
+        }
+    });
+    paper.setAttribute('tabindex', '0');
+    paper.setAttribute('role', 'button');
+
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox || e.target === lightboxImg) closeZoom();
+    });
+    lightboxClose.addEventListener('click', closeZoom);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('open')) closeZoom();
+    });
+})();
+</script>
+</body>
+</html>

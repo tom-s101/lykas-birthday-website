@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rose: #c4727f;
+            --rose-light: #e8a0aa;
+            --rose-pale: #f5dde0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            background: #0a0a12;
+            color: #e8e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1.5rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--rose-light);
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: rgba(232, 160, 170, 0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2.5rem;
+        }
+
+        .upload-section {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--rose-light);
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(232, 160, 170, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: rgba(232, 160, 170, 0.5);
+            background: rgba(196, 114, 127, 0.05);
+        }
+
+        .drop-zone-icon {
+            width: 40px;
+            height: 40px;
+            color: rgba(232, 160, 170, 0.4);
+            margin: 0 auto 0.8rem;
+        }
+
+        .drop-zone-text {
+            font-size: 0.85rem;
+            color: rgba(232, 160, 170, 0.5);
+        }
+
+        .drop-zone-hint {
+            font-size: 0.7rem;
+            color: rgba(232, 160, 170, 0.25);
+            margin-top: 0.4rem;
+        }
+
+        input[type="file"] { display: none; }
+
+        /* Status indicators */
+        .status {
+            font-size: 0.8rem;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .status.success {
+            display: block;
+            background: rgba(138, 154, 123, 0.15);
+            border: 1px solid rgba(138, 154, 123, 0.3);
+            color: #b5c4a8;
+        }
+
+        .status.info {
+            display: block;
+            background: rgba(196, 114, 127, 0.1);
+            border: 1px solid rgba(196, 114, 127, 0.2);
+            color: var(--rose-light);
+        }
+
+        /* Current files display */
+        .current-files {
+            margin-top: 0.8rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 1rem;
+            background: rgba(232, 160, 170, 0.05);
+            border: 1px solid rgba(232, 160, 170, 0.1);
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-width: 0;
+        }
+
+        .file-name {
+            color: rgba(232, 160, 170, 0.7);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-size {
+            color: rgba(232, 160, 170, 0.3);
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: rgba(232, 160, 170, 0.3);
+            cursor: pointer;
+            padding: 0.2rem;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover { color: #e05050; }
+
+        /* Preview */
+        .preview-audio {
+            margin-top: 0.5rem;
+        }
+
+        .preview-audio audio {
+            width: 100%;
+            height: 36px;
+            border-radius: 8px;
+        }
+
+        .preview-photos {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .preview-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid rgba(232, 160, 170, 0.15);
+        }
+
+        /* Divider */
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: rgba(232, 160, 170, 0.15);
+            margin: 1rem auto 2rem;
+        }
+
+        /* Link to site */
+        .site-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(232, 160, 170, 0.5);
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .site-link:hover { color: var(--rose-light); }
+
+        .site-link svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Clear all */
+        .clear-all {
+            background: none;
+            border: 1px solid rgba(200, 80, 80, 0.2);
+            color: rgba(200, 80, 80, 0.5);
+            padding: 0.5rem 1.2rem;
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            margin-top: 2rem;
+        }
+
+        .clear-all:hover {
+            border-color: rgba(200, 80, 80, 0.5);
+            color: #e05050;
+            background: rgba(200, 80, 80, 0.05);
+        }
+
+        .note {
+            font-size: 0.7rem;
+            color: rgba(232, 160, 170, 0.25);
+            text-align: center;
+            margin-top: 2rem;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload Content</h1>
+    <p class="subtitle">For Lyka's birthday site</p>
+
+    <!-- Voice Note Upload -->
+    <div class="upload-section">
+        <p class="section-title">Voice Note</p>
+        <div class="drop-zone" id="audioDropZone">
+            <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            <p class="drop-zone-text">Tap to select a voice note</p>
+            <p class="drop-zone-hint">or drag and drop an audio file</p>
+        </div>
+        <input type="file" id="audioInput" accept="audio/*">
+        <div class="status" id="audioStatus"></div>
+        <div class="current-files" id="audioFiles"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Photos Upload -->
+    <div class="upload-section">
+        <p class="section-title">Photos</p>
+        <div class="drop-zone" id="photoDropZone">
+            <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21,15 16,10 5,21"/>
+            </svg>
+            <p class="drop-zone-text">Tap to select photos</p>
+            <p class="drop-zone-hint">or drag and drop (up to 10 photos)</p>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" multiple>
+        <div class="status" id="photoStatus"></div>
+        <div class="current-files" id="photoFiles"></div>
+    </div>
+
+    <a href="voice-note.html" class="site-link">
+        View on site
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+
+    <button class="clear-all" id="clearAll">Clear all uploads</button>
+
+    <p class="note">Files are saved to your browser's local storage. They will persist across page refreshes but are specific to this browser on this device.</p>
+
+    <script>
+    // ===== INDEXEDDB =====
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('lyka-bday-uploads', 1);
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                if (!db.objectStoreNames.contains('files')) {
+                    db.createObjectStore('files', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function saveFile(id, type, mime, data, name) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readwrite');
+            const store = tx.objectStore('files');
+            store.put({ id, type, mime, data, name, timestamp: Date.now() });
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    async function deleteFile(id) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readwrite');
+            const store = tx.objectStore('files');
+            store.delete(id);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    async function getAllFiles() {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readonly');
+            const store = tx.objectStore('files');
+            const req = store.getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function clearAllFiles() {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readwrite');
+            const store = tx.objectStore('files');
+            store.clear();
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    // ===== AUDIO UPLOAD =====
+    const audioDropZone = document.getElementById('audioDropZone');
+    const audioInput = document.getElementById('audioInput');
+    const audioStatus = document.getElementById('audioStatus');
+    const audioFilesEl = document.getElementById('audioFiles');
+
+    audioDropZone.addEventListener('click', () => audioInput.click());
+
+    audioDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        audioDropZone.classList.add('dragover');
+    });
+
+    audioDropZone.addEventListener('dragleave', () => {
+        audioDropZone.classList.remove('dragover');
+    });
+
+    audioDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        audioDropZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('audio/')) {
+            handleAudioFile(file);
+        }
+    });
+
+    audioInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleAudioFile(file);
+    });
+
+    async function handleAudioFile(file) {
+        audioStatus.className = 'status info';
+        audioStatus.textContent = 'Saving voice note...';
+        try {
+            const buffer = await readFileAsArrayBuffer(file);
+            await saveFile('voice-note', 'audio', file.type, buffer, file.name);
+            audioStatus.className = 'status success';
+            audioStatus.textContent = 'Voice note saved!';
+            refreshFiles();
+        } catch (err) {
+            audioStatus.className = 'status info';
+            audioStatus.textContent = 'Error saving: ' + err.message;
+        }
+    }
+
+    // ===== PHOTO UPLOAD =====
+    const photoDropZone = document.getElementById('photoDropZone');
+    const photoInput = document.getElementById('photoInput');
+    const photoStatus = document.getElementById('photoStatus');
+    const photoFilesEl = document.getElementById('photoFiles');
+
+    photoDropZone.addEventListener('click', () => photoInput.click());
+
+    photoDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        photoDropZone.classList.add('dragover');
+    });
+
+    photoDropZone.addEventListener('dragleave', () => {
+        photoDropZone.classList.remove('dragover');
+    });
+
+    photoDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        photoDropZone.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length) handlePhotoFiles(files);
+    });
+
+    photoInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length) handlePhotoFiles(files);
+    });
+
+    async function handlePhotoFiles(files) {
+        photoStatus.className = 'status info';
+        photoStatus.textContent = `Saving ${files.length} photo(s)...`;
+        try {
+            const existing = (await getAllFiles()).filter(f => f.type === 'photo');
+            let idx = existing.length;
+            for (const file of files.slice(0, 10)) {
+                const buffer = await readFileAsArrayBuffer(file);
+                await saveFile('photo-' + idx, 'photo', file.type, buffer, file.name);
+                idx++;
+            }
+            photoStatus.className = 'status success';
+            photoStatus.textContent = `${files.length} photo(s) saved!`;
+            refreshFiles();
+        } catch (err) {
+            photoStatus.className = 'status info';
+            photoStatus.textContent = 'Error saving: ' + err.message;
+        }
+    }
+
+    // ===== DISPLAY CURRENT FILES =====
+    async function refreshFiles() {
+        const files = await getAllFiles();
+        const audioFiles = files.filter(f => f.type === 'audio');
+        const photoFiles = files.filter(f => f.type === 'photo');
+
+        // Audio
+        audioFilesEl.innerHTML = '';
+        audioFiles.forEach(f => {
+            const blob = new Blob([f.data], { type: f.mime });
+            const url = URL.createObjectURL(blob);
+            audioFilesEl.innerHTML += `
+                <div class="file-item">
+                    <div class="file-info">
+                        <span class="file-name">${f.name || 'voice-note'}</span>
+                        <span class="file-size">${formatSize(f.data.byteLength)}</span>
+                    </div>
+                    <button class="delete-btn" onclick="removeFile('${f.id}')">✕</button>
+                </div>
+                <div class="preview-audio">
+                    <audio controls src="${url}"></audio>
+                </div>
+            `;
+        });
+
+        // Photos
+        photoFilesEl.innerHTML = '';
+        if (photoFiles.length > 0) {
+            let html = '<div class="preview-photos">';
+            photoFiles.forEach(f => {
+                const blob = new Blob([f.data], { type: f.mime });
+                const url = URL.createObjectURL(blob);
+                html += `
+                    <div style="position:relative;display:inline-block;">
+                        <img class="preview-thumb" src="${url}" alt="${f.name || 'photo'}">
+                        <button class="delete-btn" onclick="removeFile('${f.id}')" style="position:absolute;top:-6px;right:-6px;background:rgba(0,0,0,0.7);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;">✕</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            photoFilesEl.innerHTML = html;
+        }
+    }
+
+    async function removeFile(id) {
+        await deleteFile(id);
+        // Re-index photos to keep IDs sequential
+        const files = await getAllFiles();
+        const photos = files.filter(f => f.type === 'photo').sort((a, b) => a.timestamp - b.timestamp);
+        for (let i = 0; i < photos.length; i++) {
+            if (photos[i].id !== 'photo-' + i) {
+                await saveFile('photo-' + i, 'photo', photos[i].mime, photos[i].data, photos[i].name);
+                await deleteFile(photos[i].id);
+            }
+        }
+        refreshFiles();
+    }
+
+    // ===== CLEAR ALL =====
+    document.getElementById('clearAll').addEventListener('click', async () => {
+        if (confirm('Remove all uploads? This cannot be undone.')) {
+            await clearAllFiles();
+            audioStatus.className = 'status';
+            photoStatus.className = 'status';
+            refreshFiles();
+        }
+    });
+
+    // Initial load
+    refreshFiles();
+    </script>
+</body>
+</html>
