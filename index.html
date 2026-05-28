@@ -1403,9 +1403,9 @@
         body.paginated .scroll-line {
             display: none !important;
         }
-        /* Move the page-nav dots up a bit so they don't fight the pagination bar */
+        /* Hide the fixed page-nav dots in paginated mode — pagination bar handles navigation */
         body.paginated .page-nav {
-            bottom: 5.25rem;
+            display: none !important;
         }
         /* Hero on a paginated page should center itself */
         body.paginated section.hero {
@@ -1798,6 +1798,82 @@
             .verse-card { padding: 3rem 2.5rem 2rem; }
             .verse-text { font-size: 1.05rem; }
         }
+
+        /* ===== MARQUEE WORD CLOUD ===== */
+        .marquee-section {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .word-cloud {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+            justify-content: center;
+            max-width: 380px; margin: 2.5rem auto 0; padding: 0 0.5rem;
+        }
+        .word-pill {
+            padding: 0.35rem 0.9rem; border-radius: 100px;
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 1.05rem; color: var(--rose);
+            border: 1px solid var(--rose-pale);
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(4px);
+            transition: background 0.25s ease, transform 0.2s ease;
+        }
+        .word-pill:hover { background: rgba(255,255,255,0.9); transform: scale(1.07); }
+        .word-cloud-note {
+            margin-top: 2rem;
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 0.9rem; color: var(--text-faint); text-align: center;
+        }
+
+        /* ===== EXPLORE GRID (final section) ===== */
+        .explore-heading {
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 1rem; color: var(--text-light); margin-top: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .explore-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 0.65rem; max-width: 340px; margin: 0 auto;
+        }
+        .explore-card {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 0.35rem; padding: 0.9rem 0.7rem;
+            background: rgba(255,255,255,0.65);
+            border: 1px solid var(--rose-pale); border-radius: 16px;
+            text-decoration: none; color: var(--text-light);
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(4px);
+        }
+        .explore-card:hover {
+            background: white; border-color: var(--rose-light);
+            color: var(--rose); transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(196,114,127,0.14);
+        }
+        .explore-card-wide {
+            grid-column: span 2;
+        }
+        .explore-icon { font-size: 1.35rem; }
+
+        /* ===== MOBILE POLISH ===== */
+        @media (max-width: 480px) {
+            section { padding: 3rem 1rem; }
+            .hero { padding: 2rem 1rem; }
+            .cascade-inner { padding: 1.1rem 1rem; }
+            .cascade-value { font-size: 1.75rem; }
+            .flip-card, .carousel-drum .flip-card { flex: 0 0 125px; width: 125px; height: 165px; }
+            .carousel-container { height: 230px; }
+            .carousel-drum { width: 125px; height: 165px; }
+            .locket-frame { width: 230px; height: 230px; }
+            .locket-photo-container { width: 230px; height: 230px; }
+            .verse-card { padding: 1.75rem 1.1rem 1.5rem; }
+            .verse-text { font-size: 0.92rem; }
+            .bouquet-canvas-wrap { min-height: 320px; }
+            .picker-grid { max-height: 200px; }
+            .section-heading { font-size: 1.55rem; }
+            .explore-grid { max-width: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -1931,6 +2007,24 @@
                     </div>
                 </div>
             </div>
+            <div class="word-cloud">
+                <span class="word-pill">kind</span>
+                <span class="word-pill">radiant</span>
+                <span class="word-pill">brave</span>
+                <span class="word-pill">gentle</span>
+                <span class="word-pill">loved</span>
+                <span class="word-pill">warmth</span>
+                <span class="word-pill">magic</span>
+                <span class="word-pill">rare</span>
+                <span class="word-pill">home</span>
+                <span class="word-pill">thoughtful</span>
+                <span class="word-pill">steady</span>
+                <span class="word-pill">soft</span>
+                <span class="word-pill">bright</span>
+                <span class="word-pill">patient</span>
+                <span class="word-pill">everything</span>
+            </div>
+            <p class="word-cloud-note">just a few of the words that come to mind ♡</p>
         </div>
     </section>
 
@@ -3053,13 +3147,29 @@
             <h2 class="section-heading">Close your eyes,<br><em>make a wish</em></h2>
             <p class="final-sub">You deserve every good thing heading your way. Tap the button when you're ready.</p>
             <button class="make-wish-btn" id="wishBtn">Make a wish</button>
-            <br>
-            <a href="globe.html" class="next-page-link">There's more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-            <p style="margin-top:2.5rem; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:var(--text-faint); line-height:1.6;">
-                p.s. &mdash; <a href="card.html" style="color:var(--rose); text-decoration:none; border-bottom:1px dashed var(--rose-pale);">there's a little card waiting</a>,<br>
-                <a href="newspaper.html" style="color:var(--rose); text-decoration:none; border-bottom:1px dashed var(--rose-pale);">the news of the day you arrived</a>,<br>
-                &amp; something silly for the days you<br>need help saying <a href="excuses.html" style="color:var(--rose); text-decoration:none; border-bottom:1px dashed var(--rose-pale);">no</a>.
-            </p>
+            <p class="explore-heading">and there's still more waiting for you &mdash;</p>
+            <div class="explore-grid">
+                <a href="globe.html" class="explore-card explore-card-wide">
+                    <span class="explore-icon">🌍</span>
+                    <span>out of 8 billion people</span>
+                </a>
+                <a href="voice-note.html" class="explore-card explore-card-wide">
+                    <span class="explore-icon">🎙</span>
+                    <span>a voice note for you</span>
+                </a>
+                <a href="card.html" class="explore-card">
+                    <span class="explore-icon">💌</span>
+                    <span>a card</span>
+                </a>
+                <a href="newspaper.html" class="explore-card">
+                    <span class="explore-icon">📰</span>
+                    <span>the news</span>
+                </a>
+                <a href="excuses.html" class="explore-card explore-card-wide">
+                    <span class="explore-icon">😊</span>
+                    <span>an excuse generator</span>
+                </a>
+            </div>
         </div>
     </section>
 
