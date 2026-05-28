@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A little something · lyka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --cream: #faf6f1;
+        --warm: #f5ede2;
+        --blush: #f5e1de;
+        --rose: #c4727f;
+        --rose-light: #e0a8b0;
+        --rose-pale: #f0d4d8;
+        --sage: #9aa78f;
+        --sage-pale: #d8e0d2;
+        --gold: #d4a574;
+        --text: #4a3f3a;
+        --text-light: #7a6a64;
+        --text-faint: #b8a8a3;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+        background: var(--cream);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+        font-weight: 300;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+    body {
+        min-height: 100vh; min-height: 100svh;
+        background:
+            radial-gradient(ellipse at 15% 8%, rgba(245,225,222,0.85) 0%, transparent 42%),
+            radial-gradient(ellipse at 85% 92%, rgba(248,214,220,0.75) 0%, transparent 45%),
+            radial-gradient(ellipse at 55% 48%, rgba(255,245,248,0.55) 0%, transparent 55%),
+            var(--cream);
+        background-attachment: fixed;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5rem 1.25rem 6.5rem;
+        position: relative;
+    }
+
+    /* ═══════════════════════════════════════
+       FALLING HEARTS
+    ═══════════════════════════════════════ */
+    .hearts-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+    }
+    .h {
+        position: absolute;
+        top: -6%;
+        line-height: 1;
+        user-select: none;
+        animation: fall linear infinite;
+        will-change: transform, opacity;
+    }
+    @keyframes fall {
+        0%   { opacity: 0; transform: translateY(0) rotate(-15deg) scale(0.7); }
+        8%   { opacity: 1; }
+        88%  { opacity: 0.55; }
+        100% { opacity: 0; transform: translateY(108vh) rotate(25deg) scale(1.05); }
+    }
+
+    /* ═══════════════════════════════════════
+       BACK LINK
+    ═══════════════════════════════════════ */
+    .back-link {
+        position: fixed; top: 1.25rem; left: 1.25rem;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+        color: var(--text-faint); text-decoration: none;
+        transition: color 0.25s ease;
+        z-index: 20;
+    }
+    .back-link:hover { color: var(--rose); }
+    .back-link svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ═══════════════════════════════════════
+       ENTRANCE ANIMATIONS
+    ═══════════════════════════════════════ */
+    @keyframes rise {
+        from { opacity: 0; transform: translateY(28px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    @keyframes pulse-soft {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+    }
+
+    .anim-1 { animation: rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .anim-2 { animation: rise 0.85s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .anim-3 { animation: rise 0.9s  0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .anim-4 { animation: rise 0.95s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .anim-5 { animation: fadeIn 1s  0.5s  ease both; }
+
+    /* ═══════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════ */
+    .header {
+        text-align: center;
+        margin-bottom: 1.75rem;
+        max-width: 380px;
+        position: relative; z-index: 1;
+    }
+    .label {
+        font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase;
+        color: var(--sage); margin-bottom: 0.65rem;
+        display: block;
+    }
+    .heading {
+        font-family: 'Cormorant Garamond', serif; font-weight: 400;
+        font-size: 2.1rem; line-height: 1.2; color: var(--text);
+        margin-bottom: 0.55rem;
+    }
+    .heading em { font-style: italic; color: var(--rose); }
+    .sub {
+        font-family: 'Cormorant Garamond', serif; font-style: italic;
+        font-size: 1.05rem; color: var(--text-light); line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════
+       DECORATIVE RULE
+    ═══════════════════════════════════════ */
+    .rule {
+        display: flex; align-items: center; gap: 0.8rem;
+        margin-bottom: 1.75rem;
+        position: relative; z-index: 1;
+    }
+    .rule::before, .rule::after {
+        content: '';
+        flex: 1; max-width: 72px; height: 1px;
+        background: linear-gradient(to right, transparent, var(--rose-pale));
+    }
+    .rule::after { background: linear-gradient(to left, transparent, var(--rose-pale)); }
+    .rule-icon { font-size: 0.9rem; color: var(--rose-light); letter-spacing: 4px; }
+
+    /* ═══════════════════════════════════════
+       VIDEO SHELL
+    ═══════════════════════════════════════ */
+    .video-wrap {
+        width: 100%;
+        max-width: 480px;
+        position: relative; z-index: 1;
+    }
+
+    /* Outer decorative frame */
+    .video-frame {
+        position: relative;
+        padding: 3px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, var(--rose-light), var(--rose-pale) 40%, var(--rose-light) 80%, #f8c6d0);
+        box-shadow:
+            0 6px 32px rgba(196,114,127,0.22),
+            0 2px 8px rgba(196,114,127,0.12);
+    }
+    .video-inner {
+        background: linear-gradient(160deg, #fdeef2, #fbe6ec 55%, #fdeef2);
+        border-radius: 20px;
+        padding: 12px 12px 10px;
+    }
+
+    /* Corner accents */
+    .corner {
+        position: absolute;
+        font-size: 1rem;
+        color: var(--rose-light);
+        line-height: 1;
+        pointer-events: none;
+        z-index: 2;
+        animation: pulse-soft 3s ease-in-out infinite;
+    }
+    .corner.tl { top: 8px; left: 10px; animation-delay: 0s; }
+    .corner.tr { top: 8px; right: 10px; animation-delay: 0.6s; }
+    .corner.bl { bottom: 8px; left: 10px; animation-delay: 1.2s; }
+    .corner.br { bottom: 8px; right: 10px; animation-delay: 1.8s; }
+
+    /* The video ratio box */
+    .video-ratio {
+        position: relative;
+        padding-bottom: 56.25%;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f5d8e0;
+    }
+    .video-ratio iframe {
+        position: absolute;
+        inset: 0; width: 100%; height: 100%;
+        border: none;
+        border-radius: 12px;
+    }
+
+    /* Caption strip below video */
+    .video-caption {
+        text-align: center;
+        margin-top: 0.65rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 0.82rem;
+        color: var(--rose);
+        letter-spacing: 0.5px;
+        opacity: 0.75;
+    }
+
+    /* ═══════════════════════════════════════
+       NOTE BELOW VIDEO
+    ═══════════════════════════════════════ */
+    .note-wrap {
+        margin-top: 2rem;
+        text-align: center;
+        max-width: 340px;
+        position: relative; z-index: 1;
+    }
+    .note-text {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--text-light);
+        line-height: 1.7;
+    }
+    .note-text .r { color: var(--rose); }
+    .note-ornament {
+        margin-top: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        gap: 0.35rem;
+        opacity: 0.38;
+    }
+    .note-ornament span {
+        font-size: 0.65rem; letter-spacing: 4px; color: var(--rose);
+    }
+
+    /* ═══════════════════════════════════════
+       PAGE NAV
+    ═══════════════════════════════════════ */
+    .page-nav {
+        position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+        display: flex; gap: 0.5rem; z-index: 50;
+    }
+    .page-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        border: 1px solid var(--rose-pale);
+        transition: all 0.3s ease;
+        display: block;
+    }
+    .page-dot.active { background: var(--rose); border-color: var(--rose); }
+    .page-nav a { line-height: 0; }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (min-width: 600px) {
+        .video-wrap { max-width: 540px; }
+        .heading { font-size: 2.6rem; }
+        .sub { font-size: 1.15rem; }
+    }
+    @media (max-width: 380px) {
+        body { padding: 4.5rem 1rem 6rem; }
+        .heading { font-size: 1.8rem; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Falling hearts layer (populated by JS) -->
+<div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
+
+<a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    back home
+</a>
+
+<div class="header anim-1">
+    <span class="label">a message just for you</span>
+    <h1 class="heading">from little <em>hearts</em></h1>
+    <p class="sub">some very sweet voices wanted<br>to wish you a happy birthday ♡</p>
+</div>
+
+<div class="rule anim-2">
+    <span class="rule-icon">✦ ♡ ✦</span>
+</div>
+
+<div class="video-wrap anim-3">
+    <div class="video-frame">
+        <span class="corner tl">♡</span>
+        <span class="corner tr">✦</span>
+        <span class="corner bl">✦</span>
+        <span class="corner br">♡</span>
+        <div class="video-inner">
+            <div class="video-ratio">
+                <!--
+                    ══════════════════════════════════════════════════════
+                    PASTE YOUR YOUTUBE VIDEO ID BELOW
+                    Replace  VIDEO_ID_HERE  with the actual YouTube video ID.
+                    Example: if the URL is youtube.com/watch?v=dQw4w9WgXcQ
+                             the ID is  dQw4w9WgXcQ
+                    ══════════════════════════════════════════════════════
+                -->
+                <iframe
+                    src="https://www.youtube.com/embed/VIDEO_ID_HERE?rel=0&modestbranding=1&color=white&iv_load_policy=3"
+                    title="Happy Birthday Lyka — a message from the kids"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <p class="video-caption">recorded with so much love &mdash; just for you ♡</p>
+        </div>
+    </div>
+</div>
+
+<div class="note-wrap anim-4">
+    <p class="note-text">
+        each little voice carried a wish for you &mdash;<br>
+        may every single one come true <span class="r">♡</span>
+    </p>
+    <div class="note-ornament">
+        <span>♡ &nbsp; ♡ &nbsp; ♡</span>
+    </div>
+</div>
+
+<div class="page-nav anim-5">
+    <a href="index.html"><span class="page-dot"></span></a>
+    <a href="globe.html"><span class="page-dot"></span></a>
+    <a href="voice-note.html"><span class="page-dot"></span></a>
+    <a href="excuses.html"><span class="page-dot"></span></a>
+    <a href="card.html"><span class="page-dot"></span></a>
+    <a href="newspaper.html"><span class="page-dot"></span></a>
+    <span class="page-dot active"></span>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ─── Falling hearts ─── */
+    var layer    = document.getElementById('heartsLayer');
+    var glyphs   = ['♡', '♥', '♡', '♡', '✦', '♡'];
+    var count    = 30;
+
+    for (var i = 0; i < count; i++) {
+        var el = document.createElement('span');
+        el.className = 'h';
+        el.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+
+        var size    = 0.65 + Math.random() * 1.1;          // 0.65–1.75 rem
+        var dur     = 13  + Math.random() * 16;            // 13–29 s
+        var delay   = Math.random() * -20;                 // stagger on load
+        var hue     = Math.random() > 0.75 ? '#d4a574' : '#e0a8b0'; // gold or rose
+
+        el.style.left              = (Math.random() * 100) + '%';
+        el.style.fontSize          = size + 'rem';
+        el.style.color             = hue;
+        el.style.animationDuration = dur + 's';
+        el.style.animationDelay    = delay + 's';
+        el.style.opacity           = 0.18 + Math.random() * 0.38;
+
+        layer.appendChild(el);
+    }
+})();
+</script>
+</body>
+</html>
