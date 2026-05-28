@@ -6,7 +6,7 @@
     <title>Happy Birthday, Lyka</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1515,6 +1515,289 @@
             .pg-btn { font-size: 1.05rem; padding: 0.8rem 1.8rem; }
             .pg-prev { font-size: 0.95rem; padding: 0.7rem 1.4rem; }
         }
+
+        /* ===== PHOTO MEMORIES (LOCKET STYLE) ===== */
+        .memories-section {
+            background: linear-gradient(180deg, #fdf6f4 0%, var(--blush) 45%, #fdf6f4 100%);
+            padding: 5rem 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .locket-wrap {
+            max-width: 380px;
+            margin: 2rem auto 0;
+            position: relative;
+            z-index: 1;
+        }
+        .locket-frame {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 0 auto 1.5rem;
+        }
+        .locket-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px solid var(--rose-pale);
+            pointer-events: none;
+            animation: locketRingPulse 3s ease-in-out infinite;
+        }
+        .locket-ring:nth-child(1) { inset: -10px; }
+        .locket-ring:nth-child(2) { inset: -20px; opacity: 0.4; animation-delay: 0.9s; }
+        @keyframes locketRingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.025); opacity: 0.9; }
+        }
+        .locket-photo-container {
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            box-shadow:
+                0 0 0 6px rgba(255,255,255,0.95),
+                0 0 0 9px var(--rose-pale),
+                0 20px 55px rgba(196,114,127,0.22),
+                0 4px 16px rgba(196,114,127,0.1);
+        }
+        .locket-photo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.86);
+            transition: opacity 0.55s cubic-bezier(0.4,0,0.2,1), transform 0.55s cubic-bezier(0.34,1.1,0.64,1);
+            pointer-events: none;
+        }
+        .locket-photo.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        .locket-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        .locket-img.loaded { opacity: 1; }
+        .locket-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.8rem;
+            color: rgba(196,114,127,0.5);
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+        .locket-placeholder-icon { width: 42px; height: 42px; }
+        .locket-caption {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--text-light);
+            min-height: 1.5em;
+            margin-bottom: 1rem;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .locket-caption.fading { opacity: 0; transform: translateY(-4px); }
+        .locket-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        .locket-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(196,114,127,0.3);
+            background: rgba(255,255,255,0.85);
+            color: var(--rose);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .locket-btn:hover { background: var(--rose-pale); border-color: var(--rose); transform: scale(1.12); }
+        .locket-btn:disabled { opacity: 0.25; cursor: default; transform: none; pointer-events: none; }
+        .locket-dots { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; justify-content: center; flex: 1; max-width: 200px; }
+        .locket-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(196,114,127,0.22);
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .locket-dot.active { background: var(--rose); transform: scale(1.5); box-shadow: 0 0 6px rgba(196,114,127,0.4); }
+        .locket-dot:hover { background: var(--rose-light); transform: scale(1.25); }
+        .pg-rose    { background: linear-gradient(135deg, #fce4ec, #f8bbd0, #fce4ec); }
+        .pg-sage    { background: linear-gradient(135deg, #e8f5e9, #c8e6c9, #e8f5e9); }
+        .pg-lavender{ background: linear-gradient(135deg, #ede7f6, #d1c4e9, #ede7f6); }
+        .pg-gold    { background: linear-gradient(135deg, #fff8e1, #ffe0b2, #fff8e1); }
+        .pg-blush   { background: linear-gradient(135deg, #fce4ec, #e1bee7, #fce4ec); }
+        .pg-sky     { background: linear-gradient(135deg, #e1f5fe, #b3e5fc, #e1f5fe); }
+        .pg-peach   { background: linear-gradient(135deg, #fff3e0, #ffccbc, #fff3e0); }
+        .pg-mint    { background: linear-gradient(135deg, #e0f2f1, #b2dfdb, #e0f2f1); }
+        @media (min-width: 768px) {
+            .locket-frame { width: 320px; height: 320px; }
+            .locket-photo-container { width: 320px; height: 320px; }
+        }
+
+        /* ===== BIBLE VERSES (KAWAII) ===== */
+        .verses-section {
+            background: linear-gradient(160deg, #f8f0ff 0%, #fde8f2 35%, #f0f4ff 65%, #fff0f8 100%);
+            padding: 5rem 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .verses-section .section-label { color: #a07ab5; }
+        .verses-section .section-label::after { background: #a07ab5; }
+        .verse-float-deco {
+            position: absolute;
+            pointer-events: none;
+            font-size: 15px;
+            animation: verseDrift 5s ease-in-out infinite;
+            opacity: 0.32;
+            user-select: none;
+        }
+        @keyframes verseDrift {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33%       { transform: translateY(-15px) rotate(10deg); }
+            66%       { transform: translateY(-7px) rotate(-8deg); }
+        }
+        .verse-week-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(160,122,181,0.12);
+            border: 1.5px solid rgba(160,122,181,0.25);
+            border-radius: 100px;
+            padding: 0.4rem 1.15rem;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #8a5faa;
+            letter-spacing: 0.08em;
+            margin-bottom: 1.5rem;
+            transition: all 0.45s ease;
+        }
+        .verse-card-wrap {
+            max-width: 460px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .verse-card {
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(196,114,127,0.2);
+            border-radius: 28px;
+            padding: 2.5rem 1.75rem 2rem;
+            position: relative;
+            box-shadow:
+                0 12px 40px rgba(196,114,127,0.1),
+                0 4px 16px rgba(160,122,181,0.08),
+                0 0 0 1px rgba(255,255,255,0.6) inset;
+            min-height: 200px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden;
+            cursor: default;
+        }
+        .verse-card::before {
+            content: '\201C';
+            position: absolute; top: -0.4rem; left: 1rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 5rem; color: rgba(196,114,127,0.1); line-height: 1;
+            pointer-events: none;
+        }
+        .verse-corner {
+            position: absolute; font-size: 13px; opacity: 0.3; pointer-events: none; line-height: 1;
+        }
+        .verse-corner.tl { top: 0.75rem; left: 0.75rem; }
+        .verse-corner.tr { top: 0.75rem; right: 0.75rem; }
+        .verse-corner.bl { bottom: 0.75rem; left: 0.75rem; }
+        .verse-corner.br { bottom: 0.75rem; right: 0.75rem; }
+        .verse-day-label {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800; font-size: 0.7rem;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: rgba(160,122,181,0.75);
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .verse-day-label::before, .verse-day-label::after {
+            content: ''; flex: 1; height: 1px; max-width: 28px;
+            background: linear-gradient(to right, transparent, rgba(160,122,181,0.3));
+        }
+        .verse-day-label::after { background: linear-gradient(to left, transparent, rgba(160,122,181,0.3)); }
+        .verse-text-area {
+            min-height: 90px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%;
+        }
+        .verse-text {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem; font-weight: 500; line-height: 1.85;
+            color: var(--text); text-align: center;
+            transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .verse-text.is-hiding  { opacity: 0; transform: translateY(-10px) scale(0.97); }
+        .verse-text.is-entering { opacity: 0; transform: translateY(12px) scale(0.97); transition: none; }
+        .verse-ref {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700; font-size: 0.78rem;
+            color: var(--rose); letter-spacing: 0.04em;
+            margin-top: 1.25rem; opacity: 0.8;
+            transition: opacity 0.35s ease;
+        }
+        .verse-ref.fading { opacity: 0; }
+        .verse-nav {
+            display: flex; align-items: center; justify-content: center;
+            gap: 1rem; margin-top: 1.25rem;
+        }
+        .verse-btn {
+            width: 46px; height: 46px; border-radius: 50%;
+            border: 1.5px solid rgba(196,114,127,0.25);
+            background: rgba(255,255,255,0.85);
+            color: var(--rose); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.22s ease; flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(196,114,127,0.1);
+        }
+        .verse-btn:hover { background: var(--rose); color: white; border-color: var(--rose); transform: scale(1.12); box-shadow: 0 4px 16px rgba(196,114,127,0.3); }
+        .verse-btn:disabled { opacity: 0.25; cursor: default; transform: none; pointer-events: none; box-shadow: none; }
+        .verse-progress {
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.8rem; font-weight: 700;
+            color: rgba(160,122,181,0.65); min-width: 5rem; text-align: center;
+        }
+        .verse-week-dots {
+            display: flex; gap: 6px; justify-content: center; margin-top: 1rem;
+        }
+        .verse-week-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: rgba(196,114,127,0.2);
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .verse-week-dot.active { background: var(--rose); transform: scale(1.5); box-shadow: 0 0 8px rgba(196,114,127,0.4); }
+        .verse-week-dot.done  { background: rgba(196,114,127,0.45); }
+        .verse-week-dot:hover { transform: scale(1.3); }
+        @media (min-width: 768px) {
+            .verse-card { padding: 3rem 2.5rem 2rem; }
+            .verse-text { font-size: 1.05rem; }
+        }
     </style>
 </head>
 <body>
@@ -2588,6 +2871,150 @@
                 <canvas class="scratch-canvas" id="scratchCanvas"></canvas>
             </div>
             <p class="scratch-hint" id="scratchHint">drag to scratch</p>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="divider-ornament">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 2C10 2 3 7 3 12c0 3 3 6 7 6s7-3 7-6c0-5-7-10-7-10z" fill="var(--rose-pale)"/></svg>
+    </div>
+
+    <!-- ===== PHOTO MEMORIES ===== -->
+    <section class="memories-section">
+        <div class="reveal">
+            <p class="section-label">Us</p>
+            <h2 class="section-heading">Little <em>moments</em></h2>
+            <p class="final-sub">Swipe or tap through some of my favorite memories of you.</p>
+        </div>
+
+        <div class="locket-wrap reveal" id="locketWrap">
+            <div class="locket-frame">
+                <div class="locket-ring"></div>
+                <div class="locket-ring"></div>
+                <div class="locket-photo-container" id="locketContainer">
+                    <!--
+                        HOW TO ADD PHOTOS:
+                        For each slide below, set the src="" attribute on the <img> tag to your photo file path.
+                        Example: <img src="photos/photo1.jpg" class="locket-img" alt="Memory 1">
+                        The placeholder gradient will hide automatically once the image loads.
+                    -->
+                    <div class="locket-photo active" data-caption="a moment worth remembering ♡">
+                        <div class="locket-placeholder pg-rose">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="19" r="7" stroke="rgba(196,114,127,0.5)" stroke-width="1.5"/><path d="M10 38c0-8 6.3-12 14-12s14 4 14 12" stroke="rgba(196,114,127,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+                            <span>photo 1</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 1">
+                    </div>
+                    <div class="locket-photo" data-caption="you were glowing ✨">
+                        <div class="locket-placeholder pg-sage">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><path d="M24 10l2.5 7.5h8l-6.5 4.7 2.5 7.5L24 25.5l-6.5 4.2 2.5-7.5-6.5-4.7h8z" fill="rgba(139,154,123,0.5)"/></svg>
+                            <span>photo 2</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 2">
+                    </div>
+                    <div class="locket-photo" data-caption="this one makes me smile 🌸">
+                        <div class="locket-placeholder pg-lavender">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><path d="M24 36C16 36 10 24 16 16c4-6 12-6 16 0 6 8 0 20-8 20z" fill="rgba(160,122,181,0.4)"/></svg>
+                            <span>photo 3</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 3">
+                    </div>
+                    <div class="locket-photo" data-caption="always in my heart 💛">
+                        <div class="locket-placeholder pg-gold">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><path d="M24 34L13 22c-1-6 4-11 11-7 7-4 12 1 11 7z" fill="rgba(212,165,116,0.55)"/></svg>
+                            <span>photo 4</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 4">
+                    </div>
+                    <div class="locket-photo" data-caption="you looked so beautiful 🌷">
+                        <div class="locket-placeholder pg-blush">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="19" r="7" stroke="rgba(196,114,127,0.5)" stroke-width="1.5"/><path d="M10 38c0-8 6.3-12 14-12s14 4 14 12" stroke="rgba(196,114,127,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+                            <span>photo 5</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 5">
+                    </div>
+                    <div class="locket-photo" data-caption="a day I remember well 📷">
+                        <div class="locket-placeholder pg-sky">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><rect x="10" y="17" width="28" height="20" rx="4" stroke="rgba(100,160,210,0.55)" stroke-width="1.5" fill="none"/><circle cx="24" cy="27" r="5" stroke="rgba(100,160,210,0.55)" stroke-width="1.5" fill="none"/><path d="M18 17l2-4h8l2 4" stroke="rgba(100,160,210,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                            <span>photo 6</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 6">
+                    </div>
+                    <div class="locket-photo" data-caption="pure joy ☀️">
+                        <div class="locket-placeholder pg-peach">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><path d="M24 10l2.5 7.5h8l-6.5 4.7 2.5 7.5L24 25.5l-6.5 4.2 2.5-7.5-6.5-4.7h8z" fill="rgba(210,130,90,0.45)"/></svg>
+                            <span>photo 7</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 7">
+                    </div>
+                    <div class="locket-photo" data-caption="this is us 🌿">
+                        <div class="locket-placeholder pg-mint">
+                            <svg class="locket-placeholder-icon" viewBox="0 0 48 48" fill="none"><path d="M24 34L13 22c-1-6 4-11 11-7 7-4 12 1 11 7z" fill="rgba(100,160,140,0.45)"/></svg>
+                            <span>photo 8</span>
+                        </div>
+                        <img src="" class="locket-img" alt="Memory 8">
+                    </div>
+                </div>
+            </div>
+
+            <p class="locket-caption" id="locketCaption">a moment worth remembering ♡</p>
+
+            <div class="locket-nav">
+                <button class="locket-btn" id="locketPrev" aria-label="previous photo" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                </button>
+                <div class="locket-dots" id="locketDots"></div>
+                <button class="locket-btn" id="locketNext" aria-label="next photo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="divider-ornament">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 4l2.5 5 5.5.8-4 3.9.9 5.3L10 16.5 5.1 19l.9-5.3-4-3.9 5.5-.8z" fill="var(--lavender)" opacity="0.5"/></svg>
+    </div>
+
+    <!-- ===== BIBLE VERSES (KAWAII) ===== -->
+    <section class="verses-section">
+        <span class="verse-float-deco" style="top:7%;left:7%">✦</span>
+        <span class="verse-float-deco" style="top:11%;right:9%;animation-delay:1.3s">✿</span>
+        <span class="verse-float-deco" style="top:82%;left:5%;animation-delay:2.2s">♡</span>
+        <span class="verse-float-deco" style="top:78%;right:7%;animation-delay:0.7s">★</span>
+        <span class="verse-float-deco" style="top:48%;left:3%;animation-delay:1.9s">✦</span>
+        <span class="verse-float-deco" style="top:42%;right:4%;animation-delay:3.1s">✿</span>
+
+        <div class="reveal">
+            <p class="section-label">Daily word</p>
+            <h2 class="section-heading">Seeds of <em>light</em></h2>
+            <p class="final-sub" style="max-width:380px;margin:0.5rem auto 0;">Six weeks of verses — one for each day. Each one planted with love.</p>
+        </div>
+
+        <div class="verse-card-wrap reveal">
+            <div class="verse-week-badge" id="verseWeekBadge">✦ Week 1 ✦</div>
+            <div class="verse-card" id="verseCard">
+                <span class="verse-corner tl">✦</span>
+                <span class="verse-corner tr">✿</span>
+                <span class="verse-corner bl">♡</span>
+                <span class="verse-corner br">★</span>
+                <div class="verse-day-label" id="verseDayLabel">Day 1 of 42</div>
+                <div class="verse-text-area">
+                    <p class="verse-text" id="verseText"></p>
+                </div>
+                <div class="verse-ref" id="verseRef"></div>
+            </div>
+
+            <div class="verse-nav">
+                <button class="verse-btn" id="versePrev" aria-label="previous verse" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                </button>
+                <span class="verse-progress" id="verseProgress">1 / 42</span>
+                <button class="verse-btn" id="verseNext" aria-label="next verse">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+            <div class="verse-week-dots" id="verseWeekDots"></div>
         </div>
     </section>
 
@@ -3888,6 +4315,234 @@
                 }
             }, 250);
         });
+    })();
+
+    // ==========================================================
+    //  LOCKET PHOTO GALLERY
+    // ==========================================================
+    (function locketGallery() {
+        var photos = Array.prototype.slice.call(document.querySelectorAll('.locket-photo'));
+        var total = photos.length;
+        if (total === 0) return;
+
+        var current = 0;
+        var prevBtn  = document.getElementById('locketPrev');
+        var nextBtn  = document.getElementById('locketNext');
+        var dotsWrap = document.getElementById('locketDots');
+        var captionEl = document.getElementById('locketCaption');
+        var container = document.getElementById('locketContainer');
+
+        // Build dots
+        var dots = [];
+        for (var i = 0; i < total; i++) {
+            var d = document.createElement('span');
+            d.className = 'locket-dot' + (i === 0 ? ' active' : '');
+            d.setAttribute('data-i', i);
+            dotsWrap.appendChild(d);
+            dots.push(d);
+        }
+
+        // Auto-hide placeholder when real photo loads
+        document.querySelectorAll('.locket-img').forEach(function(img) {
+            var src = img.getAttribute('src');
+            if (!src) return;
+            img.addEventListener('load', function() {
+                img.classList.add('loaded');
+                var ph = img.previousElementSibling;
+                if (ph && ph.classList.contains('locket-placeholder')) ph.style.opacity = '0';
+            });
+        });
+
+        function goTo(n) {
+            if (n < 0 || n >= total || n === current) return;
+            photos[current].classList.remove('active');
+            current = n;
+            photos[current].classList.add('active');
+
+            if (captionEl) {
+                captionEl.classList.add('fading');
+                setTimeout(function() {
+                    captionEl.textContent = photos[current].getAttribute('data-caption') || '';
+                    captionEl.classList.remove('fading');
+                }, 220);
+            }
+
+            dots.forEach(function(dot, i) { dot.classList.toggle('active', i === current); });
+            if (prevBtn) prevBtn.disabled = current === 0;
+            if (nextBtn) nextBtn.disabled = current === total - 1;
+        }
+
+        if (prevBtn) prevBtn.addEventListener('click', function() { goTo(current - 1); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { goTo(current + 1); });
+
+        dotsWrap.addEventListener('click', function(e) {
+            var idx = parseInt(e.target.getAttribute('data-i'), 10);
+            if (!isNaN(idx)) goTo(idx);
+        });
+
+        // Swipe support
+        var txStart = 0;
+        if (container) {
+            container.addEventListener('touchstart', function(e) { txStart = e.touches[0].clientX; }, { passive: true });
+            container.addEventListener('touchend', function(e) {
+                var dx = e.changedTouches[0].clientX - txStart;
+                if (Math.abs(dx) > 42) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+            });
+        }
+
+        if (prevBtn) prevBtn.disabled = true;
+        if (captionEl && photos[0]) captionEl.textContent = photos[0].getAttribute('data-caption') || '';
+    })();
+
+    // ==========================================================
+    //  BIBLE VERSES (KAWAII)
+    // ==========================================================
+    (function bibleVerses() {
+        var verses = [
+            // ── Week 1 ──
+            { week:1, day:1, ref:'Jeremiah 29:11',        text:'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.' },
+            { week:1, day:2, ref:'Psalm 23:1',            text:'The Lord is my shepherd; I shall not want.' },
+            { week:1, day:3, ref:'Isaiah 40:31',          text:'Those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.' },
+            { week:1, day:4, ref:'Philippians 4:13',      text:'I can do all things through Christ who strengthens me.' },
+            { week:1, day:5, ref:'Romans 8:28',           text:'In all things God works for the good of those who love him, who have been called according to his purpose.' },
+            { week:1, day:6, ref:'Proverbs 31:25',        text:'She is clothed with strength and dignity; she can laugh at the days to come.' },
+            { week:1, day:7, ref:'Psalm 46:10',           text:'Be still, and know that I am God.' },
+            // ── Week 2 ──
+            { week:2, day:1, ref:'John 3:16',             text:'For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.' },
+            { week:2, day:2, ref:'Lamentations 3:22–23',  text:'The steadfast love of the Lord never ceases; his mercies never come to an end; they are new every morning — great is your faithfulness.' },
+            { week:2, day:3, ref:'Psalm 139:14',          text:'I praise you because I am fearfully and wonderfully made; your works are wonderful, I know that full well.' },
+            { week:2, day:4, ref:'2 Timothy 1:7',         text:'The Spirit God gave us does not make us timid, but gives us power, love and self-discipline.' },
+            { week:2, day:5, ref:'Proverbs 3:5–6',        text:'Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.' },
+            { week:2, day:6, ref:'Romans 12:12',          text:'Be joyful in hope, patient in affliction, faithful in prayer.' },
+            { week:2, day:7, ref:'Matthew 5:9',           text:'Blessed are the peacemakers, for they will be called children of God.' },
+            // ── Week 3 ──
+            { week:3, day:1, ref:'Isaiah 43:2',           text:'When you pass through the waters, I will be with you; and when you pass through the rivers, they will not sweep over you.' },
+            { week:3, day:2, ref:'Zephaniah 3:17',        text:'The Lord your God is with you, the Mighty Warrior who saves. He will take great delight in you; in his love he will rejoice over you with singing.' },
+            { week:3, day:3, ref:'Psalm 121:1–2',         text:'I lift up my eyes to the mountains — where does my help come from? My help comes from the Lord, the Maker of heaven and earth.' },
+            { week:3, day:4, ref:'Matthew 11:28',         text:'Come to me, all you who are weary and burdened, and I will give you rest.' },
+            { week:3, day:5, ref:'Psalm 34:18',           text:'The Lord is close to the brokenhearted and saves those who are crushed in spirit.' },
+            { week:3, day:6, ref:'1 Corinthians 13:4–5',  text:'Love is patient, love is kind. It does not envy, it does not boast, it is not proud. It does not dishonor others, it is not self-seeking.' },
+            { week:3, day:7, ref:'Philippians 4:6–7',     text:'Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God. And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.' },
+            // ── Week 4 ──
+            { week:4, day:1, ref:'Joshua 1:9',            text:'Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.' },
+            { week:4, day:2, ref:'Psalm 37:4',            text:'Take delight in the Lord, and he will give you the desires of your heart.' },
+            { week:4, day:3, ref:'Isaiah 41:10',          text:'Do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you; I will uphold you with my righteous right hand.' },
+            { week:4, day:4, ref:'Romans 5:8',            text:'God demonstrates his own love for us in this: while we were still sinners, Christ died for us.' },
+            { week:4, day:5, ref:'Psalm 91:4',            text:'He will cover you with his feathers, and under his wings you will find refuge; his faithfulness will be your shield and rampart.' },
+            { week:4, day:6, ref:'Galatians 5:22–23',     text:'The fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control.' },
+            { week:4, day:7, ref:'John 16:33',            text:'I have told you these things, so that in me you may have peace. In this world you will have trouble. But take heart! I have overcome the world.' },
+            // ── Week 5 ──
+            { week:5, day:1, ref:'Proverbs 4:23',         text:'Above all else, guard your heart, for everything you do flows from it.' },
+            { week:5, day:2, ref:'Hebrews 11:1',          text:'Now faith is confidence in what we hope for and assurance about what we do not see.' },
+            { week:5, day:3, ref:'Romans 8:38–39',        text:'Neither death nor life, neither angels nor demons, neither the present nor the future, nor any powers — nothing in all creation will be able to separate us from the love of God that is in Christ Jesus our Lord.' },
+            { week:5, day:4, ref:'Proverbs 16:9',         text:'In their hearts humans plan their course, but the Lord establishes their steps.' },
+            { week:5, day:5, ref:'Psalm 55:22',           text:'Cast your cares on the Lord and he will sustain you; he will never let the righteous be shaken.' },
+            { week:5, day:6, ref:'Isaiah 26:3',           text:'You will keep in perfect peace those whose minds are steadfast, because they trust in you.' },
+            { week:5, day:7, ref:'1 Peter 5:7',           text:'Cast all your anxiety on him because he cares for you.' },
+            // ── Week 6 ──
+            { week:6, day:1, ref:'Matthew 6:34',          text:'Do not worry about tomorrow, for tomorrow will worry about itself. Each day has enough trouble of its own.' },
+            { week:6, day:2, ref:'Psalm 16:11',           text:'You make known to me the path of life; you will fill me with joy in your presence, with eternal pleasures at your right hand.' },
+            { week:6, day:3, ref:'2 Corinthians 4:17',    text:'Our light and momentary troubles are achieving for us an eternal glory that far outweighs them all.' },
+            { week:6, day:4, ref:'Deuteronomy 31:8',      text:'The Lord himself goes before you and will be with you; he will never leave you nor forsake you. Do not be afraid; do not be discouraged.' },
+            { week:6, day:5, ref:'Psalm 27:1',            text:'The Lord is my light and my salvation — whom shall I fear? The Lord is the stronghold of my life — of whom shall I be afraid?' },
+            { week:6, day:6, ref:'Romans 15:13',          text:'May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit.' },
+            { week:6, day:7, ref:'Revelation 21:5',       text:'"I am making everything new!" says he who is seated on the throne. "These words are trustworthy and true."' }
+        ];
+
+        var total = verses.length;
+        var current = 0;
+
+        var weekBadge  = document.getElementById('verseWeekBadge');
+        var dayLabel   = document.getElementById('verseDayLabel');
+        var verseText  = document.getElementById('verseText');
+        var verseRef   = document.getElementById('verseRef');
+        var prevBtn    = document.getElementById('versePrev');
+        var nextBtn    = document.getElementById('verseNext');
+        var progressEl = document.getElementById('verseProgress');
+        var dotsWrap   = document.getElementById('verseWeekDots');
+        var card       = document.getElementById('verseCard');
+
+        if (!verseText) return;
+
+        // Build 7 day-dots for the current week
+        var dots = [];
+        for (var i = 0; i < 7; i++) {
+            var d = document.createElement('span');
+            d.className = 'verse-week-dot';
+            d.setAttribute('data-diw', i);
+            dotsWrap.appendChild(d);
+            dots.push(d);
+        }
+
+        var weekIcons = ['✦', '✿', '♡', '★', '✦', '✿', '☽'];
+
+        function update(animate) {
+            var v = verses[current];
+            var icon = weekIcons[(v.week - 1) % weekIcons.length];
+
+            if (animate && verseText.textContent) {
+                verseText.classList.add('is-hiding');
+                verseRef.classList.add('fading');
+                setTimeout(function() {
+                    verseText.textContent = v.text;
+                    verseRef.textContent  = v.ref;
+                    verseText.classList.remove('is-hiding');
+                    verseText.classList.add('is-entering');
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(function() {
+                            verseText.classList.remove('is-entering');
+                            verseRef.classList.remove('fading');
+                        });
+                    });
+                }, 360);
+            } else {
+                verseText.textContent = v.text;
+                verseRef.textContent  = v.ref;
+            }
+
+            if (weekBadge)  weekBadge.textContent  = icon + ' Week ' + v.week + ' · Day ' + v.day + ' ' + icon;
+            if (dayLabel)   dayLabel.textContent    = 'Day ' + (current + 1) + ' of ' + total;
+            if (progressEl) progressEl.textContent  = (current + 1) + ' / ' + total;
+
+            var diw = v.day - 1;
+            dots.forEach(function(dot, i) {
+                dot.classList.remove('active', 'done');
+                if (i === diw)      dot.classList.add('active');
+                else if (i < diw)   dot.classList.add('done');
+            });
+
+            if (prevBtn) prevBtn.disabled = current === 0;
+            if (nextBtn) nextBtn.disabled = current === total - 1;
+        }
+
+        function goTo(n) {
+            if (n < 0 || n >= total) return;
+            current = n;
+            update(true);
+        }
+
+        if (prevBtn) prevBtn.addEventListener('click', function() { goTo(current - 1); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { goTo(current + 1); });
+
+        dotsWrap.addEventListener('click', function(e) {
+            var diw = parseInt(e.target.getAttribute('data-diw'), 10);
+            if (!isNaN(diw)) {
+                var targetIdx = (verses[current].week - 1) * 7 + diw;
+                if (targetIdx >= 0 && targetIdx < total) goTo(targetIdx);
+            }
+        });
+
+        // Swipe on the card
+        var txStart = 0;
+        if (card) {
+            card.addEventListener('touchstart', function(e) { txStart = e.touches[0].clientX; }, { passive: true });
+            card.addEventListener('touchend', function(e) {
+                var dx = e.changedTouches[0].clientX - txStart;
+                if (Math.abs(dx) > 42) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+            });
+        }
+
+        update(false);
     })();
 
     // ==========================================================
