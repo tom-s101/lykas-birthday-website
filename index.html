@@ -1584,7 +1584,7 @@
             position: absolute;
             bottom: calc(100% + 10px);
             right: 0;
-            width: 258px;
+            width: 268px;
             background: rgba(250,240,242,0.97);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
@@ -1690,6 +1690,62 @@
             width: 13px; height: 13px; border-radius: 50%;
             background: var(--rose); border: none; cursor: pointer;
         }
+
+        /* ---- playlist section ---- */
+        .mp-playlist-section { display: flex; flex-direction: column; gap: 0.45rem; }
+        .mp-playlist-hdr {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .mp-playlist-label {
+            font-size: 0.6rem; color: var(--text-faint);
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .mp-add-btn {
+            background: none;
+            border: 1px solid rgba(196,114,127,0.3);
+            border-radius: 20px;
+            padding: 0.18rem 0.55rem;
+            font-size: 0.62rem; font-family: 'Inter', sans-serif;
+            color: var(--rose); cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mp-add-btn:hover { background: var(--rose-pale); border-color: var(--rose-light); }
+        .mp-playlist {
+            max-height: 130px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .mp-playlist::-webkit-scrollbar { width: 3px; }
+        .mp-playlist::-webkit-scrollbar-thumb { background: var(--rose-pale); border-radius: 2px; }
+        .mp-playlist-empty {
+            font-size: 0.65rem; color: var(--text-faint);
+            text-align: center; padding: 0.7rem 0; font-style: italic;
+        }
+        .mp-pl-item {
+            display: flex; align-items: center; gap: 0.4rem;
+            padding: 0.32rem 0.4rem; border-radius: 8px;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .mp-pl-item:hover { background: var(--rose-pale); }
+        .mp-pl-item.mp-pl-current { background: rgba(196,114,127,0.12); }
+        .mp-pl-num {
+            font-size: 0.58rem; color: var(--text-faint);
+            width: 14px; text-align: right; flex-shrink: 0;
+        }
+        .mp-pl-current .mp-pl-num { color: var(--rose); }
+        .mp-pl-name {
+            flex: 1; font-size: 0.68rem; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .mp-pl-current .mp-pl-name { color: var(--rose); font-weight: 500; }
+        .mp-pl-del {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-faint); font-size: 0.8rem;
+            padding: 1px 4px; border-radius: 4px;
+            transition: all 0.15s; flex-shrink: 0;
+            opacity: 0; line-height: 1;
+        }
+        .mp-pl-item:hover .mp-pl-del { opacity: 1; }
+        .mp-pl-del:hover { color: var(--rose); background: rgba(196,114,127,0.12); }
     </style>
 </head>
 <body>
@@ -4219,10 +4275,13 @@
     })();
 
     // ==========================================================
-    //  MUSIC PLAYER
+    //  MUSIC PLAYER  (multi-song playlist via IndexedDB)
     // ==========================================================
     (function() {
-        var STORAGE_KEY = 'lyka_bday_music_v1';
+        var DB_NAME    = 'lyka_music_db';
+        var DB_VER     = 1;
+        var STORE      = 'songs';
+        var STATE_KEY  = 'lyka_bday_music_v2';
 
         var audio        = document.getElementById('bgAudio');
         var player       = document.getElementById('musicPlayer');
@@ -4239,61 +4298,58 @@
         var mpMiniPlay   = document.getElementById('mpMiniPlay');
         var mpMiniIcon   = document.getElementById('mpMiniIcon');
         var mpRepeat     = document.getElementById('mpRepeat');
-        var mpBack10     = document.getElementById('mpBack10');
-        var mpFwd10      = document.getElementById('mpFwd10');
+        var mpPrev       = document.getElementById('mpPrev');
+        var mpNext       = document.getElementById('mpNext');
         var mpVol        = document.getElementById('mpVol');
         var mpExpandBtn  = document.getElementById('mpExpandBtn');
         var mpCollapse   = document.getElementById('mpCollapse');
         var mpTrackName  = document.getElementById('mpTrackName');
+        var mpTrackSub   = document.getElementById('mpTrackSub');
         var mpTrackMini  = document.getElementById('mpTrackMini');
         var mpSeekWrap   = document.getElementById('mpSeekWrap');
+        var mpPlaylist   = document.getElementById('mpPlaylist');
+        var mpAddBtn     = document.getElementById('mpAddBtn');
+        var mpFileInput  = document.getElementById('mpFileInput');
 
-        var isPlaying = false;
-        var isRepeat  = false;
-        var expanded  = false;
+        // playlist: [{id, name, url}]
+        var playlist     = [];
+        var currentIndex = 0;
+        var isPlaying    = false;
+        var isRepeat     = false;
+        var db           = null;
 
-        // Derive a readable track name from the src filename
-        (function() {
-            try {
-                var src = audio.getAttribute('src') || '';
-                var base = src.split('/').pop().split('?')[0];
-                var name = base.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
-                if (name && name.toLowerCase() !== 'music') {
-                    mpTrackName.textContent = name;
-                    mpTrackMini.textContent = name;
+        // ---- IndexedDB helpers ----
+        function openDB(cb) {
+            var req = indexedDB.open(DB_NAME, DB_VER);
+            req.onupgradeneeded = function(e) {
+                var d = e.target.result;
+                if (!d.objectStoreNames.contains(STORE)) {
+                    d.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
                 }
-            } catch(e) {}
-        })();
-
-        // Restore saved playback state
-        (function() {
-            try {
-                var s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-                if (!s) return;
-                if (s.volume !== undefined) { audio.volume = s.volume; mpVol.value = s.volume; }
-                if (s.repeat)  { isRepeat = true; audio.loop = true; mpRepeat.classList.add('mp-active'); }
-                // We'll restore currentTime once metadata loads
-                if (s.time > 0) {
-                    audio.addEventListener('loadedmetadata', function restore() {
-                        if (s.time < audio.duration - 2) audio.currentTime = s.time;
-                        audio.removeEventListener('loadedmetadata', restore);
-                    });
-                }
-            } catch(e) {}
-        })();
-
-        function saveState() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                    time:   audio.currentTime,
-                    volume: audio.volume,
-                    repeat: isRepeat
-                }));
-            } catch(e) {}
+            };
+            req.onsuccess = function(e) { db = e.target.result; cb(); };
+            req.onerror   = function()  { cb(); };
         }
-        setInterval(saveState, 4000);
-        window.addEventListener('pagehide',      saveState);
-        window.addEventListener('beforeunload',  saveState);
+
+        function dbGetAll(cb) {
+            if (!db) return cb([]);
+            var req = db.transaction(STORE, 'readonly').objectStore(STORE).getAll();
+            req.onsuccess = function() { cb(req.result || []); };
+            req.onerror   = function() { cb([]); };
+        }
+
+        function dbAdd(name, type, data, cb) {
+            if (!db) return cb(null);
+            var req = db.transaction(STORE, 'readwrite').objectStore(STORE)
+                        .add({ name: name, type: type, data: data });
+            req.onsuccess = function() { cb(req.result); };
+            req.onerror   = function() { cb(null); };
+        }
+
+        function dbDelete(id) {
+            if (!db) return;
+            db.transaction(STORE, 'readwrite').objectStore(STORE).delete(id);
+        }
 
         // ---- helpers ----
         function fmtTime(s) {
@@ -4302,6 +4358,51 @@
             return m + ':' + (sec < 10 ? '0' : '') + sec;
         }
 
+        function prettify(fname) {
+            return fname.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+        }
+
+        // ---- playlist UI ----
+        function renderPlaylist() {
+            mpPlaylist.innerHTML = '';
+            if (playlist.length === 0) {
+                mpPlaylist.innerHTML = '<div class="mp-playlist-empty">No songs yet — add some above!</div>';
+                return;
+            }
+            playlist.forEach(function(track, i) {
+                var div = document.createElement('div');
+                div.className = 'mp-pl-item' + (i === currentIndex ? ' mp-pl-current' : '');
+                div.innerHTML =
+                    '<span class="mp-pl-num">' + (i + 1) + '</span>' +
+                    '<span class="mp-pl-name">' + track.name + '</span>' +
+                    '<button class="mp-pl-del" title="Remove">×</button>';
+                div.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('mp-pl-del')) return;
+                    goToTrack(i, true);
+                });
+                div.querySelector('.mp-pl-del').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    removeTrack(i);
+                });
+                mpPlaylist.appendChild(div);
+            });
+        }
+
+        function updateTrackUI() {
+            var track = playlist[currentIndex];
+            if (track) {
+                mpTrackName.textContent = track.name;
+                mpTrackMini.textContent = track.name;
+                mpTrackSub.textContent  = (currentIndex + 1) + ' of ' + playlist.length;
+            } else {
+                mpTrackName.textContent = 'No songs yet';
+                mpTrackMini.textContent = 'Add songs';
+                mpTrackSub.textContent  = 'Add songs to get started';
+            }
+            renderPlaylist();
+        }
+
+        // ---- playback ----
         var PLAY_PATH  = '<path d="M8 5v14l11-7z"/>';
         var PAUSE_PATH = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
 
@@ -4319,13 +4420,11 @@
         }
 
         function doPlay() {
+            if (!playlist.length || !audio.src) return;
             var p = audio.play();
             if (p && p.then) {
-                p.then(function() { isPlaying = true; syncIcons(); })
-                 .catch(function() {});
-            } else {
-                isPlaying = true; syncIcons();
-            }
+                p.then(function() { isPlaying = true; syncIcons(); }).catch(function() {});
+            } else { isPlaying = true; syncIcons(); }
         }
 
         function doPause() {
@@ -4337,45 +4436,100 @@
 
         function togglePlay() { isPlaying ? doPause() : doPlay(); }
 
+        function goToTrack(index, play) {
+            if (!playlist.length) return;
+            index = Math.max(0, Math.min(playlist.length - 1, index));
+            var wasPlaying = isPlaying || play;
+            doPause();
+            currentIndex = index;
+            mpSeekFill.style.width = '0%';
+            mpCurrentTime.textContent = '0:00';
+            mpDuration.textContent    = '--:--';
+            audio.src = playlist[currentIndex].url;
+            updateTrackUI();
+            saveState();
+            if (wasPlaying) {
+                audio.addEventListener('canplay', function onC() {
+                    audio.removeEventListener('canplay', onC);
+                    doPlay();
+                });
+            }
+        }
+
+        function prevTrack() {
+            if (!playlist.length) return;
+            var i = currentIndex - 1;
+            if (i < 0) i = isRepeat ? playlist.length - 1 : 0;
+            goToTrack(i, isPlaying);
+        }
+
+        function nextTrack() {
+            if (!playlist.length) return;
+            var i = currentIndex + 1;
+            if (i >= playlist.length) {
+                if (isRepeat) { i = 0; } else { doPause(); return; }
+            }
+            goToTrack(i, true);
+        }
+
+        function removeTrack(index) {
+            var id = playlist[index].id;
+            URL.revokeObjectURL(playlist[index].url);
+            playlist.splice(index, 1);
+            dbDelete(id);
+
+            if (playlist.length === 0) {
+                doPause();
+                audio.src = '';
+                updateTrackUI();
+                return;
+            }
+            if (currentIndex >= playlist.length) currentIndex = playlist.length - 1;
+            if (index === currentIndex) {
+                goToTrack(currentIndex, isPlaying);
+            } else {
+                if (index < currentIndex) currentIndex--;
+                updateTrackUI();
+            }
+        }
+
         // ---- audio events ----
         audio.addEventListener('ended', function() {
-            if (!isRepeat) { isPlaying = false; syncIcons(); }
+            nextTrack();
             saveState();
         });
 
         audio.addEventListener('timeupdate', function() {
             if (!audio.duration) return;
-            var pct = (audio.currentTime / audio.duration) * 100;
-            mpSeekFill.style.width = pct + '%';
+            mpSeekFill.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
             mpCurrentTime.textContent = fmtTime(audio.currentTime);
         });
 
         audio.addEventListener('loadedmetadata', function() {
             mpDuration.textContent = fmtTime(audio.duration);
+            try {
+                var s = JSON.parse(localStorage.getItem(STATE_KEY) || 'null');
+                if (s && s.trackIndex === currentIndex && s.time > 0 && s.time < audio.duration - 2) {
+                    audio.currentTime = s.time;
+                }
+            } catch(e) {}
         });
 
         // ---- seek bar ----
         mpSeekWrap.addEventListener('click', function(e) {
-            var track = this.querySelector('.mp-seek-track');
-            var rect  = track.getBoundingClientRect();
-            var pct   = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            var rect = this.querySelector('.mp-seek-track').getBoundingClientRect();
+            var pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
             if (audio.duration) audio.currentTime = pct * audio.duration;
         });
 
-        // ---- controls ----
+        // ---- control buttons ----
         mpPlayBtn.addEventListener('click', togglePlay);
         mpMiniPlay.addEventListener('click', function(e) { e.stopPropagation(); togglePlay(); });
-
-        mpBack10.addEventListener('click', function() {
-            audio.currentTime = Math.max(0, audio.currentTime - 10);
-        });
-        mpFwd10.addEventListener('click', function() {
-            if (audio.duration) audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
-        });
+        mpPrev.addEventListener('click', prevTrack);
+        mpNext.addEventListener('click', nextTrack);
 
         mpRepeat.addEventListener('click', function() {
             isRepeat = !isRepeat;
-            audio.loop = isRepeat;
             mpRepeat.classList.toggle('mp-active', isRepeat);
             saveState();
         });
@@ -4385,31 +4539,98 @@
             saveState();
         });
 
+        // ---- file upload ----
+        mpAddBtn.addEventListener('click', function() { mpFileInput.click(); });
+
+        mpFileInput.addEventListener('change', function() {
+            var files = Array.prototype.slice.call(this.files || []);
+            if (!files.length) return;
+            var wasEmpty = playlist.length === 0;
+            var pending  = files.length;
+
+            files.forEach(function(file) {
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    var data = ev.target.result;
+                    dbAdd(file.name, file.type, data, function(id) {
+                        if (id !== null) {
+                            var blob = new Blob([data], { type: file.type || 'audio/mpeg' });
+                            playlist.push({ id: id, name: prettify(file.name), url: URL.createObjectURL(blob) });
+                        }
+                        pending--;
+                        if (pending === 0) {
+                            mpFileInput.value = '';
+                            if (wasEmpty && playlist.length > 0) {
+                                currentIndex = 0;
+                                audio.src = playlist[0].url;
+                            }
+                            updateTrackUI();
+                        }
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        });
+
         // ---- expand / collapse ----
-        function setExpanded(val) {
-            expanded = val;
-            mpFull.classList.toggle('mp-open', val);
+        mpExpandBtn.addEventListener('click', function() { mpFull.classList.add('mp-open'); });
+        mpCollapse.addEventListener('click',  function() { mpFull.classList.remove('mp-open'); });
+
+        // ---- state persistence ----
+        function saveState() {
+            try {
+                localStorage.setItem(STATE_KEY, JSON.stringify({
+                    trackIndex: currentIndex,
+                    time:       audio.currentTime,
+                    volume:     audio.volume,
+                    repeat:     isRepeat
+                }));
+            } catch(e) {}
         }
-        mpExpandBtn.addEventListener('click', function() { setExpanded(true); });
-        mpCollapse.addEventListener('click',  function() { setExpanded(false); });
+        setInterval(saveState, 4000);
+        window.addEventListener('pagehide',     saveState);
+        window.addEventListener('beforeunload', saveState);
 
         // ---- reveal & auto-play after user enters ----
         function revealAndPlay() {
             player.classList.add('mp-visible');
-            setTimeout(doPlay, 350);
+            if (playlist.length > 0) setTimeout(doPlay, 350);
         }
 
-        var introEl = document.getElementById('intro');
-        if (!introEl || introEl.classList.contains('hidden')) {
-            revealAndPlay();
-        } else {
-            var enterBtn = document.getElementById('enterBtn');
-            if (enterBtn) {
-                enterBtn.addEventListener('click', function() {
-                    setTimeout(revealAndPlay, 650);
-                }, { once: true });
+        // ---- init: open DB, load songs, then show player ----
+        openDB(function() {
+            var saved;
+            try { saved = JSON.parse(localStorage.getItem(STATE_KEY) || 'null'); } catch(e) {}
+            if (saved) {
+                if (saved.volume !== undefined) { audio.volume = saved.volume; mpVol.value = saved.volume; }
+                if (saved.repeat) { isRepeat = true; mpRepeat.classList.add('mp-active'); }
             }
-        }
+
+            dbGetAll(function(rows) {
+                rows.forEach(function(row) {
+                    var blob = new Blob([row.data], { type: row.type || 'audio/mpeg' });
+                    playlist.push({ id: row.id, name: prettify(row.name), url: URL.createObjectURL(blob) });
+                });
+
+                if (playlist.length > 0) {
+                    currentIndex = (saved && saved.trackIndex < playlist.length) ? saved.trackIndex : 0;
+                    audio.src = playlist[currentIndex].url;
+                }
+                updateTrackUI();
+
+                var introEl = document.getElementById('intro');
+                if (!introEl || introEl.classList.contains('hidden')) {
+                    revealAndPlay();
+                } else {
+                    var enterBtn = document.getElementById('enterBtn');
+                    if (enterBtn) {
+                        enterBtn.addEventListener('click', function() {
+                            setTimeout(revealAndPlay, 650);
+                        }, { once: true });
+                    }
+                }
+            });
+        });
 
         syncIcons();
     })();
@@ -4417,17 +4638,21 @@
     </script>
 
     <!-- ===== MUSIC PLAYER ===== -->
-    <audio id="bgAudio" src="music.mp3" preload="auto"></audio>
+    <audio id="bgAudio" preload="auto"></audio>
+    <input type="file" id="mpFileInput" accept="audio/*" multiple style="display:none">
     <div id="musicPlayer">
-        <!-- Expanded panel (shown when tapped) -->
+
+        <!-- Expanded panel -->
         <div class="mp-full" id="mpFull">
+
+            <!-- Header: spinning disc + track info + close -->
             <div class="mp-header">
                 <div class="mp-disc" id="mpDisc">♪</div>
                 <div class="mp-info">
-                    <div class="mp-track-name" id="mpTrackName">Birthday Song</div>
-                    <div class="mp-track-sub">Now Playing</div>
+                    <div class="mp-track-name" id="mpTrackName">No songs yet</div>
+                    <div class="mp-track-sub" id="mpTrackSub">Add songs to get started</div>
                 </div>
-                <button class="mp-icon-btn mp-dim" id="mpCollapse" aria-label="close player">
+                <button class="mp-icon-btn mp-dim" id="mpCollapse" aria-label="Close player">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
             </div>
@@ -4441,22 +4666,19 @@
                 </div>
             </div>
 
-            <!-- Controls -->
+            <!-- Controls: Repeat | Prev | Play/Pause | Next -->
             <div class="mp-controls">
                 <button class="mp-ctl" id="mpRepeat" aria-label="Toggle repeat" title="Repeat">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
                 </button>
-                <button class="mp-ctl" id="mpBack10" aria-label="Back 10 seconds" title="Back 10s">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17a6 6 0 100-12 6 6 0 000 0"/><path d="M11 5V2L6 7l5 5V8"/><text x="6" y="21" style="font:bold 7px Inter,sans-serif;fill:currentColor;stroke:none;">10</text></svg>
+                <button class="mp-ctl" id="mpPrev" aria-label="Previous track" title="Previous">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
                 </button>
                 <button class="mp-ctl mp-ctl-play" id="mpPlayBtn" aria-label="Play / Pause">
                     <svg id="mpPlayIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 </button>
-                <button class="mp-ctl" id="mpFwd10" aria-label="Forward 10 seconds" title="Forward 10s">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17a6 6 0 110-12 6 6 0 010 0"/><path d="M13 5V2l5 5-5 5V8"/><text x="6" y="21" style="font:bold 7px Inter,sans-serif;fill:currentColor;stroke:none;">10</text></svg>
-                </button>
-                <button class="mp-ctl" style="opacity:0;pointer-events:none;" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="16" height="16"></svg>
+                <button class="mp-ctl" id="mpNext" aria-label="Next track" title="Next">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6l5.5 4V8l-5.5 4zM16 6h2v12h-2z"/></svg>
                 </button>
             </div>
 
@@ -4467,12 +4689,24 @@
                 </span>
                 <input type="range" class="mp-vol-range" id="mpVol" min="0" max="1" step="0.02" value="0.8">
             </div>
+
+            <!-- Playlist -->
+            <div class="mp-playlist-section">
+                <div class="mp-playlist-hdr">
+                    <span class="mp-playlist-label">Playlist</span>
+                    <button class="mp-add-btn" id="mpAddBtn">+ Add songs</button>
+                </div>
+                <div class="mp-playlist" id="mpPlaylist">
+                    <div class="mp-playlist-empty">No songs yet — add some above!</div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Mini pill (always visible once player is revealed) -->
+        <!-- Mini pill -->
         <div class="mp-mini" id="mpMini">
             <div class="mp-note-bubble mp-paused" id="mpNoteBubble">♪</div>
-            <span class="mp-track-mini" id="mpTrackMini">Birthday Song</span>
+            <span class="mp-track-mini" id="mpTrackMini">Add songs</span>
             <button class="mp-icon-btn" id="mpMiniPlay" aria-label="Play / Pause">
                 <svg id="mpMiniIcon" viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M8 5v14l11-7z"/></svg>
             </button>
@@ -4480,6 +4714,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="13" height="13"><path d="M18 15l-6-6-6 6"/></svg>
             </button>
         </div>
+
     </div>
 
 </body>
