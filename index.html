@@ -1746,6 +1746,12 @@
         }
         .mp-pl-item:hover .mp-pl-del { opacity: 1; }
         .mp-pl-del:hover { color: var(--rose); background: rgba(196,114,127,0.12); }
+        .mp-upload-status {
+            font-size: 0.6rem; color: var(--rose); font-style: italic;
+            min-height: 0; text-align: right; margin-top: -0.25rem;
+            transition: opacity 0.3s;
+        }
+        .mp-add-btn.mp-uploading { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -4275,80 +4281,107 @@
     })();
 
     // ==========================================================
-    //  MUSIC PLAYER  (multi-song playlist via IndexedDB)
+    //  MUSIC PLAYER  (multi-song playlist synced via Supabase)
     // ==========================================================
     (function() {
-        var DB_NAME    = 'lyka_music_db';
-        var DB_VER     = 1;
-        var STORE      = 'songs';
-        var STATE_KEY  = 'lyka_bday_music_v2';
+        // ── CONFIG ── paste your values from supabase.com/dashboard/project/_/settings/api
+        var SUPABASE_URL = 'YOUR_SUPABASE_URL';        // e.g. https://abcxyz.supabase.co
+        var SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';   // "anon public" key
+        var BUCKET       = 'music';
+        var STATE_KEY    = 'lyka_bday_music_v2';
 
-        var audio        = document.getElementById('bgAudio');
-        var player       = document.getElementById('musicPlayer');
+        var configured = (SUPABASE_URL !== 'YOUR_SUPABASE_URL');
+
+        var audio          = document.getElementById('bgAudio');
+        var player         = document.getElementById('musicPlayer');
         if (!audio || !player) return;
 
-        var mpFull       = document.getElementById('mpFull');
-        var mpDisc       = document.getElementById('mpDisc');
-        var mpNoteBubble = document.getElementById('mpNoteBubble');
-        var mpSeekFill   = document.getElementById('mpSeekFill');
-        var mpCurrentTime= document.getElementById('mpCurrentTime');
-        var mpDuration   = document.getElementById('mpDuration');
-        var mpPlayBtn    = document.getElementById('mpPlayBtn');
-        var mpPlayIcon   = document.getElementById('mpPlayIcon');
-        var mpMiniPlay   = document.getElementById('mpMiniPlay');
-        var mpMiniIcon   = document.getElementById('mpMiniIcon');
-        var mpRepeat     = document.getElementById('mpRepeat');
-        var mpPrev       = document.getElementById('mpPrev');
-        var mpNext       = document.getElementById('mpNext');
-        var mpVol        = document.getElementById('mpVol');
-        var mpExpandBtn  = document.getElementById('mpExpandBtn');
-        var mpCollapse   = document.getElementById('mpCollapse');
-        var mpTrackName  = document.getElementById('mpTrackName');
-        var mpTrackSub   = document.getElementById('mpTrackSub');
-        var mpTrackMini  = document.getElementById('mpTrackMini');
-        var mpSeekWrap   = document.getElementById('mpSeekWrap');
-        var mpPlaylist   = document.getElementById('mpPlaylist');
-        var mpAddBtn     = document.getElementById('mpAddBtn');
-        var mpFileInput  = document.getElementById('mpFileInput');
+        var mpFull         = document.getElementById('mpFull');
+        var mpDisc         = document.getElementById('mpDisc');
+        var mpNoteBubble   = document.getElementById('mpNoteBubble');
+        var mpSeekFill     = document.getElementById('mpSeekFill');
+        var mpCurrentTime  = document.getElementById('mpCurrentTime');
+        var mpDuration     = document.getElementById('mpDuration');
+        var mpPlayBtn      = document.getElementById('mpPlayBtn');
+        var mpPlayIcon     = document.getElementById('mpPlayIcon');
+        var mpMiniPlay     = document.getElementById('mpMiniPlay');
+        var mpMiniIcon     = document.getElementById('mpMiniIcon');
+        var mpRepeat       = document.getElementById('mpRepeat');
+        var mpPrev         = document.getElementById('mpPrev');
+        var mpNext         = document.getElementById('mpNext');
+        var mpVol          = document.getElementById('mpVol');
+        var mpExpandBtn    = document.getElementById('mpExpandBtn');
+        var mpCollapse     = document.getElementById('mpCollapse');
+        var mpTrackName    = document.getElementById('mpTrackName');
+        var mpTrackSub     = document.getElementById('mpTrackSub');
+        var mpTrackMini    = document.getElementById('mpTrackMini');
+        var mpSeekWrap     = document.getElementById('mpSeekWrap');
+        var mpPlaylistEl   = document.getElementById('mpPlaylist');
+        var mpAddBtn       = document.getElementById('mpAddBtn');
+        var mpFileInput    = document.getElementById('mpFileInput');
+        var mpUploadStatus = document.getElementById('mpUploadStatus');
 
-        // playlist: [{id, name, url}]
+        // playlist: [{path, name, url}]
         var playlist     = [];
         var currentIndex = 0;
         var isPlaying    = false;
         var isRepeat     = false;
-        var db           = null;
 
-        // ---- IndexedDB helpers ----
-        function openDB(cb) {
-            var req = indexedDB.open(DB_NAME, DB_VER);
-            req.onupgradeneeded = function(e) {
-                var d = e.target.result;
-                if (!d.objectStoreNames.contains(STORE)) {
-                    d.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
-                }
+        // ---- Supabase Storage helpers ----
+        function apiHeaders(extra) {
+            return Object.assign({
+                'Authorization': 'Bearer ' + SUPABASE_KEY,
+                'apikey': SUPABASE_KEY
+            }, extra || {});
+        }
+
+        function publicUrl(path) {
+            return SUPABASE_URL + '/storage/v1/object/public/' + BUCKET + '/' + encodeURIComponent(path);
+        }
+
+        function listFiles(cb) {
+            if (!configured) return cb([]);
+            fetch(SUPABASE_URL + '/storage/v1/object/list/' + BUCKET, {
+                method: 'POST',
+                headers: apiHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({ prefix: '', limit: 200, sortBy: { column: 'created_at', order: 'asc' } })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var files = (Array.isArray(data) ? data : []).filter(function(f) {
+                    return f.name && f.name !== '.emptyFolderPlaceholder';
+                });
+                cb(files);
+            })
+            .catch(function() { cb([]); });
+        }
+
+        function uploadFile(file, onProgress, onDone) {
+            var path = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            var xhr  = new XMLHttpRequest();
+            xhr.open('POST', SUPABASE_URL + '/storage/v1/object/' + BUCKET + '/' + encodeURIComponent(path));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + SUPABASE_KEY);
+            xhr.setRequestHeader('apikey', SUPABASE_KEY);
+            xhr.setRequestHeader('Content-Type', file.type || 'audio/mpeg');
+            if (xhr.upload) {
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
+                };
+            }
+            xhr.onload = function() {
+                onDone(xhr.status >= 200 && xhr.status < 300 ? null : new Error(xhr.status), path);
             };
-            req.onsuccess = function(e) { db = e.target.result; cb(); };
-            req.onerror   = function()  { cb(); };
+            xhr.onerror = function() { onDone(new Error('network'), path); };
+            xhr.send(file);
         }
 
-        function dbGetAll(cb) {
-            if (!db) return cb([]);
-            var req = db.transaction(STORE, 'readonly').objectStore(STORE).getAll();
-            req.onsuccess = function() { cb(req.result || []); };
-            req.onerror   = function() { cb([]); };
-        }
-
-        function dbAdd(name, type, data, cb) {
-            if (!db) return cb(null);
-            var req = db.transaction(STORE, 'readwrite').objectStore(STORE)
-                        .add({ name: name, type: type, data: data });
-            req.onsuccess = function() { cb(req.result); };
-            req.onerror   = function() { cb(null); };
-        }
-
-        function dbDelete(id) {
-            if (!db) return;
-            db.transaction(STORE, 'readwrite').objectStore(STORE).delete(id);
+        function deleteFile(path) {
+            if (!configured) return;
+            fetch(SUPABASE_URL + '/storage/v1/object/' + BUCKET, {
+                method: 'DELETE',
+                headers: apiHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({ prefixes: [path] })
+            }).catch(function() {});
         }
 
         // ---- helpers ----
@@ -4359,14 +4392,22 @@
         }
 
         function prettify(fname) {
-            return fname.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+            return fname.replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+        }
+
+        function setStatus(msg) {
+            if (mpUploadStatus) mpUploadStatus.textContent = msg;
         }
 
         // ---- playlist UI ----
         function renderPlaylist() {
-            mpPlaylist.innerHTML = '';
-            if (playlist.length === 0) {
-                mpPlaylist.innerHTML = '<div class="mp-playlist-empty">No songs yet — add some above!</div>';
+            mpPlaylistEl.innerHTML = '';
+            if (!configured) {
+                mpPlaylistEl.innerHTML = '<div class="mp-playlist-empty">⚙ Add your Supabase credentials to enable sync</div>';
+                return;
+            }
+            if (!playlist.length) {
+                mpPlaylistEl.innerHTML = '<div class="mp-playlist-empty">No songs yet — add some above!</div>';
                 return;
             }
             playlist.forEach(function(track, i) {
@@ -4384,7 +4425,7 @@
                     e.stopPropagation();
                     removeTrack(i);
                 });
-                mpPlaylist.appendChild(div);
+                mpPlaylistEl.appendChild(div);
             });
         }
 
@@ -4394,6 +4435,10 @@
                 mpTrackName.textContent = track.name;
                 mpTrackMini.textContent = track.name;
                 mpTrackSub.textContent  = (currentIndex + 1) + ' of ' + playlist.length;
+            } else if (!configured) {
+                mpTrackName.textContent = 'Setup required';
+                mpTrackMini.textContent = 'Setup needed';
+                mpTrackSub.textContent  = 'See README for setup steps';
             } else {
                 mpTrackName.textContent = 'No songs yet';
                 mpTrackMini.textContent = 'Add songs';
@@ -4473,16 +4518,11 @@
         }
 
         function removeTrack(index) {
-            var id = playlist[index].id;
-            URL.revokeObjectURL(playlist[index].url);
+            var path = playlist[index].path;
             playlist.splice(index, 1);
-            dbDelete(id);
-
-            if (playlist.length === 0) {
-                doPause();
-                audio.src = '';
-                updateTrackUI();
-                return;
+            deleteFile(path);
+            if (!playlist.length) {
+                doPause(); audio.src = ''; updateTrackUI(); return;
             }
             if (currentIndex >= playlist.length) currentIndex = playlist.length - 1;
             if (index === currentIndex) {
@@ -4494,10 +4534,7 @@
         }
 
         // ---- audio events ----
-        audio.addEventListener('ended', function() {
-            nextTrack();
-            saveState();
-        });
+        audio.addEventListener('ended', function() { nextTrack(); saveState(); });
 
         audio.addEventListener('timeupdate', function() {
             if (!audio.duration) return;
@@ -4522,7 +4559,7 @@
             if (audio.duration) audio.currentTime = pct * audio.duration;
         });
 
-        // ---- control buttons ----
+        // ---- controls ----
         mpPlayBtn.addEventListener('click', togglePlay);
         mpMiniPlay.addEventListener('click', function(e) { e.stopPropagation(); togglePlay(); });
         mpPrev.addEventListener('click', prevTrack);
@@ -4540,36 +4577,34 @@
         });
 
         // ---- file upload ----
-        mpAddBtn.addEventListener('click', function() { mpFileInput.click(); });
+        mpAddBtn.addEventListener('click', function() {
+            if (!configured) { setStatus('⚙ Add Supabase credentials first'); return; }
+            mpFileInput.click();
+        });
 
         mpFileInput.addEventListener('change', function() {
             var files = Array.prototype.slice.call(this.files || []);
             if (!files.length) return;
-            var wasEmpty = playlist.length === 0;
-            var pending  = files.length;
+            mpAddBtn.classList.add('mp-uploading');
+            var total = files.length;
 
-            files.forEach(function(file) {
-                var reader = new FileReader();
-                reader.onload = function(ev) {
-                    var data = ev.target.result;
-                    dbAdd(file.name, file.type, data, function(id) {
-                        if (id !== null) {
-                            var blob = new Blob([data], { type: file.type || 'audio/mpeg' });
-                            playlist.push({ id: id, name: prettify(file.name), url: URL.createObjectURL(blob) });
-                        }
-                        pending--;
-                        if (pending === 0) {
-                            mpFileInput.value = '';
-                            if (wasEmpty && playlist.length > 0) {
-                                currentIndex = 0;
-                                audio.src = playlist[0].url;
-                            }
-                            updateTrackUI();
-                        }
-                    });
-                };
-                reader.readAsArrayBuffer(file);
-            });
+            function uploadNext(i) {
+                if (i >= files.length) {
+                    mpFileInput.value = '';
+                    mpAddBtn.classList.remove('mp-uploading');
+                    setStatus('Refreshing playlist...');
+                    loadPlaylist(function() { setStatus(''); });
+                    return;
+                }
+                setStatus('Uploading ' + (i + 1) + ' of ' + total + '...');
+                uploadFile(files[i], function(pct) {
+                    setStatus('Uploading ' + (i + 1) + ' of ' + total + '... ' + pct + '%');
+                }, function(err) {
+                    if (err) { setStatus('Error on ' + files[i].name + ', skipping'); }
+                    setTimeout(function() { uploadNext(i + 1); }, err ? 1200 : 0);
+                });
+            }
+            uploadNext(0);
         });
 
         // ---- expand / collapse ----
@@ -4591,45 +4626,49 @@
         window.addEventListener('pagehide',     saveState);
         window.addEventListener('beforeunload', saveState);
 
-        // ---- reveal & auto-play after user enters ----
-        function revealAndPlay() {
-            player.classList.add('mp-visible');
-            if (playlist.length > 0) setTimeout(doPlay, 350);
-        }
-
-        // ---- init: open DB, load songs, then show player ----
-        openDB(function() {
-            var saved;
-            try { saved = JSON.parse(localStorage.getItem(STATE_KEY) || 'null'); } catch(e) {}
-            if (saved) {
-                if (saved.volume !== undefined) { audio.volume = saved.volume; mpVol.value = saved.volume; }
-                if (saved.repeat) { isRepeat = true; mpRepeat.classList.add('mp-active'); }
-            }
-
-            dbGetAll(function(rows) {
-                rows.forEach(function(row) {
-                    var blob = new Blob([row.data], { type: row.type || 'audio/mpeg' });
-                    playlist.push({ id: row.id, name: prettify(row.name), url: URL.createObjectURL(blob) });
+        // ---- load playlist from Supabase ----
+        function loadPlaylist(cb) {
+            listFiles(function(files) {
+                playlist = files.map(function(f) {
+                    return { path: f.name, name: prettify(f.name), url: publicUrl(f.name) };
                 });
-
+                var saved;
+                try { saved = JSON.parse(localStorage.getItem(STATE_KEY) || 'null'); } catch(e) {}
                 if (playlist.length > 0) {
                     currentIndex = (saved && saved.trackIndex < playlist.length) ? saved.trackIndex : 0;
                     audio.src = playlist[currentIndex].url;
                 }
                 updateTrackUI();
-
-                var introEl = document.getElementById('intro');
-                if (!introEl || introEl.classList.contains('hidden')) {
-                    revealAndPlay();
-                } else {
-                    var enterBtn = document.getElementById('enterBtn');
-                    if (enterBtn) {
-                        enterBtn.addEventListener('click', function() {
-                            setTimeout(revealAndPlay, 650);
-                        }, { once: true });
-                    }
-                }
+                cb && cb();
             });
+        }
+
+        // ---- reveal & auto-play ----
+        function revealAndPlay() {
+            player.classList.add('mp-visible');
+            if (playlist.length > 0) setTimeout(doPlay, 350);
+        }
+
+        // ---- init ----
+        var saved;
+        try { saved = JSON.parse(localStorage.getItem(STATE_KEY) || 'null'); } catch(e) {}
+        if (saved) {
+            if (saved.volume !== undefined) { audio.volume = saved.volume; mpVol.value = saved.volume; }
+            if (saved.repeat) { isRepeat = true; mpRepeat.classList.add('mp-active'); }
+        }
+
+        loadPlaylist(function() {
+            var introEl = document.getElementById('intro');
+            if (!introEl || introEl.classList.contains('hidden')) {
+                revealAndPlay();
+            } else {
+                var enterBtn = document.getElementById('enterBtn');
+                if (enterBtn) {
+                    enterBtn.addEventListener('click', function() {
+                        setTimeout(revealAndPlay, 650);
+                    }, { once: true });
+                }
+            }
         });
 
         syncIcons();
@@ -4696,6 +4735,7 @@
                     <span class="mp-playlist-label">Playlist</span>
                     <button class="mp-add-btn" id="mpAddBtn">+ Add songs</button>
                 </div>
+                <div class="mp-upload-status" id="mpUploadStatus"></div>
                 <div class="mp-playlist" id="mpPlaylist">
                     <div class="mp-playlist-empty">No songs yet — add some above!</div>
                 </div>
