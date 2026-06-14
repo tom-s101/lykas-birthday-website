@@ -1515,6 +1515,181 @@
             .pg-btn { font-size: 1.05rem; padding: 0.8rem 1.8rem; }
             .pg-prev { font-size: 0.95rem; padding: 0.7rem 1.4rem; }
         }
+
+        /* ===== MUSIC PLAYER ===== */
+        #musicPlayer {
+            position: fixed;
+            bottom: 5.6rem;
+            right: 1rem;
+            z-index: 8500;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        #musicPlayer.mp-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        /* ---- mini pill ---- */
+        .mp-mini {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(250,240,242,0.94);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(196,114,127,0.22);
+            border-radius: 50px;
+            padding: 0.38rem 0.6rem 0.38rem 0.45rem;
+            box-shadow: 0 4px 20px rgba(196,114,127,0.18), 0 1px 4px rgba(0,0,0,0.05);
+            cursor: default;
+        }
+        .mp-note-bubble {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--rose), var(--rose-light));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 0.75rem;
+            flex-shrink: 0;
+            animation: mpPulse 2s ease-in-out infinite;
+        }
+        .mp-note-bubble.mp-paused { animation-play-state: paused; }
+        @keyframes mpPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(196,114,127,0.4); }
+            50%      { box-shadow: 0 0 0 6px rgba(196,114,127,0); }
+        }
+        .mp-track-mini {
+            font-size: 0.67rem;
+            color: var(--text-light);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 80px;
+        }
+        .mp-icon-btn {
+            background: none; border: none; cursor: pointer;
+            padding: 3px; color: var(--rose);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .mp-icon-btn:hover { color: var(--rose-light); }
+        .mp-icon-btn.mp-dim { color: var(--text-faint); }
+        .mp-icon-btn.mp-dim:hover { color: var(--text-light); }
+
+        /* ---- expanded panel ---- */
+        .mp-full {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            right: 0;
+            width: 258px;
+            background: rgba(250,240,242,0.97);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(196,114,127,0.18);
+            border-radius: 18px;
+            padding: 1.1rem;
+            box-shadow: 0 12px 44px rgba(196,114,127,0.22), 0 2px 8px rgba(0,0,0,0.06);
+            display: none;
+            flex-direction: column;
+            gap: 0.82rem;
+            transform-origin: bottom right;
+        }
+        .mp-full.mp-open {
+            display: flex;
+            animation: mpPanelIn 0.28s cubic-bezier(0.34,1.48,0.64,1);
+        }
+        @keyframes mpPanelIn {
+            from { opacity: 0; transform: scale(0.9) translateY(6px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .mp-header {
+            display: flex; align-items: center; gap: 0.7rem;
+        }
+        .mp-disc {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--rose) 20%, var(--rose-light) 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 1.1rem; flex-shrink: 0;
+            animation: mpSpin 6s linear infinite paused;
+            box-shadow: 0 2px 8px rgba(196,114,127,0.3);
+        }
+        .mp-disc.mp-spinning { animation-play-state: running; }
+        @keyframes mpSpin { to { transform: rotate(360deg); } }
+
+        .mp-info { flex: 1; min-width: 0; }
+        .mp-track-name {
+            font-size: 0.78rem; font-weight: 500; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .mp-track-sub {
+            font-size: 0.6rem; color: var(--text-faint);
+            margin-top: 2px; font-style: italic;
+        }
+
+        /* seek bar */
+        .mp-seek-wrap { cursor: pointer; }
+        .mp-seek-track {
+            width: 100%; height: 4px;
+            background: var(--rose-pale);
+            border-radius: 2px; position: relative; overflow: hidden;
+        }
+        .mp-seek-fill {
+            position: absolute; left: 0; top: 0; bottom: 0;
+            background: linear-gradient(90deg, var(--rose), var(--rose-light));
+            border-radius: 2px; width: 0%;
+            transition: width 0.25s linear;
+        }
+        .mp-times {
+            display: flex; justify-content: space-between;
+            margin-top: 4px; font-size: 0.58rem; color: var(--text-faint);
+        }
+
+        /* controls row */
+        .mp-controls {
+            display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+        }
+        .mp-ctl {
+            background: none; border: none; cursor: pointer;
+            padding: 7px; color: var(--text-light);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        .mp-ctl:hover { color: var(--rose); background: var(--rose-pale); }
+        .mp-ctl.mp-active { color: var(--rose); }
+        .mp-ctl svg { width: 16px; height: 16px; }
+        .mp-ctl-play {
+            width: 40px; height: 40px;
+            background: var(--rose) !important;
+            color: white !important;
+            border-radius: 50%;
+            box-shadow: 0 3px 12px rgba(196,114,127,0.38);
+        }
+        .mp-ctl-play:hover { background: #d07a88 !important; transform: scale(1.06); }
+        .mp-ctl-play svg { width: 15px; height: 15px; }
+
+        /* volume */
+        .mp-volume { display: flex; align-items: center; gap: 0.5rem; }
+        .mp-vol-ico { color: var(--text-faint); display: flex; align-items: center; }
+        .mp-vol-ico svg { width: 14px; height: 14px; }
+        input[type="range"].mp-vol-range {
+            flex: 1; -webkit-appearance: none; appearance: none;
+            height: 3px; background: var(--rose-pale);
+            border-radius: 2px; outline: none; cursor: pointer;
+        }
+        input[type="range"].mp-vol-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 13px; height: 13px; border-radius: 50%;
+            background: var(--rose); cursor: pointer;
+        }
+        input[type="range"].mp-vol-range::-moz-range-thumb {
+            width: 13px; height: 13px; border-radius: 50%;
+            background: var(--rose); border: none; cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -4043,6 +4218,269 @@
         updateUI();
     })();
 
+    // ==========================================================
+    //  MUSIC PLAYER
+    // ==========================================================
+    (function() {
+        var STORAGE_KEY = 'lyka_bday_music_v1';
+
+        var audio        = document.getElementById('bgAudio');
+        var player       = document.getElementById('musicPlayer');
+        if (!audio || !player) return;
+
+        var mpFull       = document.getElementById('mpFull');
+        var mpDisc       = document.getElementById('mpDisc');
+        var mpNoteBubble = document.getElementById('mpNoteBubble');
+        var mpSeekFill   = document.getElementById('mpSeekFill');
+        var mpCurrentTime= document.getElementById('mpCurrentTime');
+        var mpDuration   = document.getElementById('mpDuration');
+        var mpPlayBtn    = document.getElementById('mpPlayBtn');
+        var mpPlayIcon   = document.getElementById('mpPlayIcon');
+        var mpMiniPlay   = document.getElementById('mpMiniPlay');
+        var mpMiniIcon   = document.getElementById('mpMiniIcon');
+        var mpRepeat     = document.getElementById('mpRepeat');
+        var mpBack10     = document.getElementById('mpBack10');
+        var mpFwd10      = document.getElementById('mpFwd10');
+        var mpVol        = document.getElementById('mpVol');
+        var mpExpandBtn  = document.getElementById('mpExpandBtn');
+        var mpCollapse   = document.getElementById('mpCollapse');
+        var mpTrackName  = document.getElementById('mpTrackName');
+        var mpTrackMini  = document.getElementById('mpTrackMini');
+        var mpSeekWrap   = document.getElementById('mpSeekWrap');
+
+        var isPlaying = false;
+        var isRepeat  = false;
+        var expanded  = false;
+
+        // Derive a readable track name from the src filename
+        (function() {
+            try {
+                var src = audio.getAttribute('src') || '';
+                var base = src.split('/').pop().split('?')[0];
+                var name = base.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+                if (name && name.toLowerCase() !== 'music') {
+                    mpTrackName.textContent = name;
+                    mpTrackMini.textContent = name;
+                }
+            } catch(e) {}
+        })();
+
+        // Restore saved playback state
+        (function() {
+            try {
+                var s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+                if (!s) return;
+                if (s.volume !== undefined) { audio.volume = s.volume; mpVol.value = s.volume; }
+                if (s.repeat)  { isRepeat = true; audio.loop = true; mpRepeat.classList.add('mp-active'); }
+                // We'll restore currentTime once metadata loads
+                if (s.time > 0) {
+                    audio.addEventListener('loadedmetadata', function restore() {
+                        if (s.time < audio.duration - 2) audio.currentTime = s.time;
+                        audio.removeEventListener('loadedmetadata', restore);
+                    });
+                }
+            } catch(e) {}
+        })();
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    time:   audio.currentTime,
+                    volume: audio.volume,
+                    repeat: isRepeat
+                }));
+            } catch(e) {}
+        }
+        setInterval(saveState, 4000);
+        window.addEventListener('pagehide',      saveState);
+        window.addEventListener('beforeunload',  saveState);
+
+        // ---- helpers ----
+        function fmtTime(s) {
+            if (!isFinite(s) || s < 0) return '--:--';
+            var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+            return m + ':' + (sec < 10 ? '0' : '') + sec;
+        }
+
+        var PLAY_PATH  = '<path d="M8 5v14l11-7z"/>';
+        var PAUSE_PATH = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+
+        function syncIcons() {
+            var p = isPlaying ? PAUSE_PATH : PLAY_PATH;
+            mpPlayIcon.innerHTML = p;
+            mpMiniIcon.innerHTML = p;
+            if (isPlaying) {
+                mpDisc.classList.add('mp-spinning');
+                mpNoteBubble.classList.remove('mp-paused');
+            } else {
+                mpDisc.classList.remove('mp-spinning');
+                mpNoteBubble.classList.add('mp-paused');
+            }
+        }
+
+        function doPlay() {
+            var p = audio.play();
+            if (p && p.then) {
+                p.then(function() { isPlaying = true; syncIcons(); })
+                 .catch(function() {});
+            } else {
+                isPlaying = true; syncIcons();
+            }
+        }
+
+        function doPause() {
+            audio.pause();
+            isPlaying = false;
+            syncIcons();
+            saveState();
+        }
+
+        function togglePlay() { isPlaying ? doPause() : doPlay(); }
+
+        // ---- audio events ----
+        audio.addEventListener('ended', function() {
+            if (!isRepeat) { isPlaying = false; syncIcons(); }
+            saveState();
+        });
+
+        audio.addEventListener('timeupdate', function() {
+            if (!audio.duration) return;
+            var pct = (audio.currentTime / audio.duration) * 100;
+            mpSeekFill.style.width = pct + '%';
+            mpCurrentTime.textContent = fmtTime(audio.currentTime);
+        });
+
+        audio.addEventListener('loadedmetadata', function() {
+            mpDuration.textContent = fmtTime(audio.duration);
+        });
+
+        // ---- seek bar ----
+        mpSeekWrap.addEventListener('click', function(e) {
+            var track = this.querySelector('.mp-seek-track');
+            var rect  = track.getBoundingClientRect();
+            var pct   = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            if (audio.duration) audio.currentTime = pct * audio.duration;
+        });
+
+        // ---- controls ----
+        mpPlayBtn.addEventListener('click', togglePlay);
+        mpMiniPlay.addEventListener('click', function(e) { e.stopPropagation(); togglePlay(); });
+
+        mpBack10.addEventListener('click', function() {
+            audio.currentTime = Math.max(0, audio.currentTime - 10);
+        });
+        mpFwd10.addEventListener('click', function() {
+            if (audio.duration) audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+        });
+
+        mpRepeat.addEventListener('click', function() {
+            isRepeat = !isRepeat;
+            audio.loop = isRepeat;
+            mpRepeat.classList.toggle('mp-active', isRepeat);
+            saveState();
+        });
+
+        mpVol.addEventListener('input', function() {
+            audio.volume = parseFloat(this.value);
+            saveState();
+        });
+
+        // ---- expand / collapse ----
+        function setExpanded(val) {
+            expanded = val;
+            mpFull.classList.toggle('mp-open', val);
+        }
+        mpExpandBtn.addEventListener('click', function() { setExpanded(true); });
+        mpCollapse.addEventListener('click',  function() { setExpanded(false); });
+
+        // ---- reveal & auto-play after user enters ----
+        function revealAndPlay() {
+            player.classList.add('mp-visible');
+            setTimeout(doPlay, 350);
+        }
+
+        var introEl = document.getElementById('intro');
+        if (!introEl || introEl.classList.contains('hidden')) {
+            revealAndPlay();
+        } else {
+            var enterBtn = document.getElementById('enterBtn');
+            if (enterBtn) {
+                enterBtn.addEventListener('click', function() {
+                    setTimeout(revealAndPlay, 650);
+                }, { once: true });
+            }
+        }
+
+        syncIcons();
+    })();
+
     </script>
+
+    <!-- ===== MUSIC PLAYER ===== -->
+    <audio id="bgAudio" src="music.mp3" preload="auto"></audio>
+    <div id="musicPlayer">
+        <!-- Expanded panel (shown when tapped) -->
+        <div class="mp-full" id="mpFull">
+            <div class="mp-header">
+                <div class="mp-disc" id="mpDisc">♪</div>
+                <div class="mp-info">
+                    <div class="mp-track-name" id="mpTrackName">Birthday Song</div>
+                    <div class="mp-track-sub">Now Playing</div>
+                </div>
+                <button class="mp-icon-btn mp-dim" id="mpCollapse" aria-label="close player">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+            </div>
+
+            <!-- Seek bar -->
+            <div class="mp-seek-wrap" id="mpSeekWrap">
+                <div class="mp-seek-track"><div class="mp-seek-fill" id="mpSeekFill"></div></div>
+                <div class="mp-times">
+                    <span id="mpCurrentTime">0:00</span>
+                    <span id="mpDuration">--:--</span>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="mp-controls">
+                <button class="mp-ctl" id="mpRepeat" aria-label="Toggle repeat" title="Repeat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+                </button>
+                <button class="mp-ctl" id="mpBack10" aria-label="Back 10 seconds" title="Back 10s">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17a6 6 0 100-12 6 6 0 000 0"/><path d="M11 5V2L6 7l5 5V8"/><text x="6" y="21" style="font:bold 7px Inter,sans-serif;fill:currentColor;stroke:none;">10</text></svg>
+                </button>
+                <button class="mp-ctl mp-ctl-play" id="mpPlayBtn" aria-label="Play / Pause">
+                    <svg id="mpPlayIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button class="mp-ctl" id="mpFwd10" aria-label="Forward 10 seconds" title="Forward 10s">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17a6 6 0 110-12 6 6 0 010 0"/><path d="M13 5V2l5 5-5 5V8"/><text x="6" y="21" style="font:bold 7px Inter,sans-serif;fill:currentColor;stroke:none;">10</text></svg>
+                </button>
+                <button class="mp-ctl" style="opacity:0;pointer-events:none;" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="16" height="16"></svg>
+                </button>
+            </div>
+
+            <!-- Volume -->
+            <div class="mp-volume">
+                <span class="mp-vol-ico">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+                </span>
+                <input type="range" class="mp-vol-range" id="mpVol" min="0" max="1" step="0.02" value="0.8">
+            </div>
+        </div>
+
+        <!-- Mini pill (always visible once player is revealed) -->
+        <div class="mp-mini" id="mpMini">
+            <div class="mp-note-bubble mp-paused" id="mpNoteBubble">♪</div>
+            <span class="mp-track-mini" id="mpTrackMini">Birthday Song</span>
+            <button class="mp-icon-btn" id="mpMiniPlay" aria-label="Play / Pause">
+                <svg id="mpMiniIcon" viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button class="mp-icon-btn mp-dim" id="mpExpandBtn" aria-label="Expand player">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="13" height="13"><path d="M18 15l-6-6-6 6"/></svg>
+            </button>
+        </div>
+    </div>
+
 </body>
 </html>
