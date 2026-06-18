@@ -1757,115 +1757,125 @@
         #siteGate {
             position: fixed; inset: 0; z-index: 99990;
             background: #120810;
+            display: flex; align-items: center; justify-content: center;
             overflow-y: auto; -webkit-overflow-scrolling: touch;
             transition: opacity 0.9s ease, visibility 0.9s ease;
         }
         #siteGate.gate-gone { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* star bg */
-        #gateStars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        #gateStars { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
         .gate-star {
             position: absolute; border-radius: 50%;
-            background: rgba(196,114,127,0.7);
+            background: rgba(196,114,127,0.65);
             animation: gStarPulse 3s ease-in-out infinite;
         }
         @keyframes gStarPulse {
             0%,100% { opacity: 0.15; transform: scale(1); }
-            50%     { opacity: 1;    transform: scale(1.5); }
+            50%     { opacity: 0.9;  transform: scale(1.5); }
         }
 
-        /* inner layout */
         .gate-inner {
             position: relative; z-index: 2;
-            width: min(560px, calc(100vw - 2rem));
-            margin: 0 auto;
-            padding: 3rem 1.25rem 4rem;
-            display: flex; flex-direction: column; align-items: center; gap: 1.6rem;
+            width: min(460px, calc(100vw - 2rem));
+            padding: 3rem 0 4rem;
+            display: flex; flex-direction: column; align-items: center; gap: 1.75rem;
         }
 
-        /* header */
+        .gate-top { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; text-align: center; }
         .gate-kicker {
             font-family: 'Cormorant Garamond', serif; font-style: italic;
-            font-size: 0.88rem; color: rgba(196,114,127,0.7);
-            letter-spacing: 0.1em; text-transform: lowercase;
+            font-size: 0.88rem; color: rgba(196,114,127,0.62); letter-spacing: 0.1em;
         }
-        .gate-title {
-            font-family: 'Cormorant Garamond', serif; font-weight: 400;
-            font-size: clamp(1.7rem, 6vw, 2.6rem); color: #fff;
-            text-align: center; line-height: 1.2;
+        .gate-progress-dots { display: flex; gap: 0.55rem; align-items: center; }
+        .gate-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(196,114,127,0.22);
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
         }
-        .gate-sub {
-            font-size: 0.83rem; color: rgba(255,255,255,0.38);
-            text-align: center; line-height: 1.65; max-width: 320px;
-            font-family: 'Cormorant Garamond', serif; font-style: italic;
+        .gate-dot.gd-done {
+            background: rgba(212,165,116,0.65); border-color: rgba(212,165,116,0.65);
+            transform: scale(0.85);
+        }
+        .gate-dot.gd-current {
+            background: var(--rose); border-color: var(--rose);
+            transform: scale(1.35);
+            box-shadow: 0 0 9px rgba(196,114,127,0.55);
         }
 
-        /* panels */
-        .gate-panels { width: 100%; display: flex; flex-direction: column; gap: 0.7rem; }
+        .gate-stage { width: 100%; position: relative; overflow: hidden; }
 
         .gate-panel {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(196,114,127,0.15);
-            border-radius: 16px;
-            padding: 0.95rem 1rem;
-            display: flex; align-items: flex-start; gap: 0.9rem;
-            transition: border-color 0.45s, background 0.45s, box-shadow 0.45s;
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(196,114,127,0.16);
+            border-radius: 20px;
+            padding: 1.75rem 1.5rem;
+            display: flex; flex-direction: column; gap: 1rem;
         }
-        .gate-panel.gp-unlocked {
-            border-color: rgba(212,165,116,0.55);
-            background: rgba(212,165,116,0.05);
-            box-shadow: 0 0 28px rgba(212,165,116,0.1);
+        .gate-panel.gp-entering {
+            animation: gpSlideIn 0.38s cubic-bezier(0.25,0.46,0.45,0.94) both;
         }
-
-        .gp-left {
-            display: flex; flex-direction: column; align-items: center;
-            gap: 0.2rem; flex-shrink: 0; padding-top: 2px;
+        .gate-panel.gp-exiting {
+            animation: gpSlideOut 0.28s cubic-bezier(0.55,0,1,0.45) both;
+            pointer-events: none;
         }
-        .gp-num { font-size: 0.55rem; color: rgba(196,114,127,0.4); letter-spacing: 0.12em; }
-        .gp-icon { font-size: 1.3rem; line-height: 1; }
+        @keyframes gpSlideIn  { from{opacity:0;transform:translateX(44px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes gpSlideOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(-44px)} }
 
-        .gp-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.38rem; }
-        .gp-label { font-size: 0.62rem; color: rgba(196,114,127,0.6); letter-spacing: 0.08em; text-transform: uppercase; }
-        .gp-hint { font-size: 0.75rem; color: rgba(255,255,255,0.42); line-height: 1.5; }
-        .gp-hint em { color: rgba(232,160,170,0.85); font-style: normal; }
+        .gp-step-label { display: flex; align-items: center; gap: 0.5rem; }
+        .gp-icon  { font-size: 1.35rem; line-height: 1; }
+        .gp-title { font-size: 0.6rem; color: rgba(196,114,127,0.52); text-transform: uppercase; letter-spacing: 0.13em; }
+        .gp-heading {
+            font-family: 'Cormorant Garamond', serif; font-weight: 400;
+            font-size: clamp(1.45rem, 5vw, 1.9rem); color: #fff; line-height: 1.2;
+        }
+        .gp-body {
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 0.9rem; color: rgba(255,255,255,0.42); line-height: 1.7;
+        }
+        .gp-body em { color: rgba(232,160,170,0.9); font-style: normal; }
 
-        .gp-row { display: flex; align-items: center; gap: 0.5rem; }
+        .gp-input-wrap { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
         .gp-input {
-            flex: 1; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(196,114,127,0.2); border-radius: 8px;
-            padding: 0.42rem 0.65rem; color: #fff;
-            font-family: 'Inter', sans-serif; font-size: 0.8rem;
-            outline: none; letter-spacing: 0.06em;
+            flex: 1; background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(196,114,127,0.22); border-radius: 10px;
+            padding: 0.55rem 0.75rem; color: #fff;
+            font-family: 'Inter', sans-serif; font-size: 0.82rem;
+            outline: none; letter-spacing: 0.06em; -webkit-appearance: none;
             transition: border-color 0.2s, background 0.2s;
         }
-        .gp-input::placeholder { color: rgba(255,255,255,0.18); }
-        .gp-input:focus { border-color: rgba(196,114,127,0.45); background: rgba(255,255,255,0.07); }
+        .gp-input::placeholder { color: rgba(255,255,255,0.2); }
+        .gp-input:focus   { border-color: rgba(196,114,127,0.5); background: rgba(255,255,255,0.08); }
         .gp-input.gp-correct { border-color: rgba(212,165,116,0.7); background: rgba(212,165,116,0.07); color: #e8c97a; pointer-events: none; }
-        .gp-input.gp-wrong { animation: gpShake 0.38s ease; border-color: rgba(220,80,80,0.5); }
+        .gp-input.gp-wrong   { animation: gpShake 0.38s ease; border-color: rgba(220,80,80,0.5); }
         @keyframes gpShake {
-            0%,100% { transform: translateX(0); }
-            20% { transform: translateX(-6px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-3px); }
+            0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)}
+            50%{transform:translateX(5px)} 75%{transform:translateX(-3px)}
         }
-
-        .gp-lock { font-size: 0.95rem; flex-shrink: 0; transition: transform 0.3s; }
+        .gp-lock { font-size: 0.95rem; flex-shrink: 0; }
         .gp-lock.gpl-open { animation: gpPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
         @keyframes gpPop { 0%{transform:scale(0.4)} 60%{transform:scale(1.35)} 100%{transform:scale(1)} }
 
-        /* footer progress */
-        .gate-footer { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; margin-top: 0.4rem; }
-        .gate-keys-row { display: flex; gap: 0.65rem; font-size: 1.05rem; }
-        .gate-key-dot { transition: transform 0.3s; display: inline-block; }
-        .gate-key-dot.gkd-found { animation: gpPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-        .gate-count {
-            font-family: 'Cormorant Garamond', serif; font-style: italic;
-            font-size: 0.9rem; color: rgba(255,255,255,0.3);
-            transition: color 0.4s;
+        .gp-multi { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.25rem; }
+        .gp-multi-row { display: flex; flex-direction: column; gap: 0.22rem; }
+        .gp-multi-label { font-size: 0.58rem; color: rgba(196,114,127,0.5); letter-spacing: 0.09em; text-transform: uppercase; }
+        .gp-submit {
+            background: var(--rose); border: none; border-radius: 100px;
+            color: #fff; font-family: 'Cormorant Garamond', serif;
+            font-style: italic; font-size: 1rem;
+            padding: 0.65rem 1.6rem; cursor: pointer; width: 100%;
+            margin-top: 0.35rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(196,114,127,0.3);
         }
-        .gate-count.gc-all { color: var(--gold); }
+        .gp-submit:hover:not(:disabled) { background: #d07a88; transform: translateY(-1px); box-shadow: 0 6px 22px rgba(196,114,127,0.4); }
+        .gp-submit:active { transform: translateY(0); }
+        .gp-submit.gp-submit-ok { background: rgba(212,165,116,0.75); }
+        .gp-submit-error {
+            font-size: 0.65rem; color: rgba(220,100,100,0.8);
+            text-align: center; min-height: 1em; font-style: italic; margin-top: 0.2rem;
+        }
 
-        /* celebration overlay */
         .gate-party {
             position: fixed; inset: 0; z-index: 99999;
             display: flex; align-items: center; justify-content: center;
@@ -1875,7 +1885,6 @@
         }
         .gate-party.gate-party-on { opacity: 1; pointer-events: auto; }
         .gate-confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-
         .gate-party-inner {
             position: relative; z-index: 2;
             text-align: center; display: flex; flex-direction: column;
@@ -1883,10 +1892,7 @@
             animation: gcFadeUp 0.55s ease;
         }
         @keyframes gcFadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
-        .gate-party-emoji {
-            font-size: 3.8rem;
-            animation: gpPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
-        }
+        .gate-party-emoji { font-size: 3.8rem; animation: gpPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.15s both; }
         .gate-party-title {
             font-family: 'Cormorant Garamond', serif; font-weight: 400;
             font-size: clamp(2.2rem, 7vw, 3.2rem); color: #fff; line-height: 1.1;
@@ -1902,28 +1908,15 @@
     <!-- ===== GATE / SCAVENGER HUNT ===== -->
     <div id="siteGate">
         <div id="gateStars"></div>
-
         <div class="gate-inner">
-            <p class="gate-kicker">before you can enter...</p>
-            <h2 class="gate-title">find all 4 keys 🗝️</h2>
-            <p class="gate-sub">i left pieces of us in places you know.<br>gather them all and the door will open.</p>
-
-            <div class="gate-panels" id="gatePanels">
-                <!-- panels built by JS -->
+            <div class="gate-top">
+                <p class="gate-kicker">before you can enter...</p>
+                <div class="gate-progress-dots" id="gateProgressDots"></div>
             </div>
-
-            <div class="gate-footer">
-                <div class="gate-keys-row" id="gateKeysRow">
-                    <span class="gate-key-dot" data-i="0">🔒</span>
-                    <span class="gate-key-dot" data-i="1">🔒</span>
-                    <span class="gate-key-dot" data-i="2">🔒</span>
-                    <span class="gate-key-dot" data-i="3">🔒</span>
-                </div>
-                <p class="gate-count" id="gateCount">0 of 4 keys found</p>
+            <div class="gate-stage" id="gateStage">
+                <!-- current step panel injected by JS -->
             </div>
         </div>
-
-        <!-- shown when all 4 codes are correct -->
         <div class="gate-party" id="gateParty">
             <canvas class="gate-confetti" id="gateConfetti"></canvas>
             <div class="gate-party-inner">
@@ -1934,6 +1927,7 @@
         </div>
     </div>
 
+    <!-- ===== INTRO OVERLAY ===== -->
     <!-- ===== INTRO OVERLAY ===== -->
     <div id="intro">
         <canvas id="spiralCanvas"></canvas>
@@ -3068,37 +3062,43 @@
     //  GATE / SCAVENGER HUNT
     // ==========================================================
     (function() {
-        // ── CONFIG ── update codes and hint phrases here ────────────────
-        var CODES = [
-            'ILOVEYOU',       // 01 — hidden in the physical letter you wrote her
-            'IMESSAGE_CODE',  // 02 — code your iMessage auto-reply sends back  ← CHANGE THIS
-            'TELEGRAM_CODE',  // 03 — code your Telegram auto-reply sends back  ← CHANGE THIS
-            'VALENTINES_CODE' // 04 — code hidden on the Valentine's website     ← CHANGE THIS
-        ];
-        var PANELS = [
+        // ── CONFIG ────────────────────────────────────────────────────────
+        var STEPS = [
             {
-                icon: '💌', num: '01', label: 'the letter',
-                hint: 'look inside the letter i left you'
+                icon: '💌', title: 'key one', heading: 'the letter',
+                body: 'i left you a letter.\ninside it is your first key — find it and enter it here.',
+                type: 'single',
+                code: 'ILOVEYOU',
+                placeholder: 'enter the code from the letter...'
             },
             {
-                icon: '💬', num: '02', label: 'iMessage',
-                // Update the phrase in quotes below to whatever she should text you
-                hint: 'iMessage me <em>&ldquo;YOUR_IMESSAGE_PHRASE&rdquo;</em> — i\'ll reply with a key'
+                icon: '💬', title: 'key two', heading: 'a message to Matheson',
+                body: 'iMessage Matheson the exact date the two of you first met\n— write it just like it appears on a calendar\n(for example: <em>December 4, 2028</em>).\nHe\'ll reply with your next key automatically.',
+                type: 'single',
+                code: 'Happy Birthday',   // ← code his iMessage auto-reply will send her
+                placeholder: 'enter the key he sent back...'
             },
             {
-                icon: '✈️', num: '03', label: 'Telegram',
-                // Update the phrase in quotes below to whatever she should text you
-                hint: 'now try Telegram — send me <em>&ldquo;YOUR_TELEGRAM_PHRASE&rdquo;</em>'
+                icon: '✈️', title: 'key three', heading: 'one more message',
+                body: 'now try Telegram.\nsend Matheson your favourite number\n— just the number, nothing else\n(for example: <em>67</em>).\nHe\'ll send your key right back.',
+                type: 'single',
+                code: 'My Dearest Lyka', // ← code his Telegram auto-reply will send her
+                placeholder: 'enter the key he sent back...'
             },
             {
-                icon: '💝', num: '04', label: 'Valentine\'s site',
-                hint: 'remember your Valentine\'s website? look around — something is hiding there'
+                icon: '💝', title: 'the final key', heading: 'your Valentine\'s letters',
+                body: 'go to your Valentine\'s website and read each of the 3 letters.\nfind the very last word before the signature in each letter,\nthen enter the three words below — in order.',
+                type: 'multi',
+                codes: ['Him', 'letter', 'too'],
+                labels: ['last word of letter 1', 'last word of letter 2', 'last word of letter 3'],
+                placeholders: ['word...', 'word...', 'word...']
             }
         ];
-        var UNLOCK_KEY = 'lyka_gate_v1';
-        // ────────────────────────────────────────────────────────────────
+        var CACHE_KEY  = 'lyka_gate_step_v2';   // saves current step (0–3)
+        var UNLOCK_KEY = 'lyka_gate_done_v2';    // set to '1' when all done
+        // ─────────────────────────────────────────────────────────────────
 
-        // Already unlocked on a previous visit → skip gate instantly
+        // Already fully unlocked on a previous visit → hide gate instantly
         try {
             if (localStorage.getItem(UNLOCK_KEY) === '1') {
                 var g = document.getElementById('siteGate');
@@ -3107,60 +3107,30 @@
             }
         } catch(e) {}
 
-        var gate     = document.getElementById('siteGate');
-        var panelsEl = document.getElementById('gatePanels');
-        var keysRow  = document.getElementById('gateKeysRow');
-        var countEl  = document.getElementById('gateCount');
-        var partyEl  = document.getElementById('gateParty');
-        if (!gate || !panelsEl) return;
+        var gate    = document.getElementById('siteGate');
+        var stageEl = document.getElementById('gateStage');
+        var dotsEl  = document.getElementById('gateProgressDots');
+        var partyEl = document.getElementById('gateParty');
+        if (!gate || !stageEl) return;
 
-        var unlocked = [false, false, false, false];
+        // Restore step from localStorage (so leaving the page doesn't lose progress)
+        var currentStep = 0;
+        try {
+            var saved = parseInt(localStorage.getItem(CACHE_KEY) || '0', 10);
+            if (!isNaN(saved) && saved >= 0 && saved < STEPS.length) currentStep = saved;
+        } catch(e) {}
 
-        // ── Build panels ──
-        PANELS.forEach(function(p, i) {
-            var div = document.createElement('div');
-            div.className = 'gate-panel';
-            div.id = 'gp' + i;
-            div.innerHTML =
-                '<div class="gp-left">' +
-                    '<span class="gp-num">' + p.num + '</span>' +
-                    '<span class="gp-icon">' + p.icon + '</span>' +
-                '</div>' +
-                '<div class="gp-right">' +
-                    '<p class="gp-label">' + p.label + '</p>' +
-                    '<p class="gp-hint">' + p.hint + '</p>' +
-                    '<div class="gp-row">' +
-                        '<input class="gp-input" id="gpi' + i + '" type="text" ' +
-                            'placeholder="enter code…" autocomplete="off" ' +
-                            'spellcheck="false" autocorrect="off" autocapitalize="characters">' +
-                        '<span class="gp-lock" id="gpl' + i + '">🔒</span>' +
-                    '</div>' +
-                '</div>';
-            panelsEl.appendChild(div);
-
-            var input = document.getElementById('gpi' + i);
-            function tryCode() {
-                if (unlocked[i]) return;
-                var val = input.value.trim().toUpperCase();
-                if (val === CODES[i].toUpperCase()) {
-                    unlock(i, input);
-                } else if (val) {
-                    input.classList.add('gp-wrong');
-                    setTimeout(function() { input.classList.remove('gp-wrong'); }, 500);
-                }
+        // Build progress dots
+        if (dotsEl) {
+            for (var d = 0; d < STEPS.length; d++) {
+                var dot = document.createElement('span');
+                dot.className = 'gate-dot';
+                dot.setAttribute('data-d', d);
+                dotsEl.appendChild(dot);
             }
-            // Check on every keystroke (correct code accepts immediately)
-            input.addEventListener('input', function() {
-                if (unlocked[i]) return;
-                var val = this.value.trim().toUpperCase();
-                if (val === CODES[i].toUpperCase()) unlock(i, input);
-            });
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') tryCode();
-            });
-        });
+        }
 
-        // ── Animated stars ──
+        // Animated star background
         var starsEl = document.getElementById('gateStars');
         if (starsEl) {
             for (var s = 0; s < 60; s++) {
@@ -3170,40 +3140,176 @@
                 star.style.cssText =
                     'width:' + sz + ';height:' + sz + ';' +
                     'left:' + (Math.random() * 100) + '%;' +
-                    'top:' + (Math.random() * 100) + '%;' +
-                    'animation-delay:' + (Math.random() * 5).toFixed(2) + 's;' +
+                    'top:'  + (Math.random() * 100) + '%;' +
+                    'animation-delay:'    + (Math.random() * 5).toFixed(2) + 's;' +
                     'animation-duration:' + (2 + Math.random() * 3).toFixed(2) + 's;';
                 starsEl.appendChild(star);
             }
         }
 
-        // ── Unlock one code ──
-        function unlock(i, input) {
-            unlocked[i] = true;
-            input.classList.add('gp-correct');
-            var panel = document.getElementById('gp' + i);
-            if (panel) panel.classList.add('gp-unlocked');
-            var lock = document.getElementById('gpl' + i);
-            if (lock) { lock.textContent = '🔓'; lock.classList.add('gpl-open'); }
-            var dot = keysRow && keysRow.querySelector('[data-i="' + i + '"]');
-            if (dot) { dot.textContent = '🔑'; dot.classList.add('gkd-found'); }
+        updateDots();
+        showStep(currentStep, false);
 
-            var found = unlocked.filter(Boolean).length;
-            if (countEl) {
-                countEl.textContent = found + ' of 4 keys found';
-                if (found === 4) countEl.classList.add('gc-all');
-            }
-            if (found === 4) setTimeout(celebrate, 400);
+        // ── Update progress dots ──
+        function updateDots() {
+            if (!dotsEl) return;
+            dotsEl.querySelectorAll('.gate-dot').forEach(function(dot, i) {
+                dot.classList.remove('gd-done', 'gd-current', 'gd-future');
+                if (i < currentStep)      dot.classList.add('gd-done');
+                else if (i === currentStep) dot.classList.add('gd-current');
+            });
         }
 
-        // ── Celebration ──
+        // ── Render a step panel ──
+        function showStep(index, animate) {
+            var step = STEPS[index];
+
+            // Format body: newlines → <br>, keep <em> tags intact
+            var bodyHtml = step.body.split('\n').join('<br>');
+
+            var inputsHtml = '';
+            if (step.type === 'single') {
+                inputsHtml =
+                    '<div class="gp-input-wrap">' +
+                        '<input class="gp-input" id="gpi_main" type="text" ' +
+                            'placeholder="' + step.placeholder + '" ' +
+                            'autocomplete="off" spellcheck="false" ' +
+                            'autocorrect="off" autocapitalize="characters">' +
+                        '<span class="gp-lock" id="gp_lock">🔒</span>' +
+                    '</div>';
+            } else {
+                inputsHtml = '<div class="gp-multi">';
+                step.codes.forEach(function(c, i) {
+                    inputsHtml +=
+                        '<div class="gp-multi-row">' +
+                            '<label class="gp-multi-label">' + step.labels[i] + '</label>' +
+                            '<input class="gp-input gp-multi-input" id="gpi_' + i + '" ' +
+                                'type="text" placeholder="' + step.placeholders[i] + '" ' +
+                                'autocomplete="off" spellcheck="false" ' +
+                                'autocorrect="off" autocapitalize="characters">' +
+                        '</div>';
+                });
+                inputsHtml +=
+                    '</div>' +
+                    '<button class="gp-submit" id="gp_submit">unlock ✦</button>' +
+                    '<p class="gp-submit-error" id="gp_error"></p>';
+            }
+
+            var panel = document.createElement('div');
+            panel.className = 'gate-panel' + (animate ? ' gp-entering' : '');
+            panel.innerHTML =
+                '<div class="gp-step-label">' +
+                    '<span class="gp-icon">' + step.icon + '</span>' +
+                    '<span class="gp-title">' + step.title + '</span>' +
+                '</div>' +
+                '<h3 class="gp-heading">' + step.heading + '</h3>' +
+                '<p class="gp-body">' + bodyHtml + '</p>' +
+                inputsHtml;
+
+            stageEl.innerHTML = '';
+            stageEl.appendChild(panel);
+
+            // Wire events
+            if (step.type === 'single') {
+                var input = document.getElementById('gpi_main');
+                var lock  = document.getElementById('gp_lock');
+                input.addEventListener('input', function() {
+                    if (this.value.trim().toUpperCase() === step.code.toUpperCase()) {
+                        unlockSingle(input, lock);
+                    }
+                });
+                input.addEventListener('keydown', function(e) {
+                    if (e.key !== 'Enter') return;
+                    if (this.value.trim().toUpperCase() === step.code.toUpperCase()) {
+                        unlockSingle(input, lock);
+                    } else if (this.value.trim()) {
+                        shake(input);
+                    }
+                });
+                setTimeout(function() { if (input) input.focus(); }, animate ? 360 : 80);
+
+            } else {
+                var submitBtn = document.getElementById('gp_submit');
+                var errEl     = document.getElementById('gp_error');
+                submitBtn.addEventListener('click', function() {
+                    var allOk = step.codes.every(function(code, i) {
+                        var inp = document.getElementById('gpi_' + i);
+                        return inp && inp.value.trim().toUpperCase() === code.toUpperCase();
+                    });
+                    if (allOk) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = '🔓 unlocked!';
+                        submitBtn.classList.add('gp-submit-ok');
+                        step.codes.forEach(function(c, i) {
+                            var inp = document.getElementById('gpi_' + i);
+                            if (inp) inp.classList.add('gp-correct');
+                        });
+                        setTimeout(advance, 700);
+                    } else {
+                        step.codes.forEach(function(code, i) {
+                            var inp = document.getElementById('gpi_' + i);
+                            if (inp && inp.value.trim().toUpperCase() !== code.toUpperCase()) shake(inp);
+                        });
+                        if (errEl) {
+                            errEl.textContent = 'one or more words don\'t match — check and try again';
+                            setTimeout(function() { errEl.textContent = ''; }, 2800);
+                        }
+                    }
+                });
+                // Enter on last input triggers submit
+                var lastInput = document.getElementById('gpi_' + (step.codes.length - 1));
+                if (lastInput) {
+                    lastInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') submitBtn.click();
+                    });
+                }
+                setTimeout(function() {
+                    var first = document.getElementById('gpi_0');
+                    if (first) first.focus();
+                }, animate ? 360 : 80);
+            }
+        }
+
+        function shake(input) {
+            input.classList.remove('gp-wrong');
+            void input.offsetWidth; // reflow to restart animation
+            input.classList.add('gp-wrong');
+            setTimeout(function() { input.classList.remove('gp-wrong'); }, 500);
+        }
+
+        function unlockSingle(input, lock) {
+            input.readOnly = true;
+            input.classList.add('gp-correct');
+            if (lock) { lock.textContent = '🔓'; lock.classList.add('gpl-open'); }
+            setTimeout(advance, 650);
+        }
+
+        function advance() {
+            currentStep++;
+            try { localStorage.setItem(CACHE_KEY, currentStep); } catch(e) {}
+            updateDots();
+            if (currentStep >= STEPS.length) {
+                setTimeout(celebrate, 300);
+                return;
+            }
+            var old = stageEl.querySelector('.gate-panel');
+            if (old) {
+                old.classList.add('gp-exiting');
+                setTimeout(function() { showStep(currentStep, true); }, 290);
+            } else {
+                showStep(currentStep, true);
+            }
+        }
+
         function celebrate() {
             if (!partyEl) return;
             partyEl.classList.add('gate-party-on');
             spawnConfetti();
-            try { localStorage.setItem(UNLOCK_KEY, '1'); } catch(e) {}
-            // After the party, fade the gate away and let the spiral intro show
-            setTimeout(function() { gate.classList.add('gate-gone'); }, 3400);
+            try {
+                localStorage.setItem(UNLOCK_KEY, '1');
+                localStorage.removeItem(CACHE_KEY);
+            } catch(e) {}
+            setTimeout(function() { gate.classList.add('gate-gone'); }, 3500);
         }
 
         function spawnConfetti() {
@@ -3216,23 +3322,19 @@
             var pieces = [];
             for (var i = 0; i < 160; i++) {
                 pieces.push({
-                    x:   Math.random() * canvas.width,
-                    y:   -20 - Math.random() * canvas.height * 0.5,
-                    w:   6 + Math.random() * 8,
-                    h:   8 + Math.random() * 7,
-                    vx:  (Math.random() - 0.5) * 3.5,
-                    vy:  2.8 + Math.random() * 3,
-                    rot: Math.random() * Math.PI * 2,
-                    vr:  (Math.random() - 0.5) * 0.14,
-                    color: colors[i % colors.length],
-                    alpha: 1
+                    x: Math.random() * canvas.width,
+                    y: -20 - Math.random() * canvas.height * 0.5,
+                    w: 6 + Math.random() * 8, h: 8 + Math.random() * 7,
+                    vx: (Math.random() - 0.5) * 3.5, vy: 2.8 + Math.random() * 3,
+                    rot: Math.random() * Math.PI * 2, vr: (Math.random() - 0.5) * 0.14,
+                    color: colors[i % colors.length], alpha: 1
                 });
             }
             (function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 var alive = false;
                 pieces.forEach(function(p) {
-                    p.x   += p.vx; p.y += p.vy; p.rot += p.vr;
+                    p.x += p.vx; p.y += p.vy; p.rot += p.vr;
                     if (p.y > canvas.height * 0.85) p.alpha = Math.max(0, p.alpha - 0.035);
                     if (p.alpha > 0) alive = true;
                     ctx.save();
