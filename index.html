@@ -1480,28 +1480,6 @@
             font-weight: 500;
         }
         /* Progress dots row above the bar — small visual rhythm */
-        .pg-progress {
-            position: fixed;
-            bottom: 4.25rem;
-            left: 50%; transform: translateX(-50%);
-            display: flex; gap: 4px;
-            z-index: 59;
-            opacity: 0;
-            transition: opacity 0.6s ease 0.4s;
-            pointer-events: none;
-            max-width: 90vw;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .pg-progress.revealed { opacity: 0.7; }
-        .pg-progress-dot {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: var(--rose-pale);
-            transition: all 0.3s ease;
-        }
-        .pg-progress-dot.done { background: var(--rose-light); }
-        .pg-progress-dot.current { background: var(--rose); transform: scale(1.4); }
-
         /* Add bottom padding to active page content so it doesn't get cut off by the bar */
         body.paginated section.page.active {
             padding-bottom: 6rem;
@@ -1522,11 +1500,53 @@
             max-width: 780px;
             margin: 0 auto;
         }
-        .verse-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+        .verse-swiper {
+            position: relative;
             margin-top: 2.5rem;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+        .verse-track {
+            display: flex;
+            transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+        .verse-track .verse-card {
+            min-width: 100%;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        .verse-swiper-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            margin-top: 1.25rem;
+        }
+        .verse-swiper-btn {
+            background: none;
+            border: 1px solid var(--rose-pale);
+            color: var(--rose);
+            border-radius: 50%;
+            width: 2.4rem;
+            height: 2.4rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease, border-color 0.2s ease;
+            flex-shrink: 0;
+        }
+        .verse-swiper-btn:hover { background: var(--rose-pale); border-color: var(--rose-light); }
+        .verse-swiper-btn:disabled { opacity: 0.25; cursor: default; }
+        .verse-swiper-counter {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: var(--text-faint);
+            min-width: 4.5rem;
+            text-align: center;
         }
         .verse-card {
             background: rgba(255,255,255,0.7);
@@ -3173,10 +3193,11 @@
     <!-- ===== BIBLE VERSES ===== -->
     <section class="verses-section">
         <div class="reveal">
-            <p class="section-label">His Word</p>
-            <h2 class="section-heading">Verses that <em>carried you</em></h2>
+            <p class="section-label">Our verses</p>
+            <h2 class="section-heading">Verses that <em>carry us</em></h2>
         </div>
-        <div class="verse-list reveal">
+        <div class="verse-swiper reveal" id="verseSwiper">
+        <div class="verse-track" id="verseTrack">
 
             <div class="verse-card">
                 <span class="verse-date">May 5</span>
@@ -3423,7 +3444,13 @@ who made heaven and earth.</p>
                 <span class="verse-ref">1 John 5:14</span>
             </div>
 
+        </div><!-- /verse-track -->
+        <div class="verse-swiper-nav">
+            <button class="verse-swiper-btn" id="versePrev" aria-label="previous verse">&#8592;</button>
+            <span class="verse-swiper-counter" id="verseCounter">1 / 38</span>
+            <button class="verse-swiper-btn" id="verseNext" aria-label="next verse">&#8594;</button>
         </div>
+        </div><!-- /verse-swiper -->
     </section>
 
     <!-- Divider -->
@@ -3760,6 +3787,12 @@ who made heaven and earth.</p>
     //  SPIRAL INTRO ANIMATION (ported to vanilla JS, pink theme)
     // ==========================================================
     (function() {
+        // Returning from a sub-page — skip intro entirely
+        if (window.location.hash === '#return') {
+            var introEl = document.getElementById('intro');
+            if (introEl) { introEl.style.display = 'none'; }
+            return;
+        }
         const canvas = document.getElementById('spiralCanvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -4542,22 +4575,25 @@ who made heaven and earth.</p>
     (function() {
         var container = document.getElementById('floatingHearts');
         if (!container) return;
-        var hearts = ['\u2665', '\u2661'];
+        var hearts = ['\u2665', '\u2661', '\u2665', '\u2661', '\u2665'];
         function spawnHeart() {
             var h = document.createElement('div');
             h.className = 'floating-heart';
             h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-            h.style.left = Math.random() * 100 + '%';
-            h.style.fontSize = (8 + Math.random() * 8) + 'px';
-            h.style.animationDuration = (12 + Math.random() * 10) + 's';
+            h.style.left = (Math.random() * 98) + '%';
+            var size = 6 + Math.random() * 22;
+            h.style.fontSize = size + 'px';
+            var dur = 9 + Math.random() * 14;
+            h.style.animationDuration = dur + 's';
             h.style.animationDelay = '0s';
-            var colors = ['var(--rose-pale)', 'var(--lavender-pale)', 'var(--gold-light)'];
+            h.style.opacity = (0.25 + Math.random() * 0.55).toFixed(2);
+            var colors = ['var(--rose-pale)', 'var(--rose-light)', 'var(--lavender-pale)', 'var(--gold-light)', 'var(--rose)'];
             h.style.color = colors[Math.floor(Math.random() * colors.length)];
             container.appendChild(h);
-            setTimeout(function() { h.remove(); }, 24000);
+            setTimeout(function() { if (h.parentNode) h.remove(); }, (dur + 1) * 1000);
         }
-        setInterval(spawnHeart, 4000);
-        for (var i = 0; i < 5; i++) setTimeout(spawnHeart, i * 2000);
+        setInterval(spawnHeart, 1600);
+        for (var i = 0; i < 14; i++) setTimeout(spawnHeart, i * 800);
     })();
 
     // ==========================================================
@@ -5040,24 +5076,11 @@ who made heaven and earth.</p>
             '</button>';
         document.body.appendChild(bar);
 
-        // Build the progress dot strip
-        var progress = document.createElement('div');
-        progress.className = 'pg-progress';
-        for (var i = 0; i < sections.length; i++) {
-            var dot = document.createElement('span');
-            dot.className = 'pg-progress-dot';
-            if (i === 0) dot.classList.add('current');
-            dot.setAttribute('data-i', i);
-            progress.appendChild(dot);
-        }
-        document.body.appendChild(progress);
-
         var prevBtn = document.getElementById('pgPrev');
         var nextBtn = document.getElementById('pgNext');
         var nextLabel = document.getElementById('pgNextLabel');
         var nextIcon = document.getElementById('pgNextIcon');
         var counter = document.getElementById('pgCurrent');
-        var dots = progress.querySelectorAll('.pg-progress-dot');
 
         function updateUI() {
             counter.textContent = currentIndex + 1;
@@ -5070,12 +5093,6 @@ who made heaven and earth.</p>
                 nextLabel.textContent = 'next page';
                 nextIcon.innerHTML = '<path d="M5 12h14M12 5l7 7-7 7"/>';
                 nextBtn.disabled = false;
-            }
-            // Update progress dots
-            for (var i = 0; i < dots.length; i++) {
-                dots[i].classList.remove('current', 'done');
-                if (i < currentIndex) dots[i].classList.add('done');
-                else if (i === currentIndex) dots[i].classList.add('current');
             }
         }
 
@@ -5097,17 +5114,6 @@ who made heaven and earth.</p>
         prevBtn.addEventListener('click', function() { goTo(currentIndex - 1); });
         nextBtn.addEventListener('click', function() { goTo(currentIndex + 1); });
 
-        // Click progress dots to jump
-        progress.addEventListener('click', function(e) {
-            var t = e.target;
-            if (t.classList && t.classList.contains('pg-progress-dot')) {
-                var i = parseInt(t.getAttribute('data-i'), 10);
-                if (!isNaN(i)) goTo(i);
-            }
-        });
-        progress.style.pointerEvents = 'auto';
-        progress.style.cursor = 'pointer';
-
         // Keyboard navigation
         document.addEventListener('keydown', function(e) {
             var tag = (e.target && e.target.tagName) || '';
@@ -5127,7 +5133,6 @@ who made heaven and earth.</p>
         // Reveal the controls once the intro overlay is dismissed
         function revealControls() {
             bar.classList.add('revealed');
-            progress.classList.add('revealed');
         }
         var introEl = document.getElementById('intro');
         if (!introEl || introEl.classList.contains('hidden')) {
@@ -5148,6 +5153,17 @@ who made heaven and earth.</p>
         }
 
         updateUI();
+
+        // If returning from a sub-page (globe, card, voice-note, etc.) skip intro + go to last page
+        if (window.location.hash === '#return') {
+            history.replaceState(null, '', window.location.pathname);
+            var introEl3 = document.getElementById('intro');
+            if (introEl3) {
+                introEl3.classList.add('hidden');
+                setTimeout(function() { if (introEl3) introEl3.remove(); }, 300);
+            }
+            setTimeout(function() { goTo(sections.length - 1); revealControls(); }, 50);
+        }
     })();
 
     // ==========================================================
@@ -5542,6 +5558,49 @@ who made heaven and earth.</p>
         });
 
         syncIcons();
+    })();
+
+    // ==========================================================
+    //  VERSE SWIPER
+    // ==========================================================
+    (function() {
+        var track = document.getElementById('verseTrack');
+        var prevBtn = document.getElementById('versePrev');
+        var nextBtn = document.getElementById('verseNext');
+        var counterEl = document.getElementById('verseCounter');
+        if (!track || !prevBtn) return;
+        var cards = track.querySelectorAll('.verse-card');
+        var total = cards.length;
+        var current = 0;
+
+        function goToVerse(n) {
+            if (n < 0 || n >= total) return;
+            current = n;
+            track.style.transform = 'translateX(-' + current * 100 + '%)';
+            counterEl.textContent = (current + 1) + ' / ' + total;
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === total - 1;
+        }
+
+        prevBtn.addEventListener('click', function() { goToVerse(current - 1); });
+        nextBtn.addEventListener('click', function() { goToVerse(current + 1); });
+
+        // Touch swipe support
+        var touchStartX = null;
+        track.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+        track.addEventListener('touchend', function(e) {
+            if (touchStartX === null) return;
+            var dx = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(dx) > 45) {
+                if (dx < 0) goToVerse(current + 1);
+                else goToVerse(current - 1);
+            }
+            touchStartX = null;
+        }, { passive: true });
+
+        goToVerse(0);
     })();
 
     </script>
