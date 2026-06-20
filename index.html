@@ -421,14 +421,44 @@
         .flip-back {
             background: var(--cream); border: 1px solid var(--rose-pale);
             transform: rotateY(180deg); justify-content: flex-start; padding-top: 1.2rem;
+            overflow: hidden;
         }
 
-        .flip-back-title { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 500; color: var(--rose); margin-bottom: 0.5rem; }
-        .flip-back-text { font-size: 0.68rem; line-height: 1.5; color: var(--text-light); }
+        .flip-back-title { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 500; color: var(--rose); margin-bottom: 0.4rem; }
+        .flip-back-text { font-size: 0.67rem; line-height: 1.45; color: var(--text-light); word-break: break-word; overflow-wrap: break-word; }
         .flip-back-hint { position: absolute; bottom: 0.6rem; font-size: 0.55rem; color: var(--text-faint); letter-spacing: 1px; text-transform: uppercase; }
         .card-icon { width: 68px; height: 68px; margin-bottom: 0.5rem; }
         .card-name { font-size: 0.75rem; letter-spacing: 1px; color: var(--text-light); }
         .card-tap { font-size: 0.55rem; color: var(--text-faint); margin-top: 0.5rem; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* ===== MARQUEE TRAITS ===== */
+        .lyka-traits {
+            max-width: 400px;
+            margin: 1.5rem auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            text-align: left;
+        }
+        .trait-item {
+            background: rgba(255,255,255,0.65);
+            border-left: 2px solid var(--rose-light);
+            padding: 0.75rem 1.1rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            color: var(--text);
+            line-height: 1.5;
+            border-radius: 0 8px 8px 0;
+        }
+        .trait-footer {
+            margin-top: 1.75rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--text-faint);
+            text-align: center;
+        }
 
         /* ===== ACROSTIC ===== */
         .acrostic-section { background: var(--warm); }
@@ -2194,6 +2224,18 @@
                 </div>
             </div>
         </div>
+        <div class="reveal" style="margin-top:3rem;">
+            <p class="section-label" style="text-align:center;">but also</p>
+            <div class="lyka-traits">
+                <div class="trait-item">the person who texts back at exactly the right moment</div>
+                <div class="trait-item">makes everyone feel like they're the most important person in the room</div>
+                <div class="trait-item">probably thinking about someone she loves right now</div>
+                <div class="trait-item">remembers the small things — birthdays, favourite orders, inside jokes</div>
+                <div class="trait-item">the kind of kind that doesn't need an audience</div>
+                <div class="trait-item">hard to describe. impossible to forget.</div>
+            </div>
+            <p class="trait-footer">— an incomplete list</p>
+        </div>
     </section>
 
     <!-- Divider -->
@@ -2305,7 +2347,7 @@
                                     </svg>
                                     <span class="card-name">Cat</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Cat</div><div class="flip-back-text">Independent yet affectionate. They choose who to love, and they'd definitely choose you, Lyka.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Cat</div><div class="flip-back-text">Selective about who they love. But once they do — completely. Sound familiar?</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- DOG -->
@@ -2356,7 +2398,7 @@
                                     </svg>
                                     <span class="card-name">Dog</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Dog</div><div class="flip-back-text">Loyal to the end and full of joy. The kind of pure, unconditional love that matches your spirit.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Dog</div><div class="flip-back-text">Loyal. Joyful. Greets everyone like it's been years. This is basically you in any room.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- BUNNY -->
@@ -2420,7 +2462,7 @@
                                     </svg>
                                     <span class="card-name">Bunny</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Bunny</div><div class="flip-back-text">Gentle, curious, and quietly brave. They remind us that softness is its own kind of strength.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Bunny</div><div class="flip-back-text">Soft, curious, and somehow brave about it. Softness isn't weakness — you know that.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- HAMSTER -->
@@ -2483,7 +2525,7 @@
                                     </svg>
                                     <span class="card-name">Hamster</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Hamster</div><div class="flip-back-text">Small but full of personality. They store happiness in their cheeks, just like you store warmth in your heart.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Hamster</div><div class="flip-back-text">Tiny. Dramatic. Has pockets somehow. Honestly, kind of iconic.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- FOX -->
@@ -2534,7 +2576,7 @@
                                     </svg>
                                     <span class="card-name">Fox</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Fox</div><div class="flip-back-text">Clever, playful, and full of charm. They move through life with grace and curiosity, just like you.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Fox</div><div class="flip-back-text">Clever and a little mysterious. Everyone's curious about her. She doesn't really notice.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                     </div>
@@ -2656,7 +2698,7 @@
                                     </svg>
                                     <span class="card-name">Water Lily</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Water Lily</div><div class="flip-back-text">Serene, rooted, and quietly luminous. Blooms above still water even when things below are tangled. Soft outside, strong within — a flower that felt like you.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Water Lily</div><div class="flip-back-text">Rooted in murky water. Blooms above it anyway. Soft on top, grounded underneath — a lot like you.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
@@ -2733,7 +2775,7 @@
                                     </svg>
                                     <span class="card-name">Lotus</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Lotus</div><div class="flip-back-text">Rises from muddy water and opens completely, untouched. Devotion, resilience, and calm under pressure. A flower that chooses to bloom anyway.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Lotus</div><div class="flip-back-text">Grows through mud. Opens completely. Totally unbothered. The flower version of choosing peace.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
@@ -2811,7 +2853,7 @@
                                     </svg>
                                     <span class="card-name">Peony</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Peony</div><div class="flip-back-text">All gentle, all abundance. Layer after layer of soft. Meant to mean a happy life, a good marriage, a year that's kind. Every wish, wrapped up in a flower.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Peony</div><div class="flip-back-text">All softness, all abundance. Means a happy life and a good year. Every good wish in one flower.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
@@ -2883,7 +2925,7 @@
                                     </svg>
                                     <span class="card-name">Garden Rose</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Garden Rose</div><div class="flip-back-text">The one everyone knows. But the older they get, the softer they fold in on themselves. Pink roses mean gratitude — which is how I feel that you exist.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Garden Rose</div><div class="flip-back-text">Pink roses mean gratitude. That's exactly how I feel — every day that you exist.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
@@ -2962,7 +3004,7 @@
                                     </svg>
                                     <span class="card-name">Ranunculus</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Ranunculus</div><div class="flip-back-text">Petals like pressed paper, wound into a small, impossible spiral. They say it means "you are radiant with charm," which felt accurate when I was looking for you.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Ranunculus</div><div class="flip-back-text">Means "radiant with charm." They named it before they even met you, but honestly — accurate.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
@@ -3049,7 +3091,7 @@
                                     </svg>
                                     <span class="card-name">Wildflower</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Wildflower Posy</div><div class="flip-back-text">Daisy for joy. Lavender for calm. Eucalyptus because everything smells better near you. Picked, not bought. The honest kind of pretty.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Wildflower Posy</div><div class="flip-back-text">Daisy, lavender, eucalyptus. Picked, not bought. A little wild, a little calm — the honest kind of pretty.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                     </div>
