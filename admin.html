@@ -606,10 +606,6 @@ photoFile.addEventListener('change', function() {
     photoUploadBtn.disabled = false;
 });
 
-document.getElementById('uploadPreview').addEventListener('click', function() {
-    photoFile.click();
-});
-
 photoUploadBtn.addEventListener('click', function() {
     if (!selectedFile) return;
     if (!sbOK) { setStatus(photoStatus, 'err', 'Supabase not configured — add your URL + key at the top of this file.'); return; }
