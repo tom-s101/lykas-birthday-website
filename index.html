@@ -5241,6 +5241,18 @@ who made heaven and earth.</p>
         var nextIcon = document.getElementById('pgNextIcon');
         var counter = document.getElementById('pgCurrent');
 
+        // 10-tap on page counter → admin
+        var pgTapCount = 0, pgTapTimer;
+        var pgCounterSpan = bar.querySelector('.pg-counter');
+        if (pgCounterSpan) {
+            pgCounterSpan.addEventListener('click', function() {
+                pgTapCount++;
+                clearTimeout(pgTapTimer);
+                pgTapTimer = setTimeout(function() { pgTapCount = 0; }, 2500);
+                if (pgTapCount >= 10) { pgTapCount = 0; window.location.href = 'admin.html'; }
+            });
+        }
+
         function updateUI() {
             counter.textContent = currentIndex + 1;
             prevBtn.disabled = (currentIndex === 0);
@@ -5330,8 +5342,8 @@ who made heaven and earth.</p>
     // ==========================================================
     (function() {
         // ── CONFIG ── paste your values from supabase.com/dashboard/project/_/settings/api
-        var SUPABASE_URL = 'YOUR_SUPABASE_URL';        // e.g. https://abcxyz.supabase.co
-        var SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';   // "anon public" key
+        var SUPABASE_URL = 'https://vforizrevnrzbzkwtdbc.supabase.co';
+        var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
         var BUCKET       = 'music';
         var STATE_KEY    = 'lyka_bday_music_v2';
 
@@ -5769,9 +5781,9 @@ who made heaven and earth.</p>
         if (!stage) return;
 
         // ── Supabase config (use same URL + key as music player above) ──
-        var SB_URL = 'YOUR_SUPABASE_URL';
-        var SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
-        var sbOK   = SB_URL !== 'YOUR_SUPABASE_URL';
+        var SB_URL = 'https://vforizrevnrzbzkwtdbc.supabase.co';
+        var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
+        var sbOK   = true;
 
         var TOTAL_SLOTS = 40;
         var CAPTIONS = [
@@ -5789,7 +5801,6 @@ who made heaven and earth.</p>
 
         var MAX_VIS = 7, HALF = 3;
         var cards = [], total = 0, centerIdx = 0, hovering = false, lbOpen = false;
-        var tapCount = 0, tapTimer;
 
         /* ---- card generation ---- */
         function makeCard(url, loc, cap, dbId) {
@@ -5967,17 +5978,6 @@ who made heaven and earth.</p>
         var nextBtn = document.getElementById('lysonNext');
         if (prevBtn) prevBtn.addEventListener('click', function() { goTo(centerIdx - 1); });
         if (nextBtn) nextBtn.addEventListener('click', function() { goTo(centerIdx + 1); });
-
-        /* ---- 10-tap counter → admin ---- */
-        var cntEl = document.getElementById('lysonCounter');
-        if (cntEl) {
-            cntEl.addEventListener('click', function() {
-                tapCount++;
-                clearTimeout(tapTimer);
-                tapTimer = setTimeout(function() { tapCount = 0; }, 2500);
-                if (tapCount >= 10) { tapCount = 0; window.location.href = 'admin.html'; }
-            });
-        }
 
         /* ---- hover spread ---- */
         stage.addEventListener('mouseenter', function() {
