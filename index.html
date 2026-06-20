@@ -1495,26 +1495,45 @@
         }
 
         /* ===== BIBLE VERSES ===== */
+        /* Override pagination display:block so this section can be full-height flex */
+        body.paginated section.verses-section.page.active {
+            display: flex !important;
+            flex-direction: column;
+            min-height: 100svh;
+            padding-bottom: 5.5rem; /* room for fixed pagination bar */
+            box-sizing: border-box;
+        }
         .verses-section {
-            padding: 5rem 1.5rem 4rem;
-            max-width: 780px;
-            margin: 0 auto;
+            padding: 3rem 1.5rem 5.5rem;
+            box-sizing: border-box;
+            width: 100%;
         }
         .verse-swiper {
+            flex: 1;
             position: relative;
-            margin-top: 2.5rem;
+            margin-top: 1.5rem;
             overflow: hidden;
             touch-action: pan-y;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
         .verse-track {
+            flex: 1;
             display: flex;
+            align-items: stretch;
+            width: 100%;
             transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             will-change: transform;
+            min-height: 0;
         }
         .verse-track .verse-card {
-            min-width: 100%;
-            flex-shrink: 0;
+            flex: 0 0 100%;
+            min-width: 0;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .verse-swiper-nav {
             display: flex;
@@ -1522,6 +1541,7 @@
             justify-content: center;
             gap: 1.25rem;
             margin-top: 1.25rem;
+            flex-shrink: 0;
         }
         .verse-swiper-btn {
             background: none;
@@ -1553,30 +1573,30 @@
             border: 1px solid var(--rose-pale);
             border-left: 3px solid var(--rose-light);
             border-radius: 12px;
-            padding: 1.5rem 1.6rem 1.3rem;
+            padding: 2rem 1.6rem;
             position: relative;
-            transition: box-shadow 0.25s ease, transform 0.2s ease;
         }
         .verse-card:hover {
             box-shadow: 0 6px 22px rgba(196,114,127,0.14);
-            transform: translateY(-2px);
         }
         .verse-date {
             font-size: 0.58rem;
             letter-spacing: 3px;
             text-transform: uppercase;
             color: var(--rose);
-            margin-bottom: 0.7rem;
+            margin-bottom: 0.9rem;
             display: block;
         }
         .verse-text {
             font-family: 'Cormorant Garamond', serif;
             font-style: italic;
-            font-size: 1.18rem;
-            line-height: 1.7;
+            font-size: 1.25rem;
+            line-height: 1.75;
             color: var(--text);
-            margin: 0 0 0.85rem;
+            margin: 0 0 1rem;
             white-space: pre-line;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .verse-ref {
             font-size: 0.72rem;
