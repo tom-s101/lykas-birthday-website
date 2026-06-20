@@ -237,6 +237,10 @@
             font-family: 'Cormorant Garamond', serif; font-style: italic;
             font-size: 0.8rem; color: var(--text-light); line-height: 1.4;
         }
+        .photo-admin-date {
+            font-size: 0.58rem; color: var(--text-faint); letter-spacing: 0.06em;
+            margin-bottom: 0.15rem;
+        }
         .photo-admin-actions {
             display: flex; gap: 0.4rem; padding: 0 0.6rem 0.6rem;
         }
@@ -329,6 +333,7 @@
                 </div>
             </div>
             <input type="file" id="photoFile" accept="image/*">
+            <input type="file" id="replaceFile" accept="image/*">
 
             <div class="field-row">
                 <div class="field-group">
@@ -336,13 +341,19 @@
                     <input class="field-input" id="photoLocation" type="text" placeholder="e.g. Tokyo, Japan">
                 </div>
                 <div class="field-group">
+                    <label class="field-label" for="photoDate">Date</label>
+                    <input class="field-input" id="photoDate" type="date">
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label class="field-label" for="photoCaption">Caption</label>
+                    <input class="field-input" id="photoCaption" type="text" placeholder="e.g. lyson approved">
+                </div>
+                <div class="field-group">
                     <label class="field-label" for="photoOrder">Display order</label>
                     <input class="field-input" id="photoOrder" type="number" min="0" value="0" placeholder="0">
                 </div>
-            </div>
-            <div class="field-group">
-                <label class="field-label" for="photoCaption">Caption</label>
-                <input class="field-input" id="photoCaption" type="text" placeholder="e.g. lyson approved">
             </div>
 
             <div class="progress-wrap" id="photoProgress">
@@ -437,9 +448,15 @@
     <div class="modal-box">
         <div class="modal-title">Edit photo</div>
         <input type="hidden" id="editId">
-        <div class="field-group">
-            <label class="field-label" for="editLocation">Location</label>
-            <input class="field-input" id="editLocation" type="text">
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label" for="editLocation">Location</label>
+                <input class="field-input" id="editLocation" type="text">
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="editDate">Date</label>
+                <input class="field-input" id="editDate" type="date">
+            </div>
         </div>
         <div class="field-group">
             <label class="field-label" for="editCaption">Caption</label>
@@ -612,6 +629,7 @@ photoUploadBtn.addEventListener('click', function() {
                 photo_url:     result.url,
                 location:      document.getElementById('photoLocation').value.trim(),
                 caption:       document.getElementById('photoCaption').value.trim(),
+                photo_date:    document.getElementById('photoDate').value || null,
                 display_order: parseInt(document.getElementById('photoOrder').value) || 0,
             }),
         });
@@ -623,6 +641,7 @@ photoUploadBtn.addEventListener('click', function() {
         document.getElementById('uploadPreview').innerHTML = '<div class="upload-preview-label">tap to choose a photo<small>jpg · png · webp</small></div>';
         document.getElementById('photoLocation').value = '';
         document.getElementById('photoCaption').value = '';
+        document.getElementById('photoDate').value = '';
         document.getElementById('photoOrder').value = '0';
         progress.classList.remove('visible');
         fill.style.width = '0%';
@@ -658,13 +677,16 @@ function loadPhotos() {
             var img = row.photo_url
                 ? '<img class="thumb" src="' + row.photo_url + '" alt="Lyson">'
                 : '<div class="thumb-empty">♡</div>';
+            var dateStr = row.photo_date ? formatDate(row.photo_date) : '';
             item.innerHTML = img +
                 '<div class="photo-admin-meta">' +
                     (row.location ? '<div class="photo-admin-loc">' + escHtml(row.location) + '</div>' : '') +
-                    (row.caption  ? '<div class="photo-admin-cap">' + escHtml(row.caption)  + '</div>' : '') +
+                    (dateStr      ? '<div class="photo-admin-date">' + escHtml(dateStr)       + '</div>' : '') +
+                    (row.caption  ? '<div class="photo-admin-cap">' + escHtml(row.caption)    + '</div>' : '') +
                 '</div>' +
                 '<div class="photo-admin-actions">' +
                     '<button class="btn btn-secondary btn-sm" onclick="openEditModal(' + JSON.stringify(row).replace(/</g,'\\u003c') + ')">Edit</button>' +
+                    '<button class="btn btn-secondary btn-sm" onclick="startReplace(' + row.id + ')">Replace</button>' +
                     '<button class="btn btn-danger btn-sm" onclick="deletePhoto(' + row.id + ',\'' + (row.photo_url||'').replace(/'/g,"\\'") + '\')">Delete</button>' +
                 '</div>';
             grid.appendChild(item);
@@ -680,15 +702,23 @@ function loadPhotos() {
 function deletePhoto(id, url) {
     if (!confirm('Delete this photo?')) return;
     sbFetch('/rest/v1/lyson_photos?id=eq.' + id, { method: 'DELETE' })
-    .then(function() { loadPhotos(); })
+    .then(function() {
+        if (url) {
+            var marker = '/storage/v1/object/public/' + PHOTO_BUCKET + '/';
+            var path = url.split(marker)[1];
+            if (path) sbFetch('/storage/v1/object/' + PHOTO_BUCKET + '/' + encodeURIComponent(path), { method: 'DELETE' }).catch(function(){});
+        }
+        loadPhotos();
+    })
     .catch(function(err) { alert('Delete failed: ' + err.message); });
 }
 
 // ── Edit modal ──
 function openEditModal(row) {
     document.getElementById('editId').value       = row.id;
-    document.getElementById('editLocation').value = row.location || '';
-    document.getElementById('editCaption').value  = row.caption  || '';
+    document.getElementById('editLocation').value = row.location   || '';
+    document.getElementById('editCaption').value  = row.caption    || '';
+    document.getElementById('editDate').value     = row.photo_date || '';
     document.getElementById('editOrder').value    = row.display_order || 0;
     document.getElementById('editStatus').className = 'status-msg';
     document.getElementById('editModal').classList.add('open');
@@ -701,6 +731,7 @@ document.getElementById('editSave').addEventListener('click', function() {
     var body = {
         location:      document.getElementById('editLocation').value.trim(),
         caption:       document.getElementById('editCaption').value.trim(),
+        photo_date:    document.getElementById('editDate').value || null,
         display_order: parseInt(document.getElementById('editOrder').value) || 0,
     };
     var st = document.getElementById('editStatus');
@@ -837,8 +868,56 @@ function saveContent(key, fieldId, statusId) {
 }
 
 // ================================================================
+//  REPLACE PHOTO
+// ================================================================
+var replaceId   = null;
+var replaceFile = document.getElementById('replaceFile');
+
+function startReplace(id) {
+    replaceId = id;
+    replaceFile.value = '';
+    replaceFile.click();
+}
+
+replaceFile.addEventListener('change', function() {
+    var file = replaceFile.files[0];
+    if (!file || !replaceId) return;
+    var id = replaceId;
+    replaceId = null;
+    var list = document.getElementById('photosList');
+    var notice = document.createElement('div');
+    notice.className = 'status-msg loading';
+    notice.textContent = 'Replacing photo…';
+    list.prepend(notice);
+
+    uploadFile(PHOTO_BUCKET, file, function(){})
+    .then(function(result) {
+        return sbFetch('/rest/v1/lyson_photos?id=eq.' + id, {
+            method: 'PATCH',
+            headers: { 'Prefer': 'return=representation' },
+            body: JSON.stringify({ photo_url: result.url }),
+        });
+    })
+    .then(function() { loadPhotos(); })
+    .catch(function(err) {
+        notice.className = 'status-msg err';
+        notice.textContent = 'Replace failed: ' + err.message;
+    });
+});
+
+// ================================================================
 //  UTILS
 // ================================================================
+function formatDate(str) {
+    if (!str) return '';
+    var p = str.split('-');
+    var months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+    var m = months[parseInt(p[1], 10) - 1] || '';
+    var d = parseInt(p[2], 10);
+    return d ? m + ' ' + d + ', ' + p[0] : m + ' ' + p[0];
+}
+
 function escHtml(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }

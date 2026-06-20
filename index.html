@@ -1672,7 +1672,14 @@
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--rose);
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.25rem;
+        }
+        .lyson-date {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.58rem;
+            letter-spacing: 0.1em;
+            color: var(--text-faint);
+            margin-bottom: 0.35rem;
         }
         .lyson-caption-text {
             font-family: 'Cormorant Garamond', serif;
@@ -1756,7 +1763,12 @@
         .lyson-lb-location {
             font-family: 'Inter', sans-serif; font-size: 0.6rem;
             letter-spacing: 0.15em; text-transform: uppercase;
-            color: var(--rose-light); margin-bottom: 0.4rem;
+            color: var(--rose-light); margin-bottom: 0.2rem;
+        }
+        .lyson-lb-date {
+            font-family: 'Inter', sans-serif; font-size: 0.56rem;
+            letter-spacing: 0.1em; color: rgba(250,248,245,0.32);
+            margin-bottom: 0.4rem;
         }
         .lyson-lb-caption {
             font-family: 'Cormorant Garamond', serif; font-style: italic;
@@ -3324,6 +3336,7 @@
 
         <div class="lyson-caption">
             <div class="lyson-location" id="lysonLocation"></div>
+            <div class="lyson-date" id="lysonDate"></div>
             <div class="lyson-caption-text" id="lysonCaptionText"></div>
         </div>
         <div class="lyson-nav">
@@ -3344,6 +3357,7 @@
             </div>
             <div class="lyson-lb-info">
                 <div class="lyson-lb-location" id="lysonLbLocation"></div>
+                <div class="lyson-lb-date" id="lysonLbDate"></div>
                 <div class="lyson-lb-caption" id="lysonLbCaption"></div>
             </div>
             <div class="lyson-lb-actions">
@@ -5802,13 +5816,24 @@ who made heaven and earth.</p>
         var MAX_VIS = 7, HALF = 3;
         var cards = [], total = 0, centerIdx = 0, hovering = false, lbOpen = false;
 
+        function formatDate(str) {
+            if (!str) return '';
+            var p = str.split('-');
+            var months = ['January','February','March','April','May','June',
+                          'July','August','September','October','November','December'];
+            var m = months[parseInt(p[1], 10) - 1] || '';
+            var d = parseInt(p[2], 10);
+            return d ? m + ' ' + d + ', ' + p[0] : m + ' ' + p[0];
+        }
+
         /* ---- card generation ---- */
-        function makeCard(url, loc, cap, dbId) {
+        function makeCard(url, loc, cap, date, dbId) {
             var el = document.createElement('div');
             el.className = 'lyson-card';
-            el.dataset.location = loc || '';
-            el.dataset.caption  = cap || '';
-            el.dataset.photoUrl = url || '';
+            el.dataset.location = loc  || '';
+            el.dataset.caption  = cap  || '';
+            el.dataset.date     = date || '';
+            el.dataset.photoUrl = url  || '';
             el.dataset.dbId     = dbId || '';
             el.innerHTML = url
                 ? '<img src="' + url + '" alt="Lyson">'
@@ -5818,7 +5843,7 @@ who made heaven and earth.</p>
 
         function buildPlaceholders(count) {
             stage.innerHTML = '';
-            for (var i = 0; i < count; i++) stage.appendChild(makeCard('', '', placeCaption(i), ''));
+            for (var i = 0; i < count; i++) stage.appendChild(makeCard('', '', placeCaption(i), '', ''));
             finishInit();
         }
 
@@ -5835,8 +5860,8 @@ who made heaven and earth.</p>
                 for (var i = 0; i < slotCount; i++) {
                     var row = dbRows[i];
                     stage.appendChild(row
-                        ? makeCard(row.photo_url, row.location, row.caption || placeCaption(i), row.id)
-                        : makeCard('', '', placeCaption(i), ''));
+                        ? makeCard(row.photo_url, row.location, row.caption || placeCaption(i), row.photo_date, row.id)
+                        : makeCard('', '', placeCaption(i), '', ''));
                 }
                 finishInit();
             })
@@ -5898,11 +5923,13 @@ who made heaven and earth.</p>
         function updateCaption() {
             var c = cards[centerIdx];
             var locEl = document.getElementById('lysonLocation');
+            var dateEl = document.getElementById('lysonDate');
             var capEl = document.getElementById('lysonCaptionText');
             var cntEl = document.getElementById('lysonCounter');
-            if (locEl) locEl.textContent = c ? (c.dataset.location || '') : '';
-            if (capEl) capEl.textContent = c ? (c.dataset.caption || '') : '';
-            if (cntEl) cntEl.textContent = (centerIdx + 1) + ' / ' + total;
+            if (locEl)  locEl.textContent  = c ? (c.dataset.location || '') : '';
+            if (dateEl) dateEl.textContent = c ? formatDate(c.dataset.date) : '';
+            if (capEl)  capEl.textContent  = c ? (c.dataset.caption || '') : '';
+            if (cntEl)  cntEl.textContent  = (centerIdx + 1) + ' / ' + total;
         }
 
         function goTo(i) {
@@ -5915,6 +5942,7 @@ who made heaven and earth.</p>
         var lbImg  = document.getElementById('lysonLbImg');
         var lbEmp  = document.getElementById('lysonLbEmpty');
         var lbLoc  = document.getElementById('lysonLbLocation');
+        var lbDate = document.getElementById('lysonLbDate');
         var lbCap  = document.getElementById('lysonLbCaption');
         var lbCnt  = document.getElementById('lysonLbCount');
         var lbSave = document.getElementById('lysonLbSave');
@@ -5925,8 +5953,9 @@ who made heaven and earth.</p>
             var url  = card ? card.dataset.photoUrl : '';
             if (lbImg)  { lbImg.src = url || ''; lbImg.style.display = url ? 'block' : 'none'; }
             if (lbEmp)  lbEmp.style.display = url ? 'none' : 'flex';
-            if (lbLoc)  lbLoc.textContent = card ? (card.dataset.location || '') : '';
-            if (lbCap)  lbCap.textContent = card ? (card.dataset.caption  || '') : '';
+            if (lbLoc)  lbLoc.textContent  = card ? (card.dataset.location || '') : '';
+            if (lbDate) lbDate.textContent  = card ? formatDate(card.dataset.date) : '';
+            if (lbCap)  lbCap.textContent  = card ? (card.dataset.caption  || '') : '';
             if (lbCnt)  lbCnt.textContent = (i + 1) + ' / ' + total;
             if (lbSave) {
                 if (url) {
