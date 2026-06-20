@@ -624,21 +624,6 @@
 
         .next-page-link svg { display: inline-block; vertical-align: middle; margin-left: 0.4rem; width: 14px; height: 14px; }
 
-        /* Page nav dots */
-        .page-nav {
-            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 0.5rem; z-index: 50;
-            opacity: 0; animation: fadeIn 1s ease 2s forwards;
-        }
-
-        .page-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            border: 1px solid var(--rose-pale);
-            transition: all 0.3s ease;
-            display: block;
-        }
-
-        .page-dot.active { background: var(--rose); border-color: var(--rose); }
 
         /* ===== PETALS ===== */
         .petal-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
@@ -1434,10 +1419,6 @@
         body.paginated .scroll-line {
             display: none !important;
         }
-        /* Move the page-nav dots up a bit so they don't fight the pagination bar */
-        body.paginated .page-nav {
-            bottom: 5.25rem;
-        }
         /* Hero on a paginated page should center itself */
         body.paginated section.hero {
             min-height: calc(100vh - 4rem);
@@ -1737,6 +1718,76 @@
             .lyson-stage { height: 230px; }
             .lyson-card { width: 148px; }
             .lyson-caption-text { font-size: 1.05rem; }
+        }
+
+        /* ===== LYSON LIGHTBOX ===== */
+        .lyson-lightbox {
+            display: none;
+            position: fixed; inset: 0; z-index: 9000;
+            background: rgba(20, 8, 10, 0.93);
+            align-items: center; justify-content: center; gap: 1rem;
+            padding: 1.5rem;
+        }
+        .lyson-lb-close {
+            position: absolute; top: 1.1rem; right: 1.1rem;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
+            color: #fff; width: 38px; height: 38px; border-radius: 50%;
+            cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s; z-index: 2; line-height: 1;
+        }
+        .lyson-lb-close:hover { background: rgba(255,255,255,0.22); }
+        .lyson-lb-body {
+            display: flex; flex-direction: column; align-items: center;
+            max-width: min(88vw, 500px); width: 100%; gap: 1rem;
+        }
+        .lyson-lb-img-wrap {
+            width: 100%; aspect-ratio: 4/3;
+            background: rgba(245,221,224,0.07);
+            border-radius: 16px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(196,114,127,0.18);
+        }
+        .lyson-lb-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .lyson-lb-empty-ph {
+            color: var(--rose-pale); font-size: 3.5rem; opacity: 0.3;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .lyson-lb-info { text-align: center; }
+        .lyson-lb-location {
+            font-family: 'Inter', sans-serif; font-size: 0.6rem;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--rose-light); margin-bottom: 0.4rem;
+        }
+        .lyson-lb-caption {
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 1.15rem; color: rgba(250,248,245,0.82); line-height: 1.5;
+        }
+        .lyson-lb-actions {
+            display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+        }
+        .lyson-lb-save {
+            font-family: 'Inter', sans-serif; font-size: 0.68rem;
+            letter-spacing: 0.1em; color: var(--rose-light);
+            border: 1px solid rgba(196,114,127,0.4); border-radius: 100px;
+            padding: 0.4rem 1rem; text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .lyson-lb-save:hover { background: rgba(196,114,127,0.15); color: var(--rose-pale); }
+        .lyson-lb-count {
+            font-family: 'Inter', sans-serif; font-size: 0.6rem;
+            letter-spacing: 0.12em; color: rgba(250,248,245,0.35);
+        }
+        .lyson-lb-arrow {
+            background: none; border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.65); width: 42px; height: 42px;
+            border-radius: 50%; cursor: pointer; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, color 0.2s; flex-shrink: 0;
+        }
+        .lyson-lb-arrow:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        @media (max-width: 480px) {
+            .lyson-lb-arrow { width: 34px; height: 34px; font-size: 0.95rem; }
+            .lyson-lightbox { gap: 0.4rem; padding: 1rem; }
         }
 
         /* ===== MUSIC PLAYER ===== */
@@ -3268,42 +3319,8 @@
             <h2 class="section-heading">little explorer,<br><em>big adventures</em></h2>
         </div>
 
-        <!-- Fan stage — add/remove .lyson-card divs to change total count.
-             To add a photo: replace <div class="lyson-card-empty">♡</div>
-             with <img src="your-photo.jpg" alt="description">.
-             Fill in data-location (e.g. "Tokyo, Japan") and data-caption per card. -->
-        <div class="lyson-stage" id="lysonStage">
-            <div class="lyson-card" data-location="" data-caption="adventure begins ♡">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="every place feels closer with you">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="lyson approved">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="the world is big, but you make it feel small">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="sent this one and thought of you">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="lyson always finds the best views">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="proof i never travel alone">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="carrying you everywhere i go">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="miles away, still together">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-            <div class="lyson-card" data-location="" data-caption="home is wherever lyson is">
-                <div class="lyson-card-empty">♡</div>
-            </div>
-        </div>
+        <!-- Cards are generated by JS from Supabase (or 40 placeholders if not yet configured) -->
+        <div class="lyson-stage" id="lysonStage"></div>
 
         <div class="lyson-caption">
             <div class="lyson-location" id="lysonLocation"></div>
@@ -3311,10 +3328,31 @@
         </div>
         <div class="lyson-nav">
             <button class="lyson-nav-btn" id="lysonPrev" aria-label="Previous photo">&#8592;</button>
-            <div class="lyson-counter" id="lysonCounter">1 / 10</div>
+            <div class="lyson-counter" id="lysonCounter">1 / 40</div>
             <button class="lyson-nav-btn" id="lysonNext" aria-label="Next photo">&#8594;</button>
         </div>
     </section>
+
+    <!-- Lyson lightbox (fullscreen photo viewer) -->
+    <div class="lyson-lightbox" id="lysonLightbox">
+        <button class="lyson-lb-close" id="lysonLbClose" aria-label="Close">&#10005;</button>
+        <button class="lyson-lb-arrow" id="lysonLbPrev" aria-label="Previous">&#8592;</button>
+        <div class="lyson-lb-body">
+            <div class="lyson-lb-img-wrap">
+                <img class="lyson-lb-img" id="lysonLbImg" src="" alt="Lyson">
+                <div class="lyson-lb-empty-ph" id="lysonLbEmpty">♡</div>
+            </div>
+            <div class="lyson-lb-info">
+                <div class="lyson-lb-location" id="lysonLbLocation"></div>
+                <div class="lyson-lb-caption" id="lysonLbCaption"></div>
+            </div>
+            <div class="lyson-lb-actions">
+                <a class="lyson-lb-save" id="lysonLbSave" href="#" download>save photo</a>
+                <span class="lyson-lb-count" id="lysonLbCount"></span>
+            </div>
+        </div>
+        <button class="lyson-lb-arrow" id="lysonLbNext" aria-label="Next">&#8594;</button>
+    </div>
 
     <!-- Divider -->
     <div class="divider-ornament">
@@ -3608,16 +3646,6 @@ who made heaven and earth.</p>
             </p>
         </div>
     </section>
-
-    <!-- Page nav dots -->
-    <div class="page-nav">
-        <span class="page-dot active"></span>
-        <a href="globe.html"><span class="page-dot"></span></a>
-        <a href="voice-note.html"><span class="page-dot"></span></a>
-        <a href="excuses.html"><span class="page-dot"></span></a>
-        <a href="card.html"><span class="page-dot"></span></a>
-        <a href="newspaper.html"><span class="page-dot"></span></a>
-    </div>
 
     <footer class="footer">made with <span>&hearts;</span> for lyka</footer>
 
@@ -5739,18 +5767,88 @@ who made heaven and earth.</p>
         if (typeof gsap === 'undefined') return;
         var stage = document.getElementById('lysonStage');
         if (!stage) return;
-        var cards = Array.from(stage.querySelectorAll('.lyson-card'));
-        var total = cards.length;
-        if (!total) return;
+
+        // ── Supabase config (use same URL + key as music player above) ──
+        var SB_URL = 'YOUR_SUPABASE_URL';
+        var SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        var sbOK   = SB_URL !== 'YOUR_SUPABASE_URL';
+
+        var TOTAL_SLOTS = 40;
+        var CAPTIONS = [
+            'adventure begins ♡','every place feels closer with you',
+            'lyson approved','the world is big, but you make it feel small',
+            'sent this one and thought of you','lyson always finds the best views',
+            'proof i never travel alone','carrying you everywhere i go',
+            'miles away, still together','home is wherever lyson is',
+            'the smallest traveller','lyson sees the world',
+            'found a good view','always in my bag','worth the trip',
+            'somewhere new today','wish you were here','little paws, big adventures',
+            'lyson in the wild','another place, same companion',
+        ];
+        function placeCaption(i) { return CAPTIONS[i % CAPTIONS.length]; }
 
         var MAX_VIS = 7, HALF = 3;
-        var centerIdx = 0;
-        var hovering = false;
+        var cards = [], total = 0, centerIdx = 0, hovering = false, lbOpen = false;
+        var tapCount = 0, tapTimer;
 
+        /* ---- card generation ---- */
+        function makeCard(url, loc, cap, dbId) {
+            var el = document.createElement('div');
+            el.className = 'lyson-card';
+            el.dataset.location = loc || '';
+            el.dataset.caption  = cap || '';
+            el.dataset.photoUrl = url || '';
+            el.dataset.dbId     = dbId || '';
+            el.innerHTML = url
+                ? '<img src="' + url + '" alt="Lyson">'
+                : '<div class="lyson-card-empty">♡</div>';
+            return el;
+        }
+
+        function buildPlaceholders(count) {
+            stage.innerHTML = '';
+            for (var i = 0; i < count; i++) stage.appendChild(makeCard('', '', placeCaption(i), ''));
+            finishInit();
+        }
+
+        function loadPhotos() {
+            if (!sbOK) { buildPlaceholders(TOTAL_SLOTS); return; }
+            fetch(SB_URL + '/rest/v1/lyson_photos?select=*&order=display_order.asc,id.asc', {
+                headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(rows) {
+                stage.innerHTML = '';
+                var dbRows = Array.isArray(rows) ? rows : [];
+                var slotCount = Math.max(dbRows.length, TOTAL_SLOTS);
+                for (var i = 0; i < slotCount; i++) {
+                    var row = dbRows[i];
+                    stage.appendChild(row
+                        ? makeCard(row.photo_url, row.location, row.caption || placeCaption(i), row.id)
+                        : makeCard('', '', placeCaption(i), ''));
+                }
+                finishInit();
+            })
+            .catch(function() { buildPlaceholders(TOTAL_SLOTS); });
+        }
+
+        function finishInit() {
+            cards = Array.from(stage.querySelectorAll('.lyson-card'));
+            total = cards.length;
+            if (!total) return;
+            cards.forEach(function(card, i) {
+                card.addEventListener('click', function() {
+                    if (i === centerIdx) openLightbox(i);
+                    else goTo(i);
+                });
+            });
+            render(false);
+        }
+
+        /* ---- fan layout ---- */
         function fanPositions() {
             var sw = stage.offsetWidth;
-            var cw = cards[0].offsetWidth || 200;
-            // Outermost card center sits at mx px from stage center
+            var cw = (cards[0] && cards[0].offsetWidth) || 200;
             var mx = Math.max(cw * 0.55, Math.min(sw * 0.38, 200));
             return [
                 { rot: -21, scale: 0.776, x: -mx,        y: 12, z: 1  },
@@ -5763,7 +5861,7 @@ who made heaven and earth.</p>
             ];
         }
 
-        function getVisibleSlots() {
+        function getSlots() {
             var slots = [], seen = {};
             for (var s = 0; s < MAX_VIS; s++) {
                 var ci = ((centerIdx + s - HALF) % total + total) % total;
@@ -5773,35 +5871,16 @@ who made heaven and earth.</p>
         }
 
         function render(anim) {
-            var pos = fanPositions();
-            var slots = getVisibleSlots();
-            var visSet = {};
-            slots.forEach(function(item) { visSet[item.ci] = true; });
-
-            // Hide cards not in the visible fan
-            cards.forEach(function(c, i) {
-                if (!visSet[i]) gsap.set(c, { autoAlpha: 0, zIndex: 0 });
+            if (!cards.length) return;
+            var pos = fanPositions(), slots = getSlots(), vis = {};
+            slots.forEach(function(it) { vis[it.ci] = true; });
+            cards.forEach(function(c, i) { if (!vis[i]) gsap.set(c, { autoAlpha: 0, zIndex: 0 }); });
+            slots.forEach(function(it) {
+                var p = pos[it.s];
+                var props = { autoAlpha: 1, rotation: p.rot, scale: p.scale, x: p.x, y: p.y, zIndex: p.z, transformOrigin: '50% 50%' };
+                if (anim) gsap.to(cards[it.ci], Object.assign({ duration: 0.4, ease: 'power2.out' }, props));
+                else gsap.set(cards[it.ci], props);
             });
-
-            // Animate visible cards into their fan slots
-            slots.forEach(function(item) {
-                var p = pos[item.s];
-                var props = {
-                    autoAlpha: 1,
-                    rotation: p.rot,
-                    scale: p.scale,
-                    x: p.x,
-                    y: p.y,
-                    zIndex: p.z,
-                    transformOrigin: '50% 50%',
-                };
-                if (anim) {
-                    gsap.to(cards[item.ci], Object.assign({ duration: 0.4, ease: 'power2.out' }, props));
-                } else {
-                    gsap.set(cards[item.ci], props);
-                }
-            });
-
             updateCaption();
         }
 
@@ -5820,35 +5899,98 @@ who made heaven and earth.</p>
             render(true);
         }
 
-        render(false);
+        /* ---- lightbox ---- */
+        var lb     = document.getElementById('lysonLightbox');
+        var lbImg  = document.getElementById('lysonLbImg');
+        var lbEmp  = document.getElementById('lysonLbEmpty');
+        var lbLoc  = document.getElementById('lysonLbLocation');
+        var lbCap  = document.getElementById('lysonLbCaption');
+        var lbCnt  = document.getElementById('lysonLbCount');
+        var lbSave = document.getElementById('lysonLbSave');
 
-        document.getElementById('lysonPrev').addEventListener('click', function() { goTo(centerIdx - 1); });
-        document.getElementById('lysonNext').addEventListener('click', function() { goTo(centerIdx + 1); });
+        function openLightbox(i) {
+            if (!lb) return;
+            var card = cards[i];
+            var url  = card ? card.dataset.photoUrl : '';
+            if (lbImg)  { lbImg.src = url || ''; lbImg.style.display = url ? 'block' : 'none'; }
+            if (lbEmp)  lbEmp.style.display = url ? 'none' : 'flex';
+            if (lbLoc)  lbLoc.textContent = card ? (card.dataset.location || '') : '';
+            if (lbCap)  lbCap.textContent = card ? (card.dataset.caption  || '') : '';
+            if (lbCnt)  lbCnt.textContent = (i + 1) + ' / ' + total;
+            if (lbSave) {
+                if (url) {
+                    lbSave.style.display = 'inline-block';
+                    lbSave.href = url;
+                    lbSave.download = 'lyson-' + (i + 1) + '.jpg';
+                    fetch(url).then(function(r){return r.blob();}).then(function(b){
+                        lbSave.href = URL.createObjectURL(b);
+                    }).catch(function(){});
+                } else {
+                    lbSave.style.display = 'none';
+                }
+            }
+            lb.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            lbOpen = true;
+            centerIdx = i; updateCaption();
+        }
 
-        cards.forEach(function(card, i) {
-            card.addEventListener('click', function() { if (i !== centerIdx) goTo(i); });
+        function closeLightbox() {
+            if (!lb) return;
+            lb.style.display = 'none';
+            document.body.style.overflow = '';
+            lbOpen = false;
+        }
+
+        function lbGoTo(i) {
+            centerIdx = ((i % total) + total) % total;
+            openLightbox(centerIdx); render(true);
+        }
+
+        var lbClose = document.getElementById('lysonLbClose');
+        var lbPrev  = document.getElementById('lysonLbPrev');
+        var lbNext  = document.getElementById('lysonLbNext');
+        if (lbClose) lbClose.addEventListener('click', closeLightbox);
+        if (lbPrev)  lbPrev.addEventListener('click',  function() { lbGoTo(centerIdx - 1); });
+        if (lbNext)  lbNext.addEventListener('click',  function() { lbGoTo(centerIdx + 1); });
+        if (lb) lb.addEventListener('click', function(e) { if (e.target === lb) closeLightbox(); });
+
+        document.addEventListener('keydown', function(e) {
+            if (!lbOpen) return;
+            if (e.key === 'Escape')      closeLightbox();
+            if (e.key === 'ArrowLeft')   lbGoTo(centerIdx - 1);
+            if (e.key === 'ArrowRight')  lbGoTo(centerIdx + 1);
         });
 
-        // Hover: spread the fan wider
+        /* ---- nav buttons ---- */
+        var prevBtn = document.getElementById('lysonPrev');
+        var nextBtn = document.getElementById('lysonNext');
+        if (prevBtn) prevBtn.addEventListener('click', function() { goTo(centerIdx - 1); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { goTo(centerIdx + 1); });
+
+        /* ---- 10-tap counter → admin ---- */
+        var cntEl = document.getElementById('lysonCounter');
+        if (cntEl) {
+            cntEl.addEventListener('click', function() {
+                tapCount++;
+                clearTimeout(tapTimer);
+                tapTimer = setTimeout(function() { tapCount = 0; }, 2500);
+                if (tapCount >= 10) { tapCount = 0; window.location.href = 'admin.html'; }
+            });
+        }
+
+        /* ---- hover spread ---- */
         stage.addEventListener('mouseenter', function() {
             hovering = true;
             var pos = fanPositions();
-            getVisibleSlots().forEach(function(item) {
-                var p = pos[item.s];
-                gsap.to(cards[item.ci], {
-                    duration: 0.3,
-                    ease: 'power1.out',
-                    x: p.x * 1.4,
-                    rotation: p.rot * 1.25,
-                });
+            getSlots().forEach(function(it) {
+                var p = pos[it.s];
+                gsap.to(cards[it.ci], { duration: 0.3, ease: 'power1.out', x: p.x * 1.4, rotation: p.rot * 1.25 });
             });
         });
-        stage.addEventListener('mouseleave', function() {
-            hovering = false;
-            render(true);
-        });
+        stage.addEventListener('mouseleave', function() { hovering = false; render(true); });
 
-        // Swipe support
+        /* ---- swipe ---- */
         var tx = null;
         stage.addEventListener('touchstart', function(e) { tx = e.touches[0].clientX; }, { passive: true });
         stage.addEventListener('touchend', function(e) {
@@ -5859,6 +6001,8 @@ who made heaven and earth.</p>
         }, { passive: true });
 
         window.addEventListener('resize', function() { if (!hovering) render(false); });
+
+        loadPhotos();
     })();
 
     </script>

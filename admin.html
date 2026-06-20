@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · Lyka's Birthday</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --rose: #c4727f;
+            --rose-light: #e8a0aa;
+            --rose-pale: #f5dde0;
+            --sage: #8a9a7b;
+            --gold: #d4a574;
+            --cream: #faf8f5;
+            --text: #3a3535;
+            --text-light: #7a7070;
+            --text-faint: #b0a5a5;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── PIN overlay ── */
+        #pinOverlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--cream);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pin-box {
+            text-align: center; padding: 3rem 2rem; max-width: 340px; width: 100%;
+        }
+        .pin-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--rose); margin-bottom: 0.6rem;
+        }
+        .pin-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem; font-style: italic;
+            color: var(--text); margin-bottom: 2rem; line-height: 1.3;
+        }
+        .pin-input {
+            width: 100%; padding: 0.85rem 1rem;
+            border: 1.5px solid var(--rose-pale);
+            border-radius: 12px; background: #fff;
+            font-family: 'Inter', sans-serif; font-size: 1.2rem;
+            color: var(--text); text-align: center; letter-spacing: 0.3em;
+            outline: none; transition: border-color 0.2s;
+        }
+        .pin-input:focus { border-color: var(--rose-light); }
+        .pin-input.error { border-color: #e57373; animation: shake 0.3s ease; }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .pin-btn {
+            margin-top: 1.2rem; width: 100%;
+            background: var(--rose); color: #fff; border: none;
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 1.1rem; padding: 0.8rem 1rem; border-radius: 100px;
+            cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+        }
+        .pin-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .pin-hint {
+            margin-top: 1rem; font-size: 0.7rem; color: var(--text-faint);
+            letter-spacing: 0.05em;
+        }
+        .pin-back {
+            display: block; margin-top: 1.5rem;
+            font-size: 0.68rem; color: var(--rose-light);
+            letter-spacing: 0.1em; text-decoration: none;
+        }
+        .pin-back:hover { color: var(--rose); }
+
+        /* ── Main layout ── */
+        #adminApp { display: none; }
+        .admin-header {
+            background: #fff; border-bottom: 1px solid var(--rose-pale);
+            padding: 1rem 1.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .admin-brand {
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 1.35rem; color: var(--text);
+        }
+        .admin-brand span { color: var(--rose); }
+        .admin-back {
+            font-family: 'Inter', sans-serif; font-size: 0.68rem;
+            color: var(--rose-light); letter-spacing: 0.1em;
+            text-decoration: none; transition: color 0.2s;
+        }
+        .admin-back:hover { color: var(--rose); }
+
+        /* ── Tabs ── */
+        .admin-tabs {
+            display: flex; border-bottom: 1px solid var(--rose-pale);
+            background: #fff; padding: 0 1.5rem; overflow-x: auto; gap: 0;
+        }
+        .tab-btn {
+            background: none; border: none; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-size: 0.72rem;
+            font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--text-faint); padding: 0.85rem 1.1rem;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+        .tab-btn.active { color: var(--rose); border-bottom-color: var(--rose); }
+        .tab-btn:hover { color: var(--rose-light); }
+
+        /* ── Content panels ── */
+        .tab-panel { display: none; padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; }
+        .tab-panel.active { display: block; }
+
+        /* ── Section cards ── */
+        .admin-card {
+            background: #fff; border: 1px solid var(--rose-pale);
+            border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .admin-card-title {
+            font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;
+            color: var(--text); margin-bottom: 1.2rem; font-weight: 600;
+        }
+
+        /* ── Form fields ── */
+        .field-group { margin-bottom: 1rem; }
+        .field-label {
+            display: block; font-size: 0.68rem; font-weight: 500;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--text-light); margin-bottom: 0.4rem;
+        }
+        .field-input, .field-textarea, .field-select {
+            width: 100%; padding: 0.7rem 0.9rem;
+            border: 1.5px solid var(--rose-pale); border-radius: 10px;
+            background: var(--cream); color: var(--text);
+            font-family: 'Inter', sans-serif; font-size: 0.88rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        .field-input:focus, .field-textarea:focus, .field-select:focus {
+            border-color: var(--rose-light);
+        }
+        .field-textarea { min-height: 90px; resize: vertical; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 500px) { .field-row { grid-template-columns: 1fr; } }
+
+        /* ── Photo preview ── */
+        .upload-preview {
+            width: 100%; aspect-ratio: 4/3;
+            background: var(--rose-pale); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin-bottom: 1rem;
+            border: 2px dashed var(--rose-light); cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .upload-preview:hover { border-color: var(--rose); }
+        .upload-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .upload-preview-label {
+            text-align: center; color: var(--rose-light);
+            font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.1rem;
+        }
+        .upload-preview-label small {
+            display: block; font-family: 'Inter', sans-serif;
+            font-size: 0.65rem; letter-spacing: 0.08em; margin-top: 0.3rem;
+            font-style: normal;
+        }
+        input[type="file"] { display: none; }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 500;
+            letter-spacing: 0.06em; padding: 0.65rem 1.3rem; border-radius: 100px;
+            cursor: pointer; border: none; transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+        .btn-primary { background: var(--rose); color: #fff; }
+        .btn-secondary {
+            background: var(--cream); color: var(--rose);
+            border: 1.5px solid var(--rose-pale);
+        }
+        .btn-danger { background: #fff; color: #c0392b; border: 1.5px solid #f0c4c4; }
+        .btn-danger:hover { background: #fff3f3; }
+        .btn-sm { font-size: 0.68rem; padding: 0.45rem 0.85rem; }
+        .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+        /* ── Status / toast ── */
+        .status-msg {
+            font-size: 0.72rem; padding: 0.6rem 0.9rem; border-radius: 8px;
+            margin-top: 0.85rem; display: none; letter-spacing: 0.04em;
+        }
+        .status-msg.ok  { background: #e8f5e9; color: #388e3c; display: block; }
+        .status-msg.err { background: #fff3f3; color: #c0392b; display: block; }
+        .status-msg.loading { background: var(--rose-pale); color: var(--rose); display: block; }
+
+        /* ── Progress bar ── */
+        .progress-wrap { margin-top: 0.75rem; display: none; }
+        .progress-wrap.visible { display: block; }
+        .progress-bar { height: 4px; background: var(--rose-pale); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--rose); width: 0%; transition: width 0.15s; }
+
+        /* ── Photo grid (existing) ── */
+        .photos-grid-admin {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.85rem; margin-top: 1rem;
+        }
+        .photo-admin-item {
+            position: relative; border-radius: 10px; overflow: hidden;
+            background: var(--rose-pale); border: 1px solid rgba(196,114,127,0.15);
+        }
+        .photo-admin-item .thumb {
+            aspect-ratio: 4/3; width: 100%; object-fit: cover; display: block;
+        }
+        .photo-admin-item .thumb-empty {
+            aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+            color: var(--rose-light); font-size: 1.6rem; opacity: 0.5;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .photo-admin-meta {
+            padding: 0.5rem 0.6rem;
+        }
+        .photo-admin-loc {
+            font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--rose); margin-bottom: 0.2rem; font-weight: 500;
+        }
+        .photo-admin-cap {
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 0.8rem; color: var(--text-light); line-height: 1.4;
+        }
+        .photo-admin-actions {
+            display: flex; gap: 0.4rem; padding: 0 0.6rem 0.6rem;
+        }
+        .loading-spinner {
+            display: flex; align-items: center; justify-content: center;
+            padding: 2.5rem; color: var(--text-faint); font-size: 0.8rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* ── Voice note ── */
+        .vn-current {
+            display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1rem;
+            background: var(--cream); border: 1px solid var(--rose-pale);
+            border-radius: 12px; margin-bottom: 1.2rem;
+        }
+        .vn-icon { font-size: 1.5rem; }
+        .vn-info { flex: 1; }
+        .vn-name { font-size: 0.78rem; color: var(--text); font-weight: 500; }
+        .vn-sub { font-size: 0.65rem; color: var(--text-faint); margin-top: 0.1rem; }
+        audio { width: 100%; margin-top: 0.85rem; border-radius: 8px; }
+
+        /* ── Content editor ── */
+        .content-items { display: flex; flex-direction: column; gap: 1rem; }
+        .content-item {
+            display: flex; align-items: flex-start; gap: 1rem;
+        }
+        .content-item-body { flex: 1; }
+        .content-item-key {
+            font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--text-faint); margin-bottom: 0.3rem;
+        }
+
+        /* ── Edit modal ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 8000;
+            background: rgba(30,15,18,0.7); align-items: center; justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: 18px; padding: 1.75rem;
+            width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-title {
+            font-family: 'Cormorant Garamond', serif; font-size: 1.25rem;
+            font-weight: 600; margin-bottom: 1.2rem;
+        }
+        .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.2rem; justify-content: flex-end; }
+    </style>
+</head>
+<body>
+
+<!-- PIN screen -->
+<div id="pinOverlay">
+    <div class="pin-box">
+        <p class="pin-label">admin access</p>
+        <h1 class="pin-heading">welcome back,<br><em>tom</em></h1>
+        <input class="pin-input" id="pinInput" type="password" maxlength="20" placeholder="••••" autocomplete="off">
+        <button class="pin-btn" id="pinBtn">enter ♡</button>
+        <p class="pin-hint">change ADMIN_PIN in this file to update your passcode</p>
+        <a class="pin-back" href="index.html">← back to the site</a>
+    </div>
+</div>
+
+<!-- Admin app (hidden until PIN passes) -->
+<div id="adminApp">
+    <header class="admin-header">
+        <div class="admin-brand">lyka's <span>admin</span></div>
+        <a class="admin-back" href="index.html">← back to site</a>
+    </header>
+
+    <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="photos">Photos</button>
+        <button class="tab-btn" data-tab="voice">Voice Note</button>
+        <button class="tab-btn" data-tab="content">Content</button>
+        <button class="tab-btn" data-tab="settings">Settings</button>
+    </div>
+
+    <!-- PHOTOS tab -->
+    <div class="tab-panel active" id="tab-photos">
+
+        <!-- Upload new photo -->
+        <div class="admin-card">
+            <div class="admin-card-title">Upload a photo</div>
+
+            <div class="upload-preview" id="uploadPreview" onclick="document.getElementById('photoFile').click()">
+                <div class="upload-preview-label">
+                    tap to choose a photo
+                    <small>jpg · png · webp · 4:3 preferred</small>
+                </div>
+            </div>
+            <input type="file" id="photoFile" accept="image/*">
+
+            <div class="field-row">
+                <div class="field-group">
+                    <label class="field-label" for="photoLocation">Location</label>
+                    <input class="field-input" id="photoLocation" type="text" placeholder="e.g. Tokyo, Japan">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="photoOrder">Display order</label>
+                    <input class="field-input" id="photoOrder" type="number" min="0" value="0" placeholder="0">
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="photoCaption">Caption</label>
+                <input class="field-input" id="photoCaption" type="text" placeholder="e.g. lyson approved">
+            </div>
+
+            <div class="progress-wrap" id="photoProgress">
+                <div class="progress-bar"><div class="progress-fill" id="photoProgressFill"></div></div>
+            </div>
+            <div class="status-msg" id="photoStatus"></div>
+            <div class="btn-row">
+                <button class="btn btn-primary" id="photoUploadBtn" disabled>Upload photo</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('photoFile').click()">Choose file</button>
+            </div>
+        </div>
+
+        <!-- Existing photos -->
+        <div class="admin-card">
+            <div class="admin-card-title">All photos</div>
+            <div id="photosList"><div class="loading-spinner">loading photos…</div></div>
+        </div>
+    </div>
+
+    <!-- VOICE NOTE tab -->
+    <div class="tab-panel" id="tab-voice">
+        <div class="admin-card">
+            <div class="admin-card-title">Birthday voice note</div>
+
+            <div class="vn-current" id="vnCurrentWrap" style="display:none">
+                <div class="vn-icon">🎙</div>
+                <div class="vn-info">
+                    <div class="vn-name" id="vnCurrentName">—</div>
+                    <div class="vn-sub">current voice note</div>
+                </div>
+            </div>
+            <audio id="vnAudio" controls style="display:none"></audio>
+
+            <div class="upload-preview" id="vnPreview" onclick="document.getElementById('vnFile').click()" style="aspect-ratio:3/1; min-height:80px">
+                <div class="upload-preview-label">
+                    tap to choose audio file
+                    <small>m4a · mp3 · aac · wav</small>
+                </div>
+            </div>
+            <input type="file" id="vnFile" accept="audio/*">
+
+            <div class="progress-wrap" id="vnProgress">
+                <div class="progress-bar"><div class="progress-fill" id="vnProgressFill"></div></div>
+            </div>
+            <div class="status-msg" id="vnStatus"></div>
+            <div class="btn-row">
+                <button class="btn btn-primary" id="vnUploadBtn" disabled>Upload voice note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENT tab -->
+    <div class="tab-panel" id="tab-content">
+        <div class="admin-card">
+            <div class="admin-card-title">Editable text</div>
+            <p style="font-size:0.78rem; color:var(--text-light); margin-bottom:1.25rem; line-height:1.6">
+                These fields are stored in Supabase and pulled into the site. Save each one individually.
+            </p>
+            <div class="content-items" id="contentItems">
+                <div class="loading-spinner">loading…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS tab -->
+    <div class="tab-panel" id="tab-settings">
+        <div class="admin-card">
+            <div class="admin-card-title">Supabase config</div>
+            <p style="font-size:0.78rem; color:var(--text-light); margin-bottom:1.25rem; line-height:1.6">
+                These values are set at the top of this file. To update, open <code>admin.html</code> and edit the <code>SB_URL</code> and <code>SB_KEY</code> constants.
+            </p>
+            <div class="field-group">
+                <label class="field-label">Project URL</label>
+                <input class="field-input" id="settingUrl" type="text" readonly>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Anon key (first 20 chars)</label>
+                <input class="field-input" id="settingKey" type="text" readonly>
+            </div>
+            <div class="field-group" style="margin-top:1.5rem">
+                <label class="field-label">Admin PIN</label>
+                <p style="font-size:0.72rem; color:var(--text-light); line-height:1.6">
+                    To change your PIN, edit the <code>ADMIN_PIN</code> constant at the top of <code>admin.html</code>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit photo modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <div class="modal-title">Edit photo</div>
+        <input type="hidden" id="editId">
+        <div class="field-group">
+            <label class="field-label" for="editLocation">Location</label>
+            <input class="field-input" id="editLocation" type="text">
+        </div>
+        <div class="field-group">
+            <label class="field-label" for="editCaption">Caption</label>
+            <input class="field-input" id="editCaption" type="text">
+        </div>
+        <div class="field-group">
+            <label class="field-label" for="editOrder">Display order</label>
+            <input class="field-input" id="editOrder" type="number" min="0">
+        </div>
+        <div class="status-msg" id="editStatus"></div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="editCancel">Cancel</button>
+            <button class="btn btn-primary" id="editSave">Save changes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ================================================================
+//  ADMIN CONFIG — fill in your Supabase values
+// ================================================================
+var ADMIN_PIN = '1234';          // change this to your preferred PIN
+var SB_URL    = 'YOUR_SUPABASE_URL';
+var SB_KEY    = 'YOUR_SUPABASE_ANON_KEY';
+var PHOTO_BUCKET = 'lyson-photos';
+var VN_BUCKET    = 'voice-notes';
+var sbOK = SB_URL !== 'YOUR_SUPABASE_URL';
+
+// ── Content keys shown on the Content tab ──
+var CONTENT_KEYS = [
+    { key: 'hero_subtitle',  label: 'Hero subtitle (below her name)',      multi: false },
+    { key: 'final_message',  label: 'Final page message',                  multi: true  },
+    { key: 'letter_opening', label: 'Card — opening line',                 multi: true  },
+    { key: 'newspaper_lead', label: 'Newspaper — lead paragraph',          multi: true  },
+    { key: 'custom_note_1',  label: 'Custom note 1 (free use)',            multi: true  },
+    { key: 'custom_note_2',  label: 'Custom note 2 (free use)',            multi: true  },
+];
+
+// ================================================================
+//  HELPERS
+// ================================================================
+function sbFetch(path, opts) {
+    var defaults = {
+        headers: Object.assign({
+            'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + SB_KEY,
+            'Content-Type': 'application/json',
+        }, (opts && opts.headers) || {}),
+    };
+    return fetch(SB_URL + path, Object.assign({}, opts, defaults));
+}
+
+function setStatus(el, type, msg) {
+    el.className = 'status-msg ' + type;
+    el.textContent = msg;
+}
+
+function storageUrl(bucket, path) {
+    return SB_URL + '/storage/v1/object/public/' + bucket + '/' + encodeURIComponent(path);
+}
+
+function uploadFile(bucket, file, onProgress) {
+    return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        var path = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+        xhr.open('POST', SB_URL + '/storage/v1/object/' + bucket + '/' + encodeURIComponent(path));
+        xhr.setRequestHeader('Authorization', 'Bearer ' + SB_KEY);
+        xhr.setRequestHeader('apikey', SB_KEY);
+        xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100));
+        };
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve({ url: storageUrl(bucket, path), path: path });
+            } else {
+                reject(new Error('Upload failed: ' + xhr.responseText));
+            }
+        };
+        xhr.onerror = function() { reject(new Error('Network error')); };
+        xhr.send(file);
+    });
+}
+
+// ================================================================
+//  PIN
+// ================================================================
+var pinInput = document.getElementById('pinInput');
+var pinBtn   = document.getElementById('pinBtn');
+var overlay  = document.getElementById('pinOverlay');
+
+function tryPin() {
+    var val = pinInput.value.trim();
+    if (val === ADMIN_PIN) {
+        overlay.style.display = 'none';
+        document.getElementById('adminApp').style.display = 'block';
+        initApp();
+    } else {
+        pinInput.classList.add('error');
+        pinInput.value = '';
+        setTimeout(function() { pinInput.classList.remove('error'); }, 500);
+    }
+}
+pinBtn.addEventListener('click', tryPin);
+pinInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') tryPin(); });
+
+// ================================================================
+//  TABS
+// ================================================================
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+// ================================================================
+//  INIT (called after PIN)
+// ================================================================
+function initApp() {
+    document.getElementById('settingUrl').value = SB_URL;
+    document.getElementById('settingKey').value = SB_KEY ? (SB_KEY.substring(0, 20) + '…') : '—';
+    loadPhotos();
+    loadVoiceNote();
+    loadContent();
+}
+
+// ================================================================
+//  PHOTOS
+// ================================================================
+var photoFile = document.getElementById('photoFile');
+var photoUploadBtn = document.getElementById('photoUploadBtn');
+var photoStatus    = document.getElementById('photoStatus');
+var selectedFile   = null;
+
+photoFile.addEventListener('change', function() {
+    var file = photoFile.files[0];
+    if (!file) return;
+    selectedFile = file;
+    var preview = document.getElementById('uploadPreview');
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        preview.innerHTML = '<img src="' + e.target.result + '" alt="preview">';
+    };
+    reader.readAsDataURL(file);
+    photoUploadBtn.disabled = false;
+});
+
+document.getElementById('uploadPreview').addEventListener('click', function() {
+    photoFile.click();
+});
+
+photoUploadBtn.addEventListener('click', function() {
+    if (!selectedFile) return;
+    if (!sbOK) { setStatus(photoStatus, 'err', 'Supabase not configured — add your URL + key at the top of this file.'); return; }
+
+    photoUploadBtn.disabled = true;
+    var progress = document.getElementById('photoProgress');
+    var fill = document.getElementById('photoProgressFill');
+    progress.classList.add('visible');
+    setStatus(photoStatus, 'loading', 'Uploading…');
+
+    uploadFile(PHOTO_BUCKET, selectedFile, function(pct) { fill.style.width = pct + '%'; })
+    .then(function(result) {
+        return sbFetch('/rest/v1/lyson_photos', {
+            method: 'POST',
+            headers: { 'Prefer': 'return=representation' },
+            body: JSON.stringify({
+                photo_url:     result.url,
+                location:      document.getElementById('photoLocation').value.trim(),
+                caption:       document.getElementById('photoCaption').value.trim(),
+                display_order: parseInt(document.getElementById('photoOrder').value) || 0,
+            }),
+        });
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() {
+        setStatus(photoStatus, 'ok', 'Photo uploaded ♡');
+        selectedFile = null;
+        document.getElementById('uploadPreview').innerHTML = '<div class="upload-preview-label">tap to choose a photo<small>jpg · png · webp</small></div>';
+        document.getElementById('photoLocation').value = '';
+        document.getElementById('photoCaption').value = '';
+        document.getElementById('photoOrder').value = '0';
+        progress.classList.remove('visible');
+        fill.style.width = '0%';
+        photoUploadBtn.disabled = true;
+        loadPhotos();
+    })
+    .catch(function(err) {
+        setStatus(photoStatus, 'err', err.message || 'Upload failed');
+        photoUploadBtn.disabled = false;
+        progress.classList.remove('visible');
+    });
+});
+
+function loadPhotos() {
+    var list = document.getElementById('photosList');
+    if (!sbOK) {
+        list.innerHTML = '<p style="font-size:0.78rem;color:var(--text-faint);padding:1rem 0">Configure Supabase at the top of admin.html to manage photos.</p>';
+        return;
+    }
+    list.innerHTML = '<div class="loading-spinner">loading…</div>';
+    sbFetch('/rest/v1/lyson_photos?select=*&order=display_order.asc,id.asc')
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+        if (!rows || !rows.length) {
+            list.innerHTML = '<p style="font-size:0.78rem;color:var(--text-faint);padding:1rem 0">No photos yet — upload the first one above ♡</p>';
+            return;
+        }
+        var grid = document.createElement('div');
+        grid.className = 'photos-grid-admin';
+        rows.forEach(function(row) {
+            var item = document.createElement('div');
+            item.className = 'photo-admin-item';
+            var img = row.photo_url
+                ? '<img class="thumb" src="' + row.photo_url + '" alt="Lyson">'
+                : '<div class="thumb-empty">♡</div>';
+            item.innerHTML = img +
+                '<div class="photo-admin-meta">' +
+                    (row.location ? '<div class="photo-admin-loc">' + escHtml(row.location) + '</div>' : '') +
+                    (row.caption  ? '<div class="photo-admin-cap">' + escHtml(row.caption)  + '</div>' : '') +
+                '</div>' +
+                '<div class="photo-admin-actions">' +
+                    '<button class="btn btn-secondary btn-sm" onclick="openEditModal(' + JSON.stringify(row).replace(/</g,'\\u003c') + ')">Edit</button>' +
+                    '<button class="btn btn-danger btn-sm" onclick="deletePhoto(' + row.id + ',\'' + (row.photo_url||'').replace(/'/g,"\\'") + '\')">Delete</button>' +
+                '</div>';
+            grid.appendChild(item);
+        });
+        list.innerHTML = '';
+        list.appendChild(grid);
+    })
+    .catch(function(err) {
+        list.innerHTML = '<p style="font-size:0.78rem;color:#c0392b;padding:1rem 0">Error: ' + err.message + '</p>';
+    });
+}
+
+function deletePhoto(id, url) {
+    if (!confirm('Delete this photo?')) return;
+    sbFetch('/rest/v1/lyson_photos?id=eq.' + id, { method: 'DELETE' })
+    .then(function() { loadPhotos(); })
+    .catch(function(err) { alert('Delete failed: ' + err.message); });
+}
+
+// ── Edit modal ──
+function openEditModal(row) {
+    document.getElementById('editId').value       = row.id;
+    document.getElementById('editLocation').value = row.location || '';
+    document.getElementById('editCaption').value  = row.caption  || '';
+    document.getElementById('editOrder').value    = row.display_order || 0;
+    document.getElementById('editStatus').className = 'status-msg';
+    document.getElementById('editModal').classList.add('open');
+}
+document.getElementById('editCancel').addEventListener('click', function() {
+    document.getElementById('editModal').classList.remove('open');
+});
+document.getElementById('editSave').addEventListener('click', function() {
+    var id   = document.getElementById('editId').value;
+    var body = {
+        location:      document.getElementById('editLocation').value.trim(),
+        caption:       document.getElementById('editCaption').value.trim(),
+        display_order: parseInt(document.getElementById('editOrder').value) || 0,
+    };
+    var st = document.getElementById('editStatus');
+    setStatus(st, 'loading', 'Saving…');
+    sbFetch('/rest/v1/lyson_photos?id=eq.' + id, {
+        method: 'PATCH',
+        headers: { 'Prefer': 'return=representation' },
+        body: JSON.stringify(body),
+    })
+    .then(function() {
+        setStatus(st, 'ok', 'Saved ♡');
+        setTimeout(function() {
+            document.getElementById('editModal').classList.remove('open');
+            loadPhotos();
+        }, 800);
+    })
+    .catch(function(err) { setStatus(st, 'err', err.message); });
+});
+
+// ================================================================
+//  VOICE NOTE
+// ================================================================
+var vnFile      = document.getElementById('vnFile');
+var vnUploadBtn = document.getElementById('vnUploadBtn');
+var vnStatus    = document.getElementById('vnStatus');
+
+function loadVoiceNote() {
+    if (!sbOK) return;
+    sbFetch('/rest/v1/site_content?key=eq.voice_note_url&select=value')
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+        if (rows && rows[0] && rows[0].value) {
+            var url = rows[0].value;
+            document.getElementById('vnCurrentWrap').style.display = 'flex';
+            document.getElementById('vnCurrentName').textContent = url.split('/').pop().replace(/%20/g,' ');
+            var aud = document.getElementById('vnAudio');
+            aud.src = url;
+            aud.style.display = 'block';
+        }
+    }).catch(function(){});
+}
+
+vnFile.addEventListener('change', function() {
+    if (vnFile.files[0]) {
+        document.getElementById('vnPreview').innerHTML =
+            '<div class="upload-preview-label">' + vnFile.files[0].name + '<small>ready to upload</small></div>';
+        vnUploadBtn.disabled = false;
+    }
+});
+
+vnUploadBtn.addEventListener('click', function() {
+    var file = vnFile.files[0];
+    if (!file) return;
+    if (!sbOK) { setStatus(vnStatus, 'err', 'Supabase not configured.'); return; }
+
+    vnUploadBtn.disabled = true;
+    var progress = document.getElementById('vnProgress');
+    var fill = document.getElementById('vnProgressFill');
+    progress.classList.add('visible');
+    setStatus(vnStatus, 'loading', 'Uploading…');
+
+    uploadFile(VN_BUCKET, file, function(pct) { fill.style.width = pct + '%'; })
+    .then(function(result) {
+        return sbFetch('/rest/v1/site_content', {
+            method: 'POST',
+            headers: { 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify({ key: 'voice_note_url', value: result.url }),
+        });
+    })
+    .then(function() {
+        setStatus(vnStatus, 'ok', 'Voice note updated ♡');
+        progress.classList.remove('visible');
+        vnUploadBtn.disabled = false;
+        loadVoiceNote();
+    })
+    .catch(function(err) {
+        setStatus(vnStatus, 'err', err.message);
+        vnUploadBtn.disabled = false;
+        progress.classList.remove('visible');
+    });
+});
+
+// ================================================================
+//  CONTENT EDITOR
+// ================================================================
+function loadContent() {
+    if (!sbOK) {
+        document.getElementById('contentItems').innerHTML =
+            '<p style="font-size:0.78rem;color:var(--text-faint)">Configure Supabase to use the content editor.</p>';
+        return;
+    }
+    var keys = CONTENT_KEYS.map(function(k) { return k.key; });
+    sbFetch('/rest/v1/site_content?key=in.(' + keys.join(',') + ')&select=key,value')
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+        var map = {};
+        (rows || []).forEach(function(r) { map[r.key] = r.value; });
+        var container = document.getElementById('contentItems');
+        container.innerHTML = '';
+        CONTENT_KEYS.forEach(function(item) {
+            var val = map[item.key] || '';
+            var fieldId = 'cf-' + item.key;
+            var statusId = 'cs-' + item.key;
+            var div = document.createElement('div');
+            div.className = 'admin-card';
+            div.innerHTML =
+                '<div class="content-item-key">' + escHtml(item.key) + '</div>' +
+                '<div class="field-label" style="margin-bottom:0.4rem">' + escHtml(item.label) + '</div>' +
+                (item.multi
+                    ? '<textarea class="field-textarea" id="' + fieldId + '">' + escHtml(val) + '</textarea>'
+                    : '<input class="field-input" id="' + fieldId + '" type="text" value="' + escAttr(val) + '">') +
+                '<div class="status-msg" id="' + statusId + '"></div>' +
+                '<div class="btn-row"><button class="btn btn-primary btn-sm" onclick="saveContent(\'' + item.key + '\',\'' + fieldId + '\',\'' + statusId + '\')">Save</button></div>';
+            container.appendChild(div);
+        });
+    })
+    .catch(function() {
+        document.getElementById('contentItems').innerHTML = '<p style="color:#c0392b;font-size:0.78rem">Error loading content.</p>';
+    });
+}
+
+function saveContent(key, fieldId, statusId) {
+    var el = document.getElementById(fieldId);
+    var val = el ? el.value : '';
+    var st = document.getElementById(statusId);
+    setStatus(st, 'loading', 'Saving…');
+    sbFetch('/rest/v1/site_content', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify({ key: key, value: val }),
+    })
+    .then(function() { setStatus(st, 'ok', 'Saved ♡'); })
+    .catch(function(err) { setStatus(st, 'err', err.message); });
+}
+
+// ================================================================
+//  UTILS
+// ================================================================
+function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+    return String(s || '').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
