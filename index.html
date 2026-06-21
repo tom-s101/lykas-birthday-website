@@ -345,16 +345,16 @@
 
         .carousel-drum {
             position: relative;
-            width: 140px;
-            height: 180px;
+            width: 200px;
+            height: 265px;
             transform-style: preserve-3d;
             transition: transform 0.05s linear;
         }
 
         .carousel-drum .flip-card {
             position: absolute;
-            width: 140px;
-            height: 180px;
+            width: 200px;
+            height: 265px;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             flex: none;
@@ -399,7 +399,7 @@
         .cards-row::-webkit-scrollbar { display: none; }
 
         .flip-card {
-            flex: 0 0 140px; height: 180px; scroll-snap-align: start;
+            flex: 0 0 200px; height: 265px; scroll-snap-align: start;
             perspective: 600px; cursor: pointer; -webkit-tap-highlight-color: transparent;
         }
 
@@ -428,9 +428,11 @@
         .flip-back-title { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 500; color: var(--rose); margin-bottom: 0.4rem; }
         .flip-back-text { font-size: 0.67rem; line-height: 1.45; color: var(--text-light); word-break: break-word; overflow-wrap: break-word; }
         .flip-back-hint { position: absolute; bottom: 0.6rem; font-size: 0.55rem; color: var(--text-faint); letter-spacing: 1px; text-transform: uppercase; }
-        .card-icon { width: 68px; height: 68px; margin-bottom: 0.5rem; }
-        .card-name { font-size: 0.75rem; letter-spacing: 1px; color: var(--text-light); }
-        .card-tap { font-size: 0.55rem; color: var(--text-faint); margin-top: 0.5rem; letter-spacing: 1px; text-transform: uppercase; }
+        .card-icon { width: 96px; height: 96px; margin-bottom: 0.7rem; }
+        .card-name { font-size: 0.85rem; letter-spacing: 1px; color: var(--text-light); }
+        .card-tap { font-size: 0.6rem; color: var(--text-faint); margin-top: 0.6rem; letter-spacing: 1px; text-transform: uppercase; }
+        .flip-back-title { font-size: 1rem; }
+        .flip-back-text { font-size: 0.72rem; line-height: 1.5; }
 
         /* ===== MARQUEE TRAITS ===== */
         .lyka-traits {
@@ -657,8 +659,10 @@
             .section-heading { font-size: 2.5rem; }
             .cascade-track { max-width: 520px; }
             .cascade-value { font-size: 2.4rem; }
-            .flip-card { flex: 0 0 160px; height: 200px; }
-            .card-icon { width: 76px; height: 76px; }
+            .flip-card { flex: 0 0 210px; height: 275px; }
+            .carousel-drum { width: 210px; height: 275px; }
+            .carousel-drum .flip-card { width: 210px; height: 275px; }
+            .card-icon { width: 100px; height: 100px; }
             .letter p { font-size: 1.05rem; }
             .acrostic-letter { font-size: 4.5rem; width: 60px; }
             .acrostic-text { font-size: 1rem; }
@@ -958,9 +962,27 @@
         .cards-section {
             background: linear-gradient(135deg, var(--sage-pale), #e9efe4, var(--sage-pale));
             position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.25rem 1.5rem;
+            box-sizing: border-box;
         }
         .cards-section.flowers-section {
             background: linear-gradient(135deg, var(--blush), #fef6f8, var(--blush));
+        }
+        /* Stretch the carousel wrapper to fill remaining vertical space */
+        section.cards-section > div:last-child {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        /* Carousel container grows to fill its wrapper */
+        section.cards-section .carousel-container {
+            flex: 1;
+            height: auto;
+            max-height: 430px;
         }
 
         /* ===== ENHANCED FOOTER ===== */
@@ -1056,11 +1078,13 @@
             .section-heading { font-size: 2.5rem; }
             .cascade-track { max-width: 520px; }
             .cascade-value { font-size: 2.4rem; }
-            .flip-card { flex: 0 0 160px; height: 200px; }
-            .carousel-container { height: 300px; perspective: 1100px; }
-            .carousel-drum { width: 160px; height: 200px; }
-            .carousel-drum .flip-card { width: 160px; height: 200px; }
-            .card-icon { width: 76px; height: 76px; }
+            .flip-card { flex: 0 0 220px; height: 290px; }
+            .carousel-container { perspective: 1100px; }
+            .carousel-drum { width: 220px; height: 290px; }
+            .carousel-drum .flip-card { width: 220px; height: 290px; }
+            .card-icon { width: 110px; height: 110px; }
+            section.cards-section { padding: 3rem 2rem 2rem; max-height: none; }
+            section.cards-section .carousel-container { max-height: 500px; }
             .letter p { font-size: 1.05rem; }
             .letter { padding: 2.5rem 2rem; }
             .acrostic-letter { font-size: 4.5rem; width: 60px; }
