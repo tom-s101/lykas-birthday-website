@@ -134,7 +134,7 @@
             opacity: 0; animation: fadeIn 1s ease 0.5s forwards;
         }
 
-        .hero h1 em { font-style: italic; color: var(--rose); }
+        .hero h1 em { font-style: italic; color: var(--rose); position: relative; overflow: hidden; display: inline-block; }
 
         .hero-sub {
             font-size: 0.9rem; color: var(--text-light); line-height: 1.6;
@@ -142,7 +142,7 @@
         }
 
         .hero-age {
-            display: inline-block; margin-top: 2.5rem;
+            display: inline-block; margin-top: 1.5rem;
             font-family: 'Cormorant Garamond', serif; font-size: 5rem; font-weight: 500;
             color: var(--rose); line-height: 1; opacity: 0; animation: fadeIn 1s ease 1.1s forwards;
         }
@@ -167,6 +167,66 @@
 
         @keyframes scrollPulse { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(8px); opacity: 0.4; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Shimmer light sweep across "lyka" */
+        .hero h1 em::after {
+            content: '';
+            position: absolute; top: 0; left: -150%; width: 70%; height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+            animation: nameShimmer 4.5s ease-in-out 2s infinite;
+            pointer-events: none;
+        }
+        @keyframes nameShimmer {
+            0%   { left: -150%; }
+            40%  { left: 160%; }
+            100% { left: 160%; }
+        }
+
+        /* Love note below the age */
+        .hero-note {
+            margin-top: 1rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            color: var(--text-light);
+            line-height: 1.65;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.4s forwards;
+        }
+
+        /* Botanical floret divider */
+        .hero-florets {
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            margin-top: 1rem;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.65s forwards;
+        }
+        .floret-dot {
+            width: 3px; height: 3px; border-radius: 50%;
+            background: var(--rose-pale); display: inline-block;
+        }
+
+        /* Begin CTA */
+        .hero-cta {
+            margin-top: 0.9rem;
+            display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.9s forwards;
+        }
+        .hero-cta-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.58rem; letter-spacing: 0.24em;
+            text-transform: uppercase; color: var(--text-faint);
+        }
+        .hero-cta-arrow {
+            color: var(--rose); font-size: 1rem; line-height: 1;
+            display: inline-block;
+            animation: bobDown 2.5s ease-in-out 2.8s infinite;
+        }
+        @keyframes bobDown {
+            0%, 100% { transform: translateY(0); opacity: 0.55; }
+            50%       { transform: translateY(7px); opacity: 1; }
+        }
 
         /* ===== SECTIONS ===== */
         section { padding: 3rem 1.25rem; }
@@ -2260,6 +2320,34 @@
                 <div class="hero-ring"></div>
                 <div class="hero-ring"></div>
                 <div class="hero-ring"></div>
+            </div>
+
+            <p class="hero-note">the world is a better place<br>with you in it.</p>
+
+            <div class="hero-florets" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                    <circle cx="12" cy="12" r="3" fill="#e8a0aa" opacity=".9"/>
+                    <ellipse cx="12" cy="6.5" rx="2.5" ry="4" fill="#f5dde0" opacity=".85"/>
+                    <ellipse cx="12" cy="6.5" rx="2.5" ry="4" fill="#f5dde0" opacity=".85" transform="rotate(60 12 12)"/>
+                    <ellipse cx="12" cy="6.5" rx="2.5" ry="4" fill="#f5dde0" opacity=".85" transform="rotate(120 12 12)"/>
+                    <ellipse cx="12" cy="6.5" rx="2.5" ry="4" fill="#f5dde0" opacity=".85" transform="rotate(180 12 12)"/>
+                    <ellipse cx="12" cy="6.5" rx="2.5" ry="4" fill="#f5dde0" opacity=".85" transform="rotate(240 12 12)"/>
+                    <ellipse cx="12" cy="6.5" rx="2.5" ry="4" fill="#f5dde0" opacity=".85" transform="rotate(300 12 12)"/>
+                </svg>
+                <span class="floret-dot"></span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                    <path d="M12 3C12 3 5 8 5 14a7 7 0 0014 0C19 8 12 3 12 3z" fill="#b8c9a5" opacity=".65"/>
+                    <path d="M12 5C12 5 9 9 10 13" stroke="#8a9a7b" stroke-width="0.8" stroke-linecap="round" opacity=".5"/>
+                </svg>
+                <span class="floret-dot"></span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                    <path d="M12 2l1.5 6H20l-5.3 3.8 2 6.2L12 14l-4.7 4 2-6.2L4 8h6.5z" fill="#d4a574" opacity=".55"/>
+                </svg>
+            </div>
+
+            <div class="hero-cta">
+                <span class="hero-cta-label">your surprise is inside</span>
+                <span class="hero-cta-arrow">&#8595;</span>
             </div>
         </div>
         <div class="scroll-line"></div>
@@ -4737,6 +4825,49 @@ who made heaven and earth.</p>
         }
         createSparkles('heroSparkles', 25);
         createSparkles('finalSparkles', 20);
+    })();
+
+    // ==========================================================
+    //  HERO FALLING PETALS
+    // ==========================================================
+    (function() {
+        var hero = document.querySelector('section.hero');
+        if (!hero) return;
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;';
+        hero.insertBefore(wrap, hero.firstChild);
+
+        var colors = ['#f2b5bc','#e8a0aa','#f5dde0','#dba8b2','#f0cdd2','#d4a0a8'];
+        var styleEl = document.createElement('style');
+        var styles = [];
+
+        for (var i = 0; i < 14; i++) {
+            var driftX = Math.round((Math.random() - 0.5) * 110);
+            var rotEnd = Math.round((Math.random() > 0.5 ? 1 : -1) * (200 + Math.random() * 340));
+            styles.push('@keyframes heroPetal' + i + '{' +
+                '0%{transform:translateY(-10px) translateX(0) rotate(0deg);opacity:0;}' +
+                '8%{opacity:0.8;}' +
+                '88%{opacity:0.45;}' +
+                '100%{transform:translateY(110vh) translateX(' + driftX + 'px) rotate(' + rotEnd + 'deg);opacity:0;}}');
+        }
+        styleEl.textContent = styles.join('');
+        document.head.appendChild(styleEl);
+
+        for (var j = 0; j < 14; j++) {
+            var sz = 9 + Math.round(Math.random() * 7);
+            var col = colors[j % colors.length];
+            var dur = (7 + Math.random() * 9).toFixed(1);
+            var del = (Math.random() * 16).toFixed(1);
+            var lft = (3 + Math.random() * 92).toFixed(1);
+            var p = document.createElement('div');
+            p.style.cssText = 'position:absolute;left:' + lft + '%;top:0;' +
+                'animation:heroPetal' + j + ' ' + dur + 's linear ' + del + 's infinite;';
+            p.innerHTML = '<svg width="' + sz + '" height="' + Math.round(sz * 1.5) + '" viewBox="0 0 10 15" fill="none">' +
+                '<ellipse cx="5" cy="7.5" rx="3.8" ry="6.5" fill="' + col + '" transform="rotate(-12 5 7.5)" opacity="0.82"/>' +
+                '<path d="M5 1.5 Q6.5 4.5 5 8 Q3.5 4.5 5 1.5Z" fill="rgba(255,255,255,0.28)"/>' +
+                '</svg>';
+            wrap.appendChild(p);
+        }
     })();
 
     // ==========================================================
