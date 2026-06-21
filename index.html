@@ -346,7 +346,7 @@
         .carousel-drum {
             position: relative;
             width: 200px;
-            height: 265px;
+            height: 290px;
             transform-style: preserve-3d;
             transition: transform 0.05s linear;
         }
@@ -354,7 +354,7 @@
         .carousel-drum .flip-card {
             position: absolute;
             width: 200px;
-            height: 265px;
+            height: 290px;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             flex: none;
@@ -399,7 +399,7 @@
         .cards-row::-webkit-scrollbar { display: none; }
 
         .flip-card {
-            flex: 0 0 200px; height: 265px; scroll-snap-align: start;
+            flex: 0 0 200px; height: 290px; scroll-snap-align: start;
             perspective: 600px; cursor: pointer; -webkit-tap-highlight-color: transparent;
         }
 
@@ -962,27 +962,22 @@
         .cards-section {
             background: linear-gradient(135deg, var(--sage-pale), #e9efe4, var(--sage-pale));
             position: relative;
+            min-height: 100svh;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 2rem 1.25rem 1.5rem;
+            justify-content: center;
+            padding: 1.5rem 1.25rem 5rem;
             box-sizing: border-box;
         }
         .cards-section.flowers-section {
             background: linear-gradient(135deg, var(--blush), #fef6f8, var(--blush));
         }
-        /* Stretch the carousel wrapper to fill remaining vertical space */
-        section.cards-section > div:last-child {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-        /* Carousel container grows to fill its wrapper */
+        /* Carousel fills available height with a fixed size (keeps 3D working) */
         section.cards-section .carousel-container {
-            flex: 1;
-            height: auto;
-            max-height: 430px;
+            height: calc(100svh - 260px);
+            min-height: 300px;
+            max-height: 420px;
         }
 
         /* ===== ENHANCED FOOTER ===== */
@@ -1078,13 +1073,13 @@
             .section-heading { font-size: 2.5rem; }
             .cascade-track { max-width: 520px; }
             .cascade-value { font-size: 2.4rem; }
-            .flip-card { flex: 0 0 220px; height: 290px; }
+            .flip-card { flex: 0 0 220px; height: 300px; }
             .carousel-container { perspective: 1100px; }
-            .carousel-drum { width: 220px; height: 290px; }
-            .carousel-drum .flip-card { width: 220px; height: 290px; }
+            .carousel-drum { width: 220px; height: 300px; }
+            .carousel-drum .flip-card { width: 220px; height: 300px; }
             .card-icon { width: 110px; height: 110px; }
-            section.cards-section { padding: 3rem 2rem 2rem; max-height: none; }
-            section.cards-section .carousel-container { max-height: 500px; }
+            section.cards-section { padding: 2rem 2rem 5rem; }
+            section.cards-section .carousel-container { height: calc(100svh - 240px); max-height: 500px; }
             .letter p { font-size: 1.05rem; }
             .letter { padding: 2.5rem 2rem; }
             .acrostic-letter { font-size: 4.5rem; width: 60px; }
