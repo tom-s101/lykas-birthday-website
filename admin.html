@@ -670,7 +670,9 @@ function loadPhotos() {
         }
         var grid = document.createElement('div');
         grid.className = 'photos-grid-admin';
+        var rowMap = {};
         rows.forEach(function(row) {
+            rowMap[row.id] = row;
             var item = document.createElement('div');
             item.className = 'photo-admin-item';
             var img = row.photo_url
@@ -684,11 +686,21 @@ function loadPhotos() {
                     (row.caption  ? '<div class="photo-admin-cap">' + escHtml(row.caption)    + '</div>' : '') +
                 '</div>' +
                 '<div class="photo-admin-actions">' +
-                    '<button class="btn btn-secondary btn-sm" onclick="openEditModal(' + JSON.stringify(row).replace(/</g,'\\u003c') + ')">Edit</button>' +
-                    '<button class="btn btn-secondary btn-sm" onclick="startReplace(' + row.id + ')">Replace</button>' +
-                    '<button class="btn btn-danger btn-sm" onclick="deletePhoto(' + row.id + ',\'' + (row.photo_url||'').replace(/'/g,"\\'") + '\')">Delete</button>' +
+                    '<button class="btn btn-secondary btn-sm" data-id="' + row.id + '" data-action="edit">Edit</button>' +
+                    '<button class="btn btn-secondary btn-sm" data-id="' + row.id + '" data-action="replace">Replace</button>' +
+                    '<button class="btn btn-danger btn-sm" data-id="' + row.id + '" data-action="delete">Delete</button>' +
                 '</div>';
             grid.appendChild(item);
+        });
+        grid.addEventListener('click', function(e) {
+            var btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            var id  = btn.dataset.id;
+            var row = rowMap[id];
+            var action = btn.dataset.action;
+            if (action === 'edit')    openEditModal(row);
+            if (action === 'replace') startReplace(parseInt(id));
+            if (action === 'delete')  deletePhoto(parseInt(id), row ? row.photo_url : '');
         });
         list.innerHTML = '';
         list.appendChild(grid);
