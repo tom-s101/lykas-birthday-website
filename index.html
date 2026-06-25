@@ -1769,7 +1769,7 @@
             overflow: hidden;
             background: var(--rose-pale);
             box-shadow: 0 6px 28px rgba(196,114,127,0.22), 0 2px 8px rgba(196,114,127,0.1);
-            will-change: transform, opacity;
+            will-change: auto;
             cursor: pointer;
             opacity: 0;
             border: 1px solid rgba(196,114,127,0.12);
@@ -6039,6 +6039,8 @@ who made heaven and earth.</p>
 
         var MAX_VIS = 7, HALF = 3;
         var cards = [], total = 0, centerIdx = 0, hovering = false, lbOpen = false;
+        var cachedPos = null;  // fan positions — recalculated only on resize
+        var prevVis   = [];    // card indices visible in the last render pass
 
         function formatDate(str) {
             if (!str) return '';
@@ -6060,7 +6062,7 @@ who made heaven and earth.</p>
             el.dataset.photoUrl = url  || '';
             el.dataset.dbId     = dbId || '';
             el.innerHTML = url
-                ? '<img src="' + url + '" alt="Lyson">'
+                ? '<img src="' + url + '" alt="Lyson" loading="lazy">'
                 : '<div class="lyson-card-empty">♡</div>';
             return el;
         }
@@ -6107,10 +6109,11 @@ who made heaven and earth.</p>
 
         /* ---- fan layout ---- */
         function fanPositions() {
+            if (cachedPos) return cachedPos;
             var sw = stage.offsetWidth;
             var cw = (cards[0] && cards[0].offsetWidth) || 200;
             var mx = Math.max(cw * 0.55, Math.min(sw * 0.38, 200));
-            return [
+            cachedPos = [
                 { rot: -21, scale: 0.776, x: -mx,        y: 12, z: 1  },
                 { rot: -14, scale: 0.85,  x: -mx * 0.65, y:  7, z: 2  },
                 { rot:  -7, scale: 0.935, x: -mx * 0.32, y:  2, z: 3  },
@@ -6119,6 +6122,7 @@ who made heaven and earth.</p>
                 { rot:  14, scale: 0.85,  x:  mx * 0.65, y:  7, z: 2  },
                 { rot:  21, scale: 0.776, x:  mx,        y: 12, z: 1  },
             ];
+            return cachedPos;
         }
 
         function getSlots() {
@@ -6132,13 +6136,26 @@ who made heaven and earth.</p>
 
         function render(anim) {
             if (!cards.length) return;
-            var pos = fanPositions(), slots = getSlots(), vis = {};
-            slots.forEach(function(it) { vis[it.ci] = true; });
-            cards.forEach(function(c, i) { if (!vis[i]) gsap.set(c, { autoAlpha: 0, zIndex: 0 }); });
+            var pos = fanPositions(), slots = getSlots();
+            var nowVis = slots.map(function(it) { return it.ci; });
+            var nowVisSet = {};
+            nowVis.forEach(function(ci) { nowVisSet[ci] = true; });
+
+            // Only process cards that left the visible window — avoids looping all 40
+            prevVis.forEach(function(ci) {
+                if (!nowVisSet[ci]) {
+                    gsap.killTweensOf(cards[ci]);
+                    gsap.set(cards[ci], { autoAlpha: 0, zIndex: 0 });
+                    cards[ci].style.willChange = 'auto';
+                }
+            });
+            prevVis = nowVis;
+
             slots.forEach(function(it) {
                 var p = pos[it.s];
+                cards[it.ci].style.willChange = 'transform, opacity';
                 var props = { autoAlpha: 1, rotation: p.rot, scale: p.scale, x: p.x, y: p.y, zIndex: p.z, transformOrigin: '50% 50%' };
-                if (anim) gsap.to(cards[it.ci], Object.assign({ duration: 0.4, ease: 'power2.out' }, props));
+                if (anim) gsap.to(cards[it.ci], Object.assign({ duration: 0.32, ease: 'power2.out', overwrite: 'auto' }, props));
                 else gsap.set(cards[it.ci], props);
             });
             updateCaption();
@@ -6238,22 +6255,30 @@ who made heaven and earth.</p>
             var pos = fanPositions();
             getSlots().forEach(function(it) {
                 var p = pos[it.s];
-                gsap.to(cards[it.ci], { duration: 0.3, ease: 'power1.out', x: p.x * 1.4, rotation: p.rot * 1.25 });
+                gsap.to(cards[it.ci], { duration: 0.3, ease: 'power1.out', x: p.x * 1.4, rotation: p.rot * 1.25, overwrite: 'auto' });
             });
         });
         stage.addEventListener('mouseleave', function() { hovering = false; render(true); });
 
         /* ---- swipe ---- */
-        var tx = null;
-        stage.addEventListener('touchstart', function(e) { tx = e.touches[0].clientX; }, { passive: true });
+        var tx = null, ty = null;
+        stage.addEventListener('touchstart', function(e) {
+            tx = e.touches[0].clientX;
+            ty = e.touches[0].clientY;
+        }, { passive: true });
         stage.addEventListener('touchend', function(e) {
             if (tx === null) return;
             var dx = e.changedTouches[0].clientX - tx;
-            if (Math.abs(dx) > 45) goTo(centerIdx + (dx < 0 ? 1 : -1));
-            tx = null;
+            var dy = e.changedTouches[0].clientY - ty;
+            // Only register horizontal swipes — prevents accidental triggers while scrolling
+            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) goTo(centerIdx + (dx < 0 ? 1 : -1));
+            tx = null; ty = null;
         }, { passive: true });
 
-        window.addEventListener('resize', function() { if (!hovering) render(false); });
+        window.addEventListener('resize', function() {
+            cachedPos = null;  // force recalculation on next render
+            if (!hovering) render(false);
+        });
 
         loadPhotos();
     })();
