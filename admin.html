@@ -695,12 +695,26 @@ function loadPhotos() {
         grid.addEventListener('click', function(e) {
             var btn = e.target.closest('button[data-action]');
             if (!btn) return;
-            var id  = btn.dataset.id;
-            var row = rowMap[id];
+            var id     = btn.dataset.id;
+            var row    = rowMap[id];
             var action = btn.dataset.action;
             if (action === 'edit')    openEditModal(row);
             if (action === 'replace') startReplace(parseInt(id));
-            if (action === 'delete')  deletePhoto(parseInt(id), row ? row.photo_url : '');
+            if (action === 'delete') {
+                var actionsDiv = btn.closest('.photo-admin-actions');
+                actionsDiv.innerHTML =
+                    '<span style="font-size:0.63rem;color:var(--text-light);align-self:center;flex:1">Delete?</span>' +
+                    '<button class="btn btn-secondary btn-sm" data-id="' + id + '" data-action="delete-cancel">Cancel</button>' +
+                    '<button class="btn btn-danger btn-sm" data-id="' + id + '" data-action="delete-confirm">Yes</button>';
+            }
+            if (action === 'delete-cancel') {
+                var actionsDiv = btn.closest('.photo-admin-actions');
+                actionsDiv.innerHTML =
+                    '<button class="btn btn-secondary btn-sm" data-id="' + id + '" data-action="edit">Edit</button>' +
+                    '<button class="btn btn-secondary btn-sm" data-id="' + id + '" data-action="replace">Replace</button>' +
+                    '<button class="btn btn-danger btn-sm" data-id="' + id + '" data-action="delete">Delete</button>';
+            }
+            if (action === 'delete-confirm') deletePhoto(parseInt(id), row ? row.photo_url : '');
         });
         list.innerHTML = '';
         list.appendChild(grid);
@@ -711,7 +725,6 @@ function loadPhotos() {
 }
 
 function deletePhoto(id, url) {
-    if (!confirm('Delete this photo?')) return;
     sbFetch('/rest/v1/lyson_photos?id=eq.' + id, { method: 'DELETE' })
     .then(function() {
         if (url) {
