@@ -3939,7 +3939,8 @@ who made heaven and earth.</p>
                             'autocomplete="off" spellcheck="false" ' +
                             'autocorrect="off" autocapitalize="characters">' +
                         '<span class="gp-lock" id="gp_lock">🔒</span>' +
-                    '</div>';
+                    '</div>' +
+                    '<p class="gp-submit-error" id="gp_error"></p>';
             } else {
                 inputsHtml = '<div class="gp-multi">';
                 step.codes.forEach(function(c, i) {
@@ -3976,17 +3977,42 @@ who made heaven and earth.</p>
             if (step.type === 'single') {
                 var input = document.getElementById('gpi_main');
                 var lock  = document.getElementById('gp_lock');
+                var errEl = document.getElementById('gp_error');
+
+                var DATE_RE = /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|\d{1,2}[\/\-\.]\d{1,2})\b/i;
+
+                function showDateHint() {
+                    if (!errEl) return;
+                    errEl.textContent = 'text Matheson that date — he\'ll auto-reply with the key to enter here ♥';
+                    errEl.style.color = 'var(--rose-light)';
+                }
+                function clearHint() {
+                    if (errEl) { errEl.textContent = ''; errEl.style.color = ''; }
+                }
+
                 input.addEventListener('input', function() {
-                    if (this.value.trim().toUpperCase() === step.code.toUpperCase()) {
+                    var val = this.value.trim();
+                    if (val.toUpperCase() === step.code.toUpperCase()) {
+                        clearHint();
                         unlockSingle(input, lock);
+                    } else if (index === 1 && DATE_RE.test(val)) {
+                        showDateHint();
+                    } else {
+                        clearHint();
                     }
                 });
                 input.addEventListener('keydown', function(e) {
                     if (e.key !== 'Enter') return;
-                    if (this.value.trim().toUpperCase() === step.code.toUpperCase()) {
+                    var val = this.value.trim();
+                    if (val.toUpperCase() === step.code.toUpperCase()) {
+                        clearHint();
                         unlockSingle(input, lock);
-                    } else if (this.value.trim()) {
-                        shake(input);
+                    } else if (val) {
+                        if (index === 1 && DATE_RE.test(val)) {
+                            showDateHint();
+                        } else {
+                            shake(input);
+                        }
                     }
                 });
                 setTimeout(function() { if (input) input.focus(); }, animate ? 360 : 80);
