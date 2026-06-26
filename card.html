@@ -10,15 +10,12 @@
 <style>
     :root {
         --cream: #faf6f1;
-        --warm: #f5ede2;
         --blush: #f5e1de;
         --rose: #c4727f;
         --rose-light: #e0a8b0;
         --rose-pale: #f0d4d8;
         --sage: #9aa78f;
-        --sage-pale: #d8e0d2;
         --gold: #d4a574;
-        --gold-light: #e8c597;
         --text: #4a3f3a;
         --text-light: #7a6a64;
         --text-faint: #b8a8a3;
@@ -53,15 +50,13 @@
         display: inline-flex; align-items: center; gap: 0.4rem;
         font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
         color: var(--text-faint); text-decoration: none;
-        transition: color 0.25s ease;
-        z-index: 10;
+        transition: color 0.25s ease; z-index: 10;
     }
     .back-link:hover { color: var(--rose); }
     .back-link svg { width: 12px; height: 12px; }
 
     .header {
-        text-align: center; margin-bottom: 1.5rem;
-        max-width: 360px;
+        text-align: center; margin-bottom: 1.5rem; max-width: 360px;
     }
     .label {
         font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase;
@@ -80,25 +75,28 @@
 
     /* ===== CARD STAGE ===== */
     .stage-wrap {
-        width: 100%;
-        max-width: 360px;
+        width: 100%; max-width: 360px;
         margin: 1.5rem auto;
         perspective: 2200px;
         perspective-origin: 50% 30%;
     }
     .stage {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 5 / 7;
+        position: relative; width: 100%; aspect-ratio: 5 / 7;
         transform-style: preserve-3d;
         transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1);
         cursor: pointer;
     }
 
-    /* Shared face style */
+    /* The cover (a flip-card with front + back faces) */
+    .cover {
+        position: absolute; inset: 0;
+        transform-style: preserve-3d;
+        transform-origin: left center;
+        transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1);
+        z-index: 3;
+    }
     .face {
-        position: absolute;
-        inset: 0;
+        position: absolute; inset: 0;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
         background-color: #fbeef0;
@@ -106,19 +104,7 @@
         background-position: center;
         background-repeat: no-repeat;
         border-radius: 8px;
-        box-shadow:
-            0 4px 14px rgba(196, 114, 127, 0.15),
-            0 18px 50px rgba(196, 114, 127, 0.18);
-    }
-
-    /* The cover (a flip-card with front + back faces) */
-    .cover {
-        position: absolute;
-        inset: 0;
-        transform-style: preserve-3d;
-        transform-origin: left center;
-        transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1);
-        z-index: 3;
+        box-shadow: 0 4px 14px rgba(196,114,127,0.15), 0 18px 50px rgba(196,114,127,0.18);
     }
     .face.front {
         background-image: url('card-cover.png');
@@ -127,61 +113,45 @@
     .face.back-of-cover {
         background: linear-gradient(135deg, #fdeef0, #f8e0e6 60%, #fbe8ec);
         transform: rotateY(180deg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
+        display: flex; align-items: center; justify-content: center; padding: 2rem;
     }
     .back-of-cover-text {
-        font-family: 'Cormorant Garamond', serif;
-        font-style: italic;
-        text-align: center;
-        color: var(--rose);
-        opacity: 0.4;
-        font-size: 0.95rem;
-        line-height: 1.5;
+        font-family: 'Cormorant Garamond', serif; font-style: italic;
+        text-align: center; color: var(--rose); opacity: 0.4;
+        font-size: 0.95rem; line-height: 1.5;
     }
 
-    /* Inside spread 1 — revealed when cover opens */
+    /* Inside spread 1 */
     .inside {
-        position: absolute;
-        inset: 0;
+        position: absolute; inset: 0;
         background-color: #fbeef0;
         background-image: url('card-inside1.jpeg');
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
-        border-radius: 8px;
-        z-index: 2;
-        opacity: 1;
+        border-radius: 8px; z-index: 2;
+        opacity: 0;
         transition: opacity 0.5s ease;
-        box-shadow:
-            inset 8px 0 18px rgba(120, 60, 80, 0.06),
-            0 8px 28px rgba(196, 114, 127, 0.12);
+        box-shadow: inset 8px 0 18px rgba(120,60,80,0.06), 0 8px 28px rgba(196,114,127,0.12);
     }
 
     /* Inside spread 2 */
     .inside2 {
-        position: absolute;
-        inset: 0;
+        position: absolute; inset: 0;
         background-color: #fbeef0;
         background-image: url('card-inside2.jpeg');
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
-        border-radius: 8px;
-        z-index: 1;
+        border-radius: 8px; z-index: 1;
         opacity: 0;
         transition: opacity 0.5s ease;
-        box-shadow:
-            inset 8px 0 18px rgba(120, 60, 80, 0.06),
-            0 8px 28px rgba(196, 114, 127, 0.12);
+        box-shadow: inset 8px 0 18px rgba(120,60,80,0.06), 0 8px 28px rgba(196,114,127,0.12);
     }
 
-    /* The back face of the whole card */
+    /* The back face of the card */
     .back-face {
-        position: absolute;
-        inset: 0;
+        position: absolute; inset: 0;
         background-color: #fbeef0;
         background-image: url('card-back-face.png');
         background-size: cover;
@@ -192,66 +162,61 @@
         -webkit-backface-visibility: hidden;
         transform: rotateY(180deg);
         z-index: 0;
-        box-shadow:
-            0 4px 14px rgba(196, 114, 127, 0.15),
-            0 18px 50px rgba(196, 114, 127, 0.18);
+        box-shadow: 0 4px 14px rgba(196,114,127,0.15), 0 18px 50px rgba(196,114,127,0.18);
     }
 
-    /* Card spine */
+    /* Spine shadow */
     .spine {
-        position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 12px;
-        background: linear-gradient(to right,
-            rgba(120, 60, 80, 0.10),
-            rgba(120, 60, 80, 0.04) 60%,
-            transparent);
-        z-index: 4;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.6s ease 0.4s;
+        position: absolute; left: 0; top: 0; bottom: 0; width: 12px;
+        background: linear-gradient(to right, rgba(120,60,80,0.10), rgba(120,60,80,0.04) 60%, transparent);
+        z-index: 4; pointer-events: none;
+        opacity: 0; transition: opacity 0.6s ease 0.4s;
     }
 
     /* ===== STATES ===== */
 
-    /* Front: cover closed, card un-flipped */
-    .stage[data-state="front"] .cover { transform: rotateY(0); }
-    .stage[data-state="front"] { transform: rotateY(0); }
-    .stage[data-state="front"] .spine { opacity: 0; transition-delay: 0s; }
+    /* front */
+    .stage[data-state="front"] .cover  { transform: rotateY(0); }
+    .stage[data-state="front"]         { transform: rotateY(0); }
+    .stage[data-state="front"] .spine  { opacity: 0; transition-delay: 0s; }
     .stage[data-state="front"] .inside { opacity: 0; }
-    .stage[data-state="front"] .inside2 { opacity: 0; }
+    .stage[data-state="front"] .inside2{ opacity: 0; }
 
-    /* Inside1: cover swings open, spread 1 visible */
-    .stage[data-state="inside"] .cover { transform: rotateY(-160deg); }
-    .stage[data-state="inside"] { transform: rotateY(0); }
-    .stage[data-state="inside"] .spine { opacity: 1; }
-    .stage[data-state="inside"] .inside { opacity: 1; z-index: 2; }
+    /* inside1 */
+    .stage[data-state="inside"] .cover   { transform: rotateY(-160deg); }
+    .stage[data-state="inside"]          { transform: rotateY(0); }
+    .stage[data-state="inside"] .spine   { opacity: 1; }
+    .stage[data-state="inside"] .inside  { opacity: 1; z-index: 2; }
     .stage[data-state="inside"] .inside2 { opacity: 0; z-index: 1; }
 
-    /* Inside2: cover still open, spread 2 visible */
-    .stage[data-state="inside2"] .cover { transform: rotateY(-160deg); }
-    .stage[data-state="inside2"] { transform: rotateY(0); }
-    .stage[data-state="inside2"] .spine { opacity: 1; }
-    .stage[data-state="inside2"] .inside { opacity: 0; z-index: 1; }
+    /* inside2 */
+    .stage[data-state="inside2"] .cover   { transform: rotateY(-160deg); }
+    .stage[data-state="inside2"]          { transform: rotateY(0); }
+    .stage[data-state="inside2"] .spine   { opacity: 1; }
+    .stage[data-state="inside2"] .inside  { opacity: 0; z-index: 1; }
     .stage[data-state="inside2"] .inside2 { opacity: 1; z-index: 2; }
 
-    /* Closing: cover swings back before card flip */
-    .stage[data-state="closing"] .cover { transform: rotateY(0); }
-    .stage[data-state="closing"] { transform: rotateY(0); }
-    .stage[data-state="closing"] .inside { opacity: 0; }
+    /* closing (cover swings shut before flip) */
+    .stage[data-state="closing"] .cover   { transform: rotateY(0); }
+    .stage[data-state="closing"]          { transform: rotateY(0); }
+    .stage[data-state="closing"] .inside  { opacity: 0; }
     .stage[data-state="closing"] .inside2 { opacity: 0; }
 
-    /* Back: card fully flipped — shows back face */
-    .stage[data-state="back"] .cover { transform: rotateY(0); }
+    /* back — hide cover so back-face image shows through */
+    .stage[data-state="back"] .cover {
+        transform: rotateY(0);
+        /* delay opacity until card is edge-on (~halfway through flip) */
+        opacity: 0;
+        transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1),
+                    opacity 0s linear 0.5s;
+    }
     .stage[data-state="back"] { transform: rotateY(-180deg); }
 
-    /* ===== INSTRUCTIONS BUBBLE ===== */
+    /* ===== HINT ===== */
     .hint {
-        margin-top: 1.5rem;
-        text-align: center;
+        margin-top: 1.5rem; text-align: center;
         font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
-        color: var(--text-faint);
-        min-height: 1.2em;
+        color: var(--text-faint); min-height: 1.2em;
         transition: opacity 0.4s ease;
     }
     .hint .heart {
@@ -263,18 +228,51 @@
         50% { transform: scale(1.18); }
     }
 
-    /* ===== Sparkles overlay ===== */
-    .sparkles {
-        position: absolute; inset: 0;
-        pointer-events: none;
-        overflow: hidden;
+    /* ===== ACTION BUTTONS (zoom + save) ===== */
+    .card-actions {
+        display: flex; gap: 0.6rem; justify-content: center;
+        margin-top: 1rem;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.4s ease;
     }
+    .card-actions.visible {
+        opacity: 1; pointer-events: auto;
+    }
+    .card-action-btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        background: none;
+        border: 1px solid var(--rose-pale);
+        color: var(--text-light);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+        padding: 0.5rem 0.9rem;
+        border-radius: 100px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+    }
+    .card-action-btn:hover, .card-action-btn:active {
+        background: var(--rose); color: var(--cream); border-color: var(--rose);
+    }
+    .card-action-btn svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+    /* ===== RESET BUTTON ===== */
+    .reset-btn {
+        margin-top: 0.75rem;
+        background: none; border: 1px solid var(--rose-pale);
+        color: var(--text-light);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+        padding: 0.55rem 1.3rem; border-radius: 100px;
+        cursor: pointer; transition: all 0.25s ease;
+    }
+    .reset-btn:hover { background: var(--rose); color: var(--cream); border-color: var(--rose); }
+
+    /* ===== SPARKLES ===== */
+    .sparkles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
     .sparkle {
-        position: absolute;
-        width: 4px; height: 4px;
-        background: var(--rose-light);
-        border-radius: 50%;
-        opacity: 0;
+        position: absolute; width: 4px; height: 4px;
+        background: var(--rose-light); border-radius: 50%; opacity: 0;
         animation: sparkle 3s ease-in-out infinite;
     }
     @keyframes sparkle {
@@ -282,34 +280,44 @@
         50% { opacity: 0.8; transform: scale(1.2); }
     }
 
-    /* ===== Reset button ===== */
-    .reset-btn {
-        margin-top: 0.75rem;
-        background: none; border: 1px solid var(--rose-pale);
-        color: var(--text-light);
-        font-family: 'Inter', sans-serif;
-        font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
-        padding: 0.55rem 1.3rem;
-        border-radius: 100px;
-        cursor: pointer;
-        transition: all 0.25s ease;
+    /* ===== LIGHTBOX ===== */
+    .lightbox {
+        position: fixed; inset: 0;
+        background: rgba(10, 8, 7, 0.96);
+        z-index: 200; display: none; cursor: zoom-out;
+        animation: fadeBg 0.3s ease;
     }
-    .reset-btn:hover {
-        background: var(--rose);
-        color: var(--cream);
-        border-color: var(--rose);
+    .lightbox.open {
+        display: flex; align-items: flex-start; justify-content: center;
+        overflow: auto; padding: 1rem;
     }
+    @keyframes fadeBg { from { opacity: 0; } to { opacity: 1; } }
+    .lightbox img {
+        max-width: 100%; width: auto; height: auto;
+        display: block; margin: auto;
+        box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+        border-radius: 4px;
+        animation: zoomIn 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes zoomIn { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: scale(1); } }
+    .lightbox-close {
+        position: fixed; top: 1rem; right: 1rem;
+        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+        color: #faf6f1; width: 36px; height: 36px; border-radius: 50%;
+        cursor: pointer; font-size: 1.2rem; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        z-index: 201; transition: all 0.2s ease;
+    }
+    .lightbox-close:hover { background: rgba(196,114,127,0.35); border-color: var(--rose); }
 
-    /* Page nav */
+    /* ===== PAGE NAV ===== */
     .page-nav {
         position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
         display: flex; gap: 0.5rem; z-index: 50;
     }
     .page-dot {
         width: 6px; height: 6px; border-radius: 50%;
-        border: 1px solid var(--rose-pale);
-        transition: all 0.3s ease;
-        display: block;
+        border: 1px solid var(--rose-pale); transition: all 0.3s ease; display: block;
     }
     .page-dot.active { background: var(--rose); border-color: var(--rose); }
     .page-nav a { line-height: 0; }
@@ -335,30 +343,45 @@
 
 <div class="stage-wrap">
     <div class="stage" id="stage" data-state="front" role="button" tabindex="0" aria-label="Open the birthday card">
-        <!-- Inside spread 2 — deepest layer -->
+        <!-- Inside spread 2 (deepest) -->
         <div class="inside2" aria-hidden="true"></div>
-
-        <!-- Inside spread 1 — revealed when cover opens -->
+        <!-- Inside spread 1 -->
         <div class="inside" aria-hidden="true"></div>
-
-        <!-- Subtle spine shadow at the fold -->
+        <!-- Spine shadow -->
         <div class="spine"></div>
-
-        <!-- The cover: flippable with two faces (front + inside-back) -->
+        <!-- Cover -->
         <div class="cover">
             <div class="face front" aria-hidden="true"></div>
             <div class="face back-of-cover" aria-hidden="true">
                 <p class="back-of-cover-text">&mdash; for lyka, with love &mdash;</p>
             </div>
         </div>
-
-        <!-- The back of the entire card -->
+        <!-- Back of card -->
         <div class="back-face" aria-hidden="true"></div>
     </div>
 </div>
 
 <p class="hint" id="hint">tap the card <span class="heart">&hearts;</span></p>
+
+<!-- Zoom + Save buttons -->
+<div class="card-actions" id="cardActions">
+    <button class="card-action-btn" id="zoomBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        zoom
+    </button>
+    <button class="card-action-btn" id="saveBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        save
+    </button>
+</div>
+
 <button class="reset-btn" id="resetBtn" style="display:none;">close it</button>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Card zoomed view">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close zoom">&times;</button>
+    <img src="" alt="Card (full size)" id="lightboxImg">
+</div>
 
 <div class="page-nav">
     <a href="index.html#return"><span class="page-dot"></span></a>
@@ -373,15 +396,20 @@
 (function() {
     'use strict';
 
-    var stage = document.getElementById('stage');
-    var hint = document.getElementById('hint');
-    var resetBtn = document.getElementById('resetBtn');
+    var stage      = document.getElementById('stage');
+    var hint       = document.getElementById('hint');
+    var resetBtn   = document.getElementById('resetBtn');
+    var cardActions= document.getElementById('cardActions');
+    var zoomBtn    = document.getElementById('zoomBtn');
+    var saveBtn    = document.getElementById('saveBtn');
+    var lightbox   = document.getElementById('lightbox');
+    var lightboxImg= document.getElementById('lightboxImg');
+    var lightboxClose = document.getElementById('lightboxClose');
 
-    // States: front → inside → inside2 → [closing] → back → front
     var state = 'front';
     var animating = false;
-    var DURATION = 1100; // matches CSS transition
-    var FADE_DURATION = 550; // inside page swap
+    var DURATION = 1100;
+    var FADE = 550;
 
     var HINTS = {
         'front':   'tap the card <span class="heart">&hearts;</span>',
@@ -390,28 +418,38 @@
         'back':    'tap to start over'
     };
 
+    // Maps state → image src for zoom/save
+    var IMAGE_MAP = {
+        'front':   'card-cover.png',
+        'inside':  'card-inside1.jpeg',
+        'inside2': 'card-inside2.jpeg',
+        'back':    'card-back-face.png'
+    };
+
     function setState(s) {
         state = s;
         stage.setAttribute('data-state', s);
         if (HINTS[s]) hint.innerHTML = HINTS[s];
-        resetBtn.style.display = (s === 'front') ? 'none' : 'inline-block';
+        var isOpen = (s !== 'front');
+        resetBtn.style.display = isOpen ? 'inline-block' : 'none';
+        if (isOpen) {
+            cardActions.classList.add('visible');
+        } else {
+            cardActions.classList.remove('visible');
+        }
     }
 
     function advance() {
         if (animating) return;
-
         if (state === 'front') {
             animating = true;
             setState('inside');
             setTimeout(function() { animating = false; }, DURATION);
-
         } else if (state === 'inside') {
             animating = true;
             setState('inside2');
-            setTimeout(function() { animating = false; }, FADE_DURATION);
-
+            setTimeout(function() { animating = false; }, FADE);
         } else if (state === 'inside2') {
-            // Two-phase: close cover first, then flip
             animating = true;
             stage.setAttribute('data-state', 'closing');
             hint.innerHTML = HINTS['back'];
@@ -419,7 +457,6 @@
                 setState('back');
                 setTimeout(function() { animating = false; }, DURATION);
             }, DURATION);
-
         } else if (state === 'back') {
             animating = true;
             setState('front');
@@ -438,26 +475,77 @@
 
     stage.addEventListener('click', advance);
     stage.addEventListener('keydown', function(e) {
-        if (e.code === 'Space' || e.code === 'Enter') {
-            e.preventDefault();
-            advance();
-        }
+        if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); advance(); }
     });
     resetBtn.addEventListener('click', reset);
 
-    // Sparkles
-    (function makeSparkles() {
-        var n = 8;
+    // ── Zoom ──
+    function openZoom() {
+        var src = IMAGE_MAP[state] || IMAGE_MAP['front'];
+        lightboxImg.src = src;
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeZoom() {
+        lightbox.classList.remove('open');
+        document.body.style.overflow = '';
+        setTimeout(function() { lightboxImg.src = ''; }, 250);
+    }
+    zoomBtn.addEventListener('click', openZoom);
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox || e.target === lightboxImg) closeZoom();
+    });
+    lightboxClose.addEventListener('click', closeZoom);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('open')) closeZoom();
+    });
+
+    // ── Save ──
+    saveBtn.addEventListener('click', function() {
+        var src = IMAGE_MAP[state] || IMAGE_MAP['front'];
+        var filename = src.split('/').pop();
+
+        // iOS/modern: use Web Share API so she can save to Photos
+        if (navigator.share) {
+            fetch(src)
+                .then(function(r) { return r.blob(); })
+                .then(function(blob) {
+                    var file = new File([blob], filename, { type: blob.type });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        return navigator.share({ files: [file], title: 'Happy Birthday Lyka ♡' });
+                    }
+                    throw new Error('canShare failed');
+                })
+                .catch(function() {
+                    // fallback
+                    triggerDownload(src, filename);
+                });
+        } else {
+            triggerDownload(src, filename);
+        }
+    });
+
+    function triggerDownload(src, filename) {
+        var a = document.createElement('a');
+        a.href = src;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // ── Sparkles ──
+    (function() {
         var wrap = document.querySelector('.stage-wrap');
         wrap.style.position = 'relative';
         var overlay = document.createElement('div');
         overlay.className = 'sparkles';
-        for (var i = 0; i < n; i++) {
+        for (var i = 0; i < 8; i++) {
             var s = document.createElement('div');
             s.className = 'sparkle';
             s.style.left = (Math.random() * 100) + '%';
-            s.style.top = (Math.random() * 100) + '%';
-            s.style.animationDelay = (Math.random() * 3) + 's';
+            s.style.top  = (Math.random() * 100) + '%';
+            s.style.animationDelay    = (Math.random() * 3) + 's';
             s.style.animationDuration = (2 + Math.random() * 2) + 's';
             overlay.appendChild(s);
         }
