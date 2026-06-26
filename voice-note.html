@@ -35,30 +35,29 @@ html, body {
 .star { position: absolute; border-radius: 50%; background: #fff; }
 .star.pink { background: var(--rose-light); }
 @keyframes twinkle {
-    0%,100% { opacity: 0.1; transform: scale(1); }
-    50%      { opacity: 0.9; transform: scale(1.3); }
+    0%,100% { opacity: 0.12; transform: scale(1); }
+    50%      { opacity: 0.9;  transform: scale(1.3); }
 }
 
-/* ── Layout ── */
+/* ── Page shell ── */
 .page {
     position: relative; z-index: 1;
     min-height: 100svh;
     display: flex; flex-direction: column;
     align-items: center;
-    padding: 0 0 5rem;
 }
 
 /* ── Nav ── */
 .topnav {
-    width: 100%; display: flex;
-    align-items: center; justify-content: space-between;
+    width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 1.2rem 1.4rem;
-    position: relative; z-index: 10;
+    flex-shrink: 0;
 }
 .back-link {
     display: inline-flex; align-items: center; gap: 0.4rem;
     font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
-    color: rgba(232,160,170,0.6); text-decoration: none;
+    color: rgba(232,160,170,0.55); text-decoration: none;
     transition: color 0.25s;
 }
 .back-link:hover { color: var(--rose-light); }
@@ -66,168 +65,23 @@ html, body {
 .page-nav { display: flex; gap: 0.5rem; }
 .page-dot {
     width: 6px; height: 6px; border-radius: 50%;
-    border: 1px solid rgba(196,114,127,0.4); display: block;
-    transition: all 0.3s;
+    border: 1px solid rgba(196,114,127,0.4); display: block; transition: all 0.3s;
 }
 .page-dot.active { background: var(--rose); border-color: var(--rose); }
 .page-nav a { line-height: 0; }
 
-/* ── Header text ── */
-.player-header {
-    text-align: center;
-    padding: 0.5rem 1.5rem 1.25rem;
-    max-width: 400px;
-    width: 100%;
-}
-.press-label {
-    font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase;
-    color: rgba(232,160,170,0.6); margin-bottom: 0.5rem;
-}
-.main-heading {
-    font-family: 'Cormorant Garamond', serif; font-weight: 400;
-    font-size: 1.65rem; line-height: 1.25; color: var(--cream);
-    margin-bottom: 0.75rem;
-}
-.main-heading em { color: var(--rose-light); font-style: italic; }
-.time-row {
-    font-size: 0.7rem; letter-spacing: 2px;
-    color: rgba(250,246,241,0.45);
-}
-.time-sep { margin: 0 0.3em; }
-
-/* ── Player stage ── */
-.player-stage {
-    position: relative;
-    width: 100%; max-width: 500px;
-    touch-action: pan-y; /* allow vertical scroll but we'll cancel horizontal in JS */
-}
-
-/* ── Photo strip ── */
-.strip-viewport {
-    width: 100%; height: 185px;
-    overflow: hidden;
-    /* subtle vignette edges */
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-}
-.photo-strip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 40px;
-    height: 100%;
-    will-change: transform;
-    transition: transform 0.08s linear;
-}
-.photo-strip.snapping { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
-.strip-card {
-    flex: 0 0 auto;
-    width: 118px;
-    background: #fff;
-    padding: 5px 5px 22px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.55);
-    border-radius: 1px;
-    overflow: hidden;
-}
-.strip-card:nth-child(odd)  { transform: rotate(-1.8deg); }
-.strip-card:nth-child(even) { transform: rotate(1.5deg); }
-.strip-card img {
-    width: 100%; aspect-ratio: 1;
-    object-fit: cover; display: block;
-}
-.strip-empty {
-    width: 100%; height: 185px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Cormorant Garamond', serif; font-style: italic;
-    font-size: 1rem; color: rgba(250,246,241,0.2);
-}
-
-/* ── Waveform ── */
-.waveform-area {
-    width: 100%; height: 70px;
-    position: relative;
-    margin-top: 2px;
-}
-#waveformCanvas { width: 100%; height: 100%; display: block; }
-
-/* ── Scrubber (absolutely positioned over entire stage) ── */
-.scrubber-track {
-    position: absolute;
-    top: 0;
-    /* left controlled by JS */
-    height: calc(185px + 2px + 70px); /* strip + gap + wave */
-    width: 0;
-    pointer-events: none;
-    z-index: 20;
-}
-.scrubber-bar {
-    position: absolute;
-    top: 0; left: 0;
-    width: 2px;
-    height: 100%;
-    transform: translateX(-1px);
-    background: linear-gradient(to bottom,
-        rgba(250,246,241,0)   0%,
-        rgba(250,246,241,0.5) 6%,
-        rgba(250,246,241,0.85) 20%,
-        rgba(250,246,241,0.85) 80%,
-        rgba(250,246,241,0.5) 94%,
-        rgba(250,246,241,0)   100%);
-    pointer-events: none;
-}
-.scrubber-knob {
-    position: absolute;
-    bottom: -26px;
-    left: 0;
-    transform: translateX(-50%);
-    width: 50px; height: 50px;
-    background: var(--rose);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: grab;
-    touch-action: none;
-    pointer-events: all;
-    box-shadow:
-        0 4px 16px rgba(196,114,127,0.55),
-        0 0 0 3px rgba(196,114,127,0.2);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.scrubber-knob.active {
-    transform: translateX(-50%) scale(1.18);
-    box-shadow:
-        0 6px 24px rgba(196,114,127,0.75),
-        0 0 0 8px rgba(196,114,127,0.12);
-    cursor: grabbing;
-}
-.scrubber-knob svg { width: 20px; height: 20px; pointer-events: none; }
-
-/* ── Hold hint ── */
-.hold-hint {
-    margin-top: 2.4rem;
-    font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
-    color: rgba(232,160,170,0.55);
-    text-align: center;
-    transition: opacity 0.35s ease;
-}
-
-/* ── Empty / loading states ── */
+/* ── States ── */
 .state-screen {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     text-align: center; padding: 2rem;
 }
-.empty-icon {
-    width: 52px; height: 52px;
-    color: rgba(196,114,127,0.35);
-    margin-bottom: 1.5rem;
-}
+.empty-icon { width: 52px; height: 52px; color: rgba(196,114,127,0.3); margin-bottom: 1.5rem; }
 .state-heading {
     font-family: 'Cormorant Garamond', serif; font-weight: 400; font-style: italic;
     font-size: 1.5rem; color: var(--cream); margin-bottom: 0.5rem;
 }
-.state-sub {
-    font-size: 0.78rem; color: rgba(250,246,241,0.4); line-height: 1.6;
-}
+.state-sub { font-size: 0.78rem; color: rgba(250,246,241,0.4); line-height: 1.6; }
 .loading-dots span {
     display: inline-block; width: 6px; height: 6px;
     background: var(--rose-light); border-radius: 50%; margin: 0 3px;
@@ -240,37 +94,160 @@ html, body {
     40% { opacity: 1; transform: scale(1.2); }
 }
 
-/* ── Footer ── */
-.footer {
-    position: fixed; bottom: 4.5rem; left: 0; right: 0;
-    text-align: center; font-size: 0.65rem;
-    color: rgba(250,246,241,0.25); letter-spacing: 1px;
-    pointer-events: none;
+/* ── Player ── */
+#statePlayer {
+    width: 100%; max-width: 480px;
+    display: flex; flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding-bottom: 5.5rem;
 }
+
+.player-header {
+    text-align: center; padding: 0.25rem 1.5rem 1rem; width: 100%;
+}
+.press-label {
+    font-size: 0.58rem; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(232,160,170,0.55); margin-bottom: 0.5rem;
+}
+.main-heading {
+    font-family: 'Cormorant Garamond', serif; font-weight: 400;
+    font-size: 1.55rem; line-height: 1.3; color: var(--cream);
+    margin-bottom: 0.6rem;
+}
+.main-heading em { color: var(--rose-light); font-style: italic; }
+.time-row {
+    font-size: 0.68rem; letter-spacing: 2px;
+    color: rgba(250,246,241,0.4);
+}
+
+/* ── Photo filmstrip ── */
+.strip-viewport {
+    width: 100%; height: 178px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+.photo-strip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 40px; height: 100%;
+    will-change: transform;
+    transition: transform 0.12s linear;
+}
+.strip-card {
+    flex: 0 0 auto; width: 115px;
+    background: #fff; padding: 5px 5px 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.55); border-radius: 1px;
+    overflow: hidden;
+}
+.strip-card:nth-child(odd)  { transform: rotate(-1.8deg); }
+.strip-card:nth-child(even) { transform: rotate(1.5deg); }
+.strip-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+
+/* ── Waveform ── */
+.waveform-area { width: 100%; height: 68px; margin-top: 4px; cursor: pointer; }
+#waveformCanvas { width: 100%; height: 100%; display: block; }
+
+/* ── Heart player ── */
+.heart-player {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 180px; height: 180px;
+    margin: 1.2rem auto 0;
+    flex-shrink: 0;
+}
+
+/* Expanding sonar rings */
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(196,114,127,0);
+    width: 100%; height: 100%;
+    pointer-events: none;
+    transform: scale(0.5);
+}
+.heart-player.playing .ring { animation: ring-sonar 2.4s ease-out infinite; }
+.heart-player.playing .ring:nth-child(2) { animation-delay: 0.8s; }
+.heart-player.playing .ring:nth-child(3) { animation-delay: 1.6s; }
+@keyframes ring-sonar {
+    0%   { transform: scale(0.55); border-color: rgba(196,114,127,0.5); }
+    100% { transform: scale(1.7);  border-color: rgba(196,114,127,0); }
+}
+
+/* Orbiting dots */
+.orbit-container {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.heart-player.playing .orbit-container { opacity: 1; }
+.orbit-dot {
+    position: absolute;
+    width: 7px; height: 7px;
+    background: var(--rose-light);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform-origin: 0 0;
+}
+.heart-player.playing .orbit-dot:nth-child(1) { animation: orbit 2.8s linear infinite; }
+.heart-player.playing .orbit-dot:nth-child(2) { animation: orbit 2.8s linear infinite 0.7s; }
+.heart-player.playing .orbit-dot:nth-child(3) { animation: orbit 2.8s linear infinite 1.4s; }
+.heart-player.playing .orbit-dot:nth-child(4) { animation: orbit 2.8s linear infinite 2.1s; }
+@keyframes orbit {
+    0%   { transform: rotate(0deg)   translateX(72px) translateX(-3.5px) translateY(-3.5px); opacity: 0.9; }
+    50%  { opacity: 0.4; }
+    100% { transform: rotate(360deg) translateX(72px) translateX(-3.5px) translateY(-3.5px); opacity: 0.9; }
+}
+
+/* The heart button itself */
+.heart-btn {
+    position: relative; z-index: 2;
+    width: 84px; height: 84px;
+    background: radial-gradient(circle at 40% 38%, #d4808d, #c4727f 60%, #a85b68);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    touch-action: none;
+    border: none; outline: none;
+    box-shadow:
+        0 0 0 5px rgba(196,114,127,0.18),
+        0 8px 28px rgba(196,114,127,0.5);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.heart-btn svg { width: 38px; height: 38px; pointer-events: none; }
+.heart-player.playing .heart-btn {
+    animation: heart-pulse 1.1s ease-in-out infinite;
+    box-shadow:
+        0 0 0 8px rgba(196,114,127,0.12),
+        0 10px 36px rgba(196,114,127,0.7);
+}
+@keyframes heart-pulse {
+    0%,100% { transform: scale(1); }
+    45%     { transform: scale(1.1); }
+}
+.heart-btn:active { transform: scale(0.94); }
+
+/* ── Hold hint ── */
+.hold-hint {
+    margin-top: 1.4rem;
+    font-size: 0.62rem; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(232,160,170,0.5);
+    text-align: center;
+    transition: opacity 0.35s ease;
+}
+
+/* ── Fixed nav ── */
 .page-nav-fixed {
     position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
     display: flex; gap: 0.5rem; z-index: 50;
-}
-
-/* ── Rose glow behind player ── */
-.glow {
-    position: fixed;
-    width: 360px; height: 360px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(196,114,127,0.08) 0%, transparent 70%);
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none; z-index: 0;
 }
 </style>
 </head>
 <body>
 
 <div class="starfield" id="starfield"></div>
-<div class="glow"></div>
 
 <div class="page" id="page">
-    <!-- Top nav -->
     <nav class="topnav">
         <a href="index.html#return" class="back-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -286,7 +263,7 @@ html, body {
         </div>
     </nav>
 
-    <!-- Loading state -->
+    <!-- Loading -->
     <div class="state-screen" id="stateLoading">
         <div class="loading-dots" style="margin-bottom:1rem">
             <span></span><span></span><span></span>
@@ -294,7 +271,7 @@ html, body {
         <p class="state-sub">loading your voice note…</p>
     </div>
 
-    <!-- Empty state -->
+    <!-- Empty -->
     <div class="state-screen" id="stateEmpty" style="display:none">
         <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
             <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
@@ -303,50 +280,55 @@ html, body {
         <p class="state-sub">check back soon ♡</p>
     </div>
 
-    <!-- Player (shown when voice note exists) -->
-    <div id="statePlayer" style="display:none; width:100%; display:none; flex-direction:column; align-items:center;">
+    <!-- Player -->
+    <div id="statePlayer" style="display:none">
 
         <div class="player-header">
             <p class="press-label">press play</p>
             <h1 class="main-heading">I recorded this <em>just for you</em></h1>
             <div class="time-row">
                 <span id="timeCurrent">0:00</span>
-                <span class="time-sep">/</span>
+                <span style="margin:0 0.3em">/</span>
                 <span id="timeTotal">0:00</span>
             </div>
         </div>
 
-        <!-- Player stage: strip + waveform + scrubber -->
-        <div class="player-stage" id="playerStage">
-
-            <!-- Photo filmstrip -->
-            <div class="strip-viewport" id="stripViewport">
-                <div class="photo-strip" id="photoStrip">
-                    <!-- populated by JS -->
-                </div>
-            </div>
-
-            <!-- Waveform canvas -->
-            <div class="waveform-area" id="waveformArea">
-                <canvas id="waveformCanvas"></canvas>
-            </div>
-
-            <!-- Scrubber: bar + knob -->
-            <div class="scrubber-track" id="scrubberTrack">
-                <div class="scrubber-bar"></div>
-                <div class="scrubber-knob" id="scrubberKnob">
-                    <svg viewBox="0 0 30 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 25.5C15 25.5 2.5 17.5 2 9.5C1.7 5.5 4.5 2 8.5 2C11.2 2 13.5 3.8 15 6C16.5 3.8 18.8 2 21.5 2C25.5 2 28.3 5.5 28 9.5C27.5 17.5 15 25.5 15 25.5Z" fill="white" stroke="rgba(255,255,255,0.6)" stroke-width="0.5"/>
-                    </svg>
-                </div>
-            </div>
+        <!-- Photo filmstrip -->
+        <div class="strip-viewport">
+            <div class="photo-strip" id="photoStrip"></div>
         </div>
 
-        <p class="hold-hint" id="holdHint">hold ♡ to listen · drag to explore</p>
+        <!-- Waveform (tap to seek) -->
+        <div class="waveform-area" id="waveformArea">
+            <canvas id="waveformCanvas"></canvas>
+        </div>
+
+        <!-- Heart hold-to-play button -->
+        <div class="heart-player" id="heartPlayer">
+            <!-- Sonar rings -->
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <!-- Orbiting dots -->
+            <div class="orbit-container">
+                <div class="orbit-dot"></div>
+                <div class="orbit-dot"></div>
+                <div class="orbit-dot"></div>
+                <div class="orbit-dot"></div>
+            </div>
+            <!-- Heart button -->
+            <button class="heart-btn" id="heartBtn" aria-label="Hold to listen">
+                <svg viewBox="0 0 30 27" fill="none">
+                    <path d="M15 25.5C15 25.5 2.5 17.5 2 9.5C1.7 5.5 4.5 2 8.5 2C11.2 2 13.5 3.8 15 6C16.5 3.8 18.8 2 21.5 2C25.5 2 28.3 5.5 28 9.5C27.5 17.5 15 25.5 15 25.5Z" fill="white" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+                    <path d="M8.5 6.5C7 8 6 10 6.5 12.5" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <p class="hold-hint" id="holdHint">hold ♡ to listen</p>
     </div>
 </div>
 
-<!-- Fixed page nav dots (duplicate, outside .page for z-index) -->
 <div class="page-nav-fixed">
     <a href="index.html#return"><span class="page-dot"></span></a>
     <a href="globe.html"><span class="page-dot"></span></a>
@@ -356,60 +338,58 @@ html, body {
     <a href="newspaper.html"><span class="page-dot"></span></a>
 </div>
 
-<footer class="footer">made with <span style="color:var(--rose)">♡</span> for lyka</footer>
-
 <script>
-(function () {
+(function() {
 'use strict';
 
-// ── Supabase config ──
 var SB_URL = 'https://vforizrevnrzbzkwtdbc.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
+var LYKA_BUCKET = 'lyka-photos';
 
-function sbFetch(path) {
+function sbGet(path) {
     return fetch(SB_URL + path, {
-        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
+    });
+}
+function sbPost(path, body) {
+    return fetch(SB_URL + path, {
+        method: 'POST',
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
     });
 }
 
 // ── Starfield ──
-(function () {
-    var field = document.getElementById('starfield');
+(function() {
+    var f = document.getElementById('starfield');
     for (var i = 0; i < 180; i++) {
         var s = document.createElement('div');
         s.className = Math.random() < 0.1 ? 'star pink' : 'star';
         var sz = (Math.random() * 2 + 0.5).toFixed(1) + 'px';
-        s.style.cssText =
-            'left:' + (Math.random()*100) + '%;' +
-            'top:' + (Math.random()*100) + '%;' +
-            'width:' + sz + ';height:' + sz + ';' +
-            'animation:twinkle ' + (2 + Math.random()*4).toFixed(1) + 's infinite ' + (Math.random()*5).toFixed(1) + 's;';
-        field.appendChild(s);
+        s.style.cssText = 'left:' + (Math.random()*100) + '%;top:' + (Math.random()*100) + '%;width:' + sz + ';height:' + sz + ';animation:twinkle ' + (2+Math.random()*4).toFixed(1) + 's infinite ' + (Math.random()*5).toFixed(1) + 's;';
+        f.appendChild(s);
     }
 })();
-
-// ── State ──
-var audio        = null;
-var waveformBars = [];
-var fraction     = 0;
-var isDragging   = false;
-var raf          = null;
 
 // ── Elements ──
 var elLoading   = document.getElementById('stateLoading');
 var elEmpty     = document.getElementById('stateEmpty');
 var elPlayer    = document.getElementById('statePlayer');
 var photoStrip  = document.getElementById('photoStrip');
-var stripVP     = document.getElementById('stripViewport');
 var waveCanvas  = document.getElementById('waveformCanvas');
-var scrubTrack  = document.getElementById('scrubberTrack');
-var scrubKnob   = document.getElementById('scrubberKnob');
-var playerStage = document.getElementById('playerStage');
+var waveArea    = document.getElementById('waveformArea');
+var heartPlayer = document.getElementById('heartPlayer');
+var heartBtn    = document.getElementById('heartBtn');
 var holdHint    = document.getElementById('holdHint');
 var timeCurrent = document.getElementById('timeCurrent');
 var timeTotal   = document.getElementById('timeTotal');
 
-// ── Helpers ──
+// ── State ──
+var audio        = null;
+var waveformBars = [];
+var isHolding    = false;
+var raf          = null;
+
 function fmt(s) {
     if (!s || isNaN(s) || !isFinite(s)) return '0:00';
     var m = Math.floor(s / 60);
@@ -417,28 +397,40 @@ function fmt(s) {
     return m + ':' + (sec < 10 ? '0' : '') + sec;
 }
 
+function showState(s) {
+    elLoading.style.display = 'none';
+    elEmpty.style.display   = 'none';
+    elPlayer.style.display  = 'none';
+    if (s === 'loading') elLoading.style.display = 'flex';
+    if (s === 'empty')   elEmpty.style.display   = 'flex';
+    if (s === 'player')  elPlayer.style.display  = 'flex';
+}
+
 // ── Init ──
 async function init() {
     try {
-        // Load voice note URL
-        var r = await sbFetch('/rest/v1/site_content?key=eq.voice_note_url&select=value');
+        // Voice note URL
+        var r = await sbGet('/rest/v1/site_content?key=eq.voice_note_url&select=value');
         var rows = await r.json();
         var vnUrl = rows && rows[0] ? rows[0].value : null;
-
         if (!vnUrl) { showState('empty'); return; }
 
-        // Load photos in parallel
+        // Lyka's photos from storage bucket
         var photoUrls = [];
         try {
-            var pr = await sbFetch('/rest/v1/lyson_photos?select=photo_url&order=display_order.asc&limit=16');
-            var photoRows = await pr.json();
-            photoUrls = photoRows.map(function(x) { return x.photo_url; }).filter(Boolean);
+            var pr = await sbPost('/storage/v1/object/list/' + LYKA_BUCKET, {
+                prefix: '', limit: 100, offset: 0,
+                sortBy: { column: 'created_at', order: 'asc' }
+            });
+            var pdata = await pr.json();
+            photoUrls = (pdata || [])
+                .filter(function(f) { return f && f.name && f.name !== '.emptyFolderPlaceholder'; })
+                .map(function(f) { return SB_URL + '/storage/v1/object/public/' + LYKA_BUCKET + '/' + encodeURIComponent(f.name); });
         } catch(e) {}
 
-        // Build photo strip
         buildStrip(photoUrls);
 
-        // Set up HTML audio element
+        // Set up audio
         audio = new Audio();
         audio.crossOrigin = 'anonymous';
         audio.preload = 'auto';
@@ -450,26 +442,22 @@ async function init() {
         });
 
         timeTotal.textContent = fmt(audio.duration);
-
-        // Show player
         showState('player');
-        setScrubberPos(0);
+        drawWaveform(0);
 
-        // Decode waveform (non-blocking)
+        // Decode real waveform async
         decodeWaveform(vnUrl).then(function(bars) {
             waveformBars = bars;
-            drawWaveform(fraction);
+            var frac = audio ? (audio.currentTime / (audio.duration || 1)) : 0;
+            drawWaveform(frac);
         });
 
-        // Audio ended
         audio.addEventListener('ended', function() {
-            isDragging = false;
-            fraction = 1;
-            audio.pause();
-            scrubKnob.classList.remove('active');
-            holdHint.style.opacity = '1';
-            updateUI();
-            cancelAnimationFrame(raf);
+            stopPlaying();
+            audio.currentTime = 0;
+            drawWaveform(0);
+            updateStrip(0);
+            timeCurrent.textContent = '0:00';
         });
 
     } catch(e) {
@@ -478,42 +466,22 @@ async function init() {
     }
 }
 
-function showState(s) {
-    elLoading.style.display = 'none';
-    elEmpty.style.display   = 'none';
-    elPlayer.style.display  = 'none';
-    if (s === 'loading') elLoading.style.display = 'flex';
-    if (s === 'empty')   elEmpty.style.display   = 'flex';
-    if (s === 'player')  { elPlayer.style.display = 'flex'; elPlayer.style.flexDirection = 'column'; elPlayer.style.alignItems = 'center'; }
-}
-
 // ── Photo strip ──
 function buildStrip(urls) {
     photoStrip.innerHTML = '';
-    if (!urls.length) {
-        var e = document.createElement('div');
-        e.className = 'strip-empty';
-        e.textContent = '♡';
-        stripVP.appendChild(e);
-        return;
-    }
     urls.forEach(function(url) {
         var card = document.createElement('div');
         card.className = 'strip-card';
         var img = document.createElement('img');
-        img.src = url;
-        img.alt = '';
-        img.draggable = false;
-        img.loading = 'lazy';
+        img.src = url; img.alt = ''; img.draggable = false; img.loading = 'lazy';
         card.appendChild(img);
         photoStrip.appendChild(card);
     });
 }
 
 function updateStrip(frac) {
-    var totalW = photoStrip.scrollWidth;
-    var viewW  = stripVP.clientWidth;
-    var max = Math.max(0, totalW - viewW);
+    var vp = photoStrip.parentElement;
+    var max = Math.max(0, photoStrip.scrollWidth - vp.clientWidth);
     photoStrip.style.transform = 'translateX(' + (-frac * max) + 'px)';
 }
 
@@ -526,7 +494,6 @@ async function decodeWaveform(url) {
         var actx = new (window.AudioContext || window.webkitAudioContext)();
         var decoded = await actx.decodeAudioData(buf);
         actx.close();
-
         var raw = decoded.getChannelData(0);
         var blockSize = Math.floor(raw.length / N);
         var bars = [];
@@ -553,48 +520,43 @@ function fakeBars(N) {
 }
 
 function drawWaveform(frac) {
-    var dpr  = window.devicePixelRatio || 1;
-    var W    = waveCanvas.clientWidth;
-    var H    = waveCanvas.clientHeight;
+    var dpr = window.devicePixelRatio || 1;
+    var W = waveArea.clientWidth;
+    var H = waveArea.clientHeight;
     waveCanvas.width  = W * dpr;
     waveCanvas.height = H * dpr;
     var ctx = waveCanvas.getContext('2d');
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
 
-    if (!waveformBars.length) {
-        // Draw placeholder shimmer bars
-        waveformBars = fakeBars(80);
-    }
+    if (!waveformBars.length) waveformBars = fakeBars(80);
 
-    var N    = waveformBars.length;
+    var N = waveformBars.length;
     var barW = W / N;
-    var gap  = barW > 6 ? 1.5 : 1;
     var playX = frac * W;
 
     waveformBars.forEach(function(h, i) {
         var x   = i * barW;
         var bh  = Math.max(3, h * H * 0.84);
         var by  = (H - bh) / 2;
-        var bx  = x + gap;
-        var bw  = barW - gap * 2;
+        var bx  = x + 1;
+        var bw  = barW - 2;
         var r   = Math.min(2.5, bw / 2);
         var mid = x + barW / 2;
-
         ctx.fillStyle = mid < playX ? '#c4727f' : 'rgba(250,246,241,0.13)';
         rrect(ctx, bx, by, bw, bh, r);
         ctx.fill();
     });
 
-    // Soft glow at playhead
+    // Glow at playhead
     if (frac > 0 && frac < 1) {
         var gx  = frac * W;
-        var grd = ctx.createLinearGradient(gx - 10, 0, gx + 10, 0);
+        var grd = ctx.createLinearGradient(gx - 12, 0, gx + 12, 0);
         grd.addColorStop(0,   'rgba(232,160,170,0)');
-        grd.addColorStop(0.5, 'rgba(232,160,170,0.18)');
+        grd.addColorStop(0.5, 'rgba(232,160,170,0.22)');
         grd.addColorStop(1,   'rgba(232,160,170,0)');
         ctx.fillStyle = grd;
-        ctx.fillRect(gx - 10, 0, 20, H);
+        ctx.fillRect(gx - 12, 0, 24, H);
     }
 }
 
@@ -612,95 +574,67 @@ function rrect(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-// ── Scrubber position ──
-function setScrubberPos(frac) {
-    var x = frac * playerStage.clientWidth;
-    scrubTrack.style.left = x + 'px';
-}
-
-// ── Full UI update ──
-function updateUI() {
-    setScrubberPos(fraction);
-    updateStrip(fraction);
-    drawWaveform(fraction);
-    if (audio) {
-        timeCurrent.textContent = fmt(audio.currentTime);
-    }
-}
-
 // ── Animation loop ──
 function startLoop() {
     cancelAnimationFrame(raf);
     function tick() {
-        if (audio && !audio.paused && !isDragging) {
-            fraction = audio.currentTime / (audio.duration || 1);
-        }
-        updateUI();
-        if (isDragging || (audio && !audio.paused)) {
-            raf = requestAnimationFrame(tick);
-        }
+        if (!audio) return;
+        var frac = audio.currentTime / (audio.duration || 1);
+        drawWaveform(frac);
+        updateStrip(frac);
+        timeCurrent.textContent = fmt(audio.currentTime);
+        if (isHolding && !audio.paused) raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
 }
 
-// ── Scrubber interaction ──
-scrubKnob.addEventListener('pointerdown', function(e) {
-    e.preventDefault();
-    scrubKnob.setPointerCapture(e.pointerId);
-    isDragging = true;
-    scrubKnob.classList.add('active');
+// ── Hold-to-play ──
+function startPlaying() {
+    if (!audio || isHolding) return;
+    isHolding = true;
+    heartPlayer.classList.add('playing');
     holdHint.style.opacity = '0';
-
-    photoStrip.classList.remove('snapping');
-
-    if (audio) audio.play().catch(function(){});
-    updateFromEvent(e);
+    audio.play().catch(function(){});
     startLoop();
-});
+}
 
-scrubKnob.addEventListener('pointermove', function(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    updateFromEvent(e);
-});
-
-function endDrag(e) {
-    if (!isDragging) return;
-    isDragging = false;
-    scrubKnob.classList.remove('active');
+function stopPlaying() {
+    if (!isHolding) return;
+    isHolding = false;
+    heartPlayer.classList.remove('playing');
     holdHint.style.opacity = '1';
-    photoStrip.classList.add('snapping');
     if (audio) audio.pause();
     cancelAnimationFrame(raf);
-    updateUI();
+    // Draw final waveform state
+    if (audio) drawWaveform(audio.currentTime / (audio.duration || 1));
 }
 
-scrubKnob.addEventListener('pointerup', endDrag);
-scrubKnob.addEventListener('pointercancel', endDrag);
-scrubKnob.addEventListener('lostpointercapture', endDrag);
+// Pointer events on the heart button
+heartBtn.addEventListener('pointerdown', function(e) {
+    e.preventDefault();
+    heartBtn.setPointerCapture(e.pointerId);
+    startPlaying();
+});
+heartBtn.addEventListener('pointerup',     function() { stopPlaying(); });
+heartBtn.addEventListener('pointercancel', function() { stopPlaying(); });
+heartBtn.addEventListener('lostpointercapture', function() { stopPlaying(); });
 
-function updateFromEvent(e) {
-    var rect = playerStage.getBoundingClientRect();
-    var x = e.clientX - rect.left;
-    fraction = Math.max(0, Math.min(1, x / rect.width));
-    if (audio && audio.duration) {
-        audio.currentTime = fraction * audio.duration;
-        timeCurrent.textContent = fmt(audio.currentTime);
-    }
-    setScrubberPos(fraction);
-    updateStrip(fraction);
-    drawWaveform(fraction);
-}
-
-// ── Resize ──
-window.addEventListener('resize', function() {
-    setScrubberPos(fraction);
-    drawWaveform(fraction);
+// Tap waveform to seek
+waveArea.addEventListener('click', function(e) {
+    if (!audio || !audio.duration) return;
+    var rect = waveArea.getBoundingClientRect();
+    var frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = frac * audio.duration;
+    timeCurrent.textContent = fmt(audio.currentTime);
+    drawWaveform(frac);
+    updateStrip(frac);
 });
 
-// ── Boot ──
-init();
+window.addEventListener('resize', function() {
+    if (audio) drawWaveform(audio.currentTime / (audio.duration || 1));
+});
 
+init();
 })();
 </script>
 </body>

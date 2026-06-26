@@ -316,6 +316,7 @@
     <div class="admin-tabs">
         <button class="tab-btn active" data-tab="photos">Photos</button>
         <button class="tab-btn" data-tab="voice">Voice Note</button>
+        <button class="tab-btn" data-tab="lyka">Lyka's Photos</button>
         <button class="tab-btn" data-tab="content">Content</button>
         <button class="tab-btn" data-tab="settings">Settings</button>
     </div>
@@ -403,6 +404,39 @@
             <div class="btn-row" id="vnBtnRow">
                 <button class="btn btn-primary" id="vnUploadBtn" disabled>Upload voice note</button>
                 <button class="btn btn-danger" id="vnDeleteBtn" style="display:none">Delete current</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LYKA'S PHOTOS tab -->
+    <div class="tab-panel" id="tab-lyka">
+        <div class="admin-card">
+            <div class="admin-card-title">Lyka's Photos (voice note filmstrip)</div>
+            <p style="font-size:0.78rem; color:var(--text-light); margin-bottom:1.25rem; line-height:1.6">
+                These photos scroll across the voice note page as Lyka listens. Upload up to 15 photos.<br>
+                <strong>Note:</strong> Make sure a public bucket named <code>lyka-photos</code> exists in your Supabase project.
+            </p>
+
+            <div class="upload-preview" id="lykaDropzone"
+                 onclick="document.getElementById('lykaFileInput').click()"
+                 style="aspect-ratio:auto; min-height:80px; padding:1.5rem; cursor:pointer">
+                <div class="upload-preview-label">
+                    tap to choose photos
+                    <small>jpg &middot; png &middot; heic &middot; webp</small>
+                </div>
+            </div>
+            <input type="file" id="lykaFileInput" accept="image/*" multiple>
+
+            <div class="progress-wrap" id="lykaProgress">
+                <div class="progress-bar"><div class="progress-fill" id="lykaProgressFill"></div></div>
+            </div>
+            <div class="status-msg" id="lykaStatus"></div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card-title">Uploaded photos</div>
+            <div class="photos-grid-admin" id="lykaGrid">
+                <p style="color:var(--text-faint);font-size:0.72rem">loading…</p>
             </div>
         </div>
     </div>
@@ -584,6 +618,7 @@ function initApp() {
     document.getElementById('settingKey').value = SB_KEY ? (SB_KEY.substring(0, 20) + '…') : '—';
     loadPhotos();
     loadVoiceNote();
+    loadLykaPhotos();
     loadContent();
 }
 
@@ -898,6 +933,99 @@ document.getElementById('vnDeleteBtn').addEventListener('click', function() {
             uploadBtn.style.display = 'inline-flex';
             deleteBtn.style.display = 'inline-flex';
         });
+    });
+});
+
+// ================================================================
+//  LYKA'S PHOTOS
+// ================================================================
+var LYKA_BUCKET = 'lyka-photos';
+
+function loadLykaPhotos() {
+    var grid = document.getElementById('lykaGrid');
+    if (!grid || !sbOK) return;
+    grid.innerHTML = '<p style="color:var(--text-faint);font-size:0.72rem">Loading…</p>';
+
+    sbFetch('/storage/v1/object/list/' + LYKA_BUCKET, {
+        method: 'POST',
+        body: JSON.stringify({ prefix: '', limit: 100, offset: 0, sortBy: { column: 'created_at', order: 'asc' } })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(files) {
+        grid.innerHTML = '';
+        var items = (files || []).filter(function(f) { return f && f.name && f.name !== '.emptyFolderPlaceholder'; });
+        if (!items.length) {
+            grid.innerHTML = '<p style="color:var(--text-faint);font-size:0.72rem">No photos yet — upload some above.</p>';
+            return;
+        }
+        items.forEach(function(file) {
+            var url = SB_URL + '/storage/v1/object/public/' + LYKA_BUCKET + '/' + encodeURIComponent(file.name);
+            var item = document.createElement('div');
+            item.className = 'photo-admin-item';
+            item.innerHTML =
+                '<img src="' + url + '" alt="" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;">' +
+                '<div class="photo-admin-actions" id="lykaAct_' + file.name.replace(/[^a-z0-9]/gi,'_') + '">' +
+                    '<button class="btn btn-danger btn-sm" data-file="' + file.name + '" data-action="lyka-del">Delete</button>' +
+                '</div>';
+            grid.appendChild(item);
+        });
+
+        grid.addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            var action = btn.dataset.action;
+            var fileName = btn.dataset.file;
+            var actId = 'lykaAct_' + (fileName || '').replace(/[^a-z0-9]/gi,'_');
+            var actDiv = document.getElementById(actId);
+
+            if (action === 'lyka-del' && actDiv) {
+                actDiv.innerHTML =
+                    '<span style="font-size:0.63rem;color:var(--text-light);align-self:center;flex:1">Delete?</span>' +
+                    '<button class="btn btn-secondary btn-sm" data-file="' + fileName + '" data-action="lyka-cancel">Cancel</button>' +
+                    '<button class="btn btn-danger btn-sm" data-file="' + fileName + '" data-action="lyka-confirm">Yes</button>';
+            }
+            if (action === 'lyka-cancel' && actDiv) {
+                actDiv.innerHTML = '<button class="btn btn-danger btn-sm" data-file="' + fileName + '" data-action="lyka-del">Delete</button>';
+            }
+            if (action === 'lyka-confirm') {
+                sbFetch('/storage/v1/object/' + LYKA_BUCKET + '/' + encodeURIComponent(fileName), { method: 'DELETE' })
+                .then(function() { loadLykaPhotos(); })
+                .catch(function(err) { alert('Delete failed: ' + err.message); });
+            }
+        });
+    })
+    .catch(function() {
+        grid.innerHTML = '<p style="color:var(--text-faint);font-size:0.72rem">Could not load photos. Make sure the "lyka-photos" bucket exists and is public in Supabase.</p>';
+    });
+}
+
+// Upload Lyka photos
+document.getElementById('lykaFileInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    if (!files.length) return;
+    var status = document.getElementById('lykaStatus');
+    var progress = document.getElementById('lykaProgress');
+    var fill = document.getElementById('lykaProgressFill');
+    var input = this;
+    setStatus(status, 'loading', 'Uploading ' + files.length + ' photo(s)…');
+    progress.classList.add('visible');
+    var done = 0;
+    Promise.all(files.map(function(file) {
+        return uploadFile(LYKA_BUCKET, file, function() {})
+            .then(function() {
+                done++;
+                fill.style.width = Math.round(done / files.length * 100) + '%';
+            });
+    }))
+    .then(function() {
+        setStatus(status, 'ok', 'Uploaded ' + files.length + ' photo(s) ♡');
+        progress.classList.remove('visible');
+        input.value = '';
+        loadLykaPhotos();
+    })
+    .catch(function(err) {
+        setStatus(status, 'err', err.message);
+        progress.classList.remove('visible');
     });
 });
 
