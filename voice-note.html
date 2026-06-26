@@ -62,13 +62,6 @@ html, body {
 }
 .back-link:hover { color: var(--rose-light); }
 .back-link svg { width: 12px; height: 12px; }
-.page-nav { display: flex; gap: 0.5rem; }
-.page-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    border: 1px solid rgba(196,114,127,0.4); display: block; transition: all 0.3s;
-}
-.page-dot.active { background: var(--rose); border-color: var(--rose); }
-.page-nav a { line-height: 0; }
 
 /* ── States ── */
 .state-screen {
@@ -236,11 +229,17 @@ html, body {
     transition: opacity 0.35s ease;
 }
 
-/* ── Fixed nav ── */
-.page-nav-fixed {
-    position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 0.5rem; z-index: 50;
+/* ── Replay button ── */
+.replay-btn {
+    display: block; margin: 1.2rem auto 0;
+    background: none; border: 1px solid rgba(196,114,127,0.45);
+    color: var(--rose-light); font-family: 'Cormorant Garamond', serif;
+    font-size: 0.88rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 0.45rem 1.4rem; border-radius: 20px; cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
 }
+.replay-btn:hover { border-color: var(--rose); color: var(--rose); }
+
 </style>
 </head>
 <body>
@@ -253,14 +252,6 @@ html, body {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             back
         </a>
-        <div class="page-nav">
-            <a href="index.html#return"><span class="page-dot"></span></a>
-            <a href="globe.html"><span class="page-dot"></span></a>
-            <span class="page-dot active"></span>
-            <a href="excuses.html"><span class="page-dot"></span></a>
-            <a href="card.html"><span class="page-dot"></span></a>
-            <a href="newspaper.html"><span class="page-dot"></span></a>
-        </div>
     </nav>
 
     <!-- Loading -->
@@ -284,7 +275,7 @@ html, body {
     <div id="statePlayer" style="display:none">
 
         <div class="player-header">
-            <p class="press-label">press play</p>
+            <p class="press-label">press the heart</p>
             <h1 class="main-heading">I recorded this <em>just for you</em></h1>
             <div class="time-row">
                 <span id="timeCurrent">0:00</span>
@@ -326,17 +317,10 @@ html, body {
         </div>
 
         <p class="hold-hint" id="holdHint">hold ♡ to listen</p>
+        <button class="replay-btn" id="replayBtn" style="display:none">replay ↩</button>
     </div>
 </div>
 
-<div class="page-nav-fixed">
-    <a href="index.html#return"><span class="page-dot"></span></a>
-    <a href="globe.html"><span class="page-dot"></span></a>
-    <span class="page-dot active"></span>
-    <a href="excuses.html"><span class="page-dot"></span></a>
-    <a href="card.html"><span class="page-dot"></span></a>
-    <a href="newspaper.html"><span class="page-dot"></span></a>
-</div>
 
 <script>
 (function() {
@@ -381,6 +365,7 @@ var waveArea    = document.getElementById('waveformArea');
 var heartPlayer = document.getElementById('heartPlayer');
 var heartBtn    = document.getElementById('heartBtn');
 var holdHint    = document.getElementById('holdHint');
+var replayBtn   = document.getElementById('replayBtn');
 var timeCurrent = document.getElementById('timeCurrent');
 var timeTotal   = document.getElementById('timeTotal');
 
@@ -454,6 +439,14 @@ async function init() {
 
         audio.addEventListener('ended', function() {
             stopPlaying();
+            drawWaveform(1);
+            replayBtn.style.display = 'block';
+            holdHint.style.display = 'none';
+        });
+
+        replayBtn.addEventListener('click', function() {
+            replayBtn.style.display = 'none';
+            holdHint.style.display = '';
             audio.currentTime = 0;
             drawWaveform(0);
             updateStrip(0);

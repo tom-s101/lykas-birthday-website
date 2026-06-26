@@ -310,17 +310,6 @@
     }
     .lightbox-close:hover { background: rgba(196,114,127,0.35); border-color: var(--rose); }
 
-    /* ===== PAGE NAV ===== */
-    .page-nav {
-        position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
-        display: flex; gap: 0.5rem; z-index: 50;
-    }
-    .page-dot {
-        width: 6px; height: 6px; border-radius: 50%;
-        border: 1px solid var(--rose-pale); transition: all 0.3s ease; display: block;
-    }
-    .page-dot.active { background: var(--rose); border-color: var(--rose); }
-    .page-nav a { line-height: 0; }
 
     @media (min-width: 768px) {
         .stage-wrap { max-width: 420px; }
@@ -383,14 +372,6 @@
     <img src="" alt="Card (full size)" id="lightboxImg">
 </div>
 
-<div class="page-nav">
-    <a href="index.html#return"><span class="page-dot"></span></a>
-    <a href="globe.html"><span class="page-dot"></span></a>
-    <a href="voice-note.html"><span class="page-dot"></span></a>
-    <a href="excuses.html"><span class="page-dot"></span></a>
-    <span class="page-dot active"></span>
-    <a href="newspaper.html"><span class="page-dot"></span></a>
-</div>
 
 <script>
 (function() {

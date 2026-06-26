@@ -250,19 +250,6 @@
         border-color: var(--rose);
     }
 
-    /* Page nav */
-    .page-nav {
-        position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
-        display: flex; gap: 0.5rem; z-index: 50;
-    }
-    .page-dot {
-        width: 6px; height: 6px; border-radius: 50%;
-        border: 1px solid rgba(196, 114, 127, 0.5);
-        transition: all 0.3s ease;
-        display: block;
-    }
-    .page-dot.active { background: var(--rose); border-color: var(--rose); }
-    .page-nav a { line-height: 0; }
 
     /* Floating petals decoration (subtle, dim) */
     .petal {
@@ -330,15 +317,6 @@
     <img src="" alt="The June 28th Chronicle (full size)" id="lightboxImg">
 </div>
 
-<!-- Page nav dots -->
-<div class="page-nav">
-    <a href="index.html#return"><span class="page-dot"></span></a>
-    <a href="globe.html"><span class="page-dot"></span></a>
-    <a href="voice-note.html"><span class="page-dot"></span></a>
-    <a href="excuses.html"><span class="page-dot"></span></a>
-    <a href="card.html"><span class="page-dot"></span></a>
-    <span class="page-dot active"></span>
-</div>
 
 <script>
 (function() {
