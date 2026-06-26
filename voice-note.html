@@ -1,593 +1,707 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For Lyka — A Voice Note</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Lyka — A Voice Note</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --rose: #c4727f;
-            --rose-light: #e8a0aa;
-            --rose-pale: #f5dde0;
-            --blush: #faf0f2;
-            --sage: #8a9a7b;
-            --sage-light: #b5c4a8;
-            --text-light: #7a7070;
-            --text-faint: #b0a5a5;
-        }
+:root {
+    --rose: #c4727f;
+    --rose-light: #e8a0aa;
+    --rose-pale: #f5dde0;
+    --cream: #faf6f1;
+    --ink: #0a0a12;
+}
 
-        html { scroll-behavior: smooth; }
+html, body {
+    height: 100%; min-height: 100svh;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            font-weight: 300;
-            background: #0a0a12;
-            color: #e8e0e0;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
-            min-height: 100svh;
-        }
+/* ── Starfield ── */
+.starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.star { position: absolute; border-radius: 50%; background: #fff; }
+.star.pink { background: var(--rose-light); }
+@keyframes twinkle {
+    0%,100% { opacity: 0.1; transform: scale(1); }
+    50%      { opacity: 0.9; transform: scale(1.3); }
+}
 
-        /* ===== STARFIELD ===== */
-        .starfield {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-        }
+/* ── Layout ── */
+.page {
+    position: relative; z-index: 1;
+    min-height: 100svh;
+    display: flex; flex-direction: column;
+    align-items: center;
+    padding: 0 0 5rem;
+}
 
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-        }
+/* ── Nav ── */
+.topnav {
+    width: 100%; display: flex;
+    align-items: center; justify-content: space-between;
+    padding: 1.2rem 1.4rem;
+    position: relative; z-index: 10;
+}
+.back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(232,160,170,0.6); text-decoration: none;
+    transition: color 0.25s;
+}
+.back-link:hover { color: var(--rose-light); }
+.back-link svg { width: 12px; height: 12px; }
+.page-nav { display: flex; gap: 0.5rem; }
+.page-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    border: 1px solid rgba(196,114,127,0.4); display: block;
+    transition: all 0.3s;
+}
+.page-dot.active { background: var(--rose); border-color: var(--rose); }
+.page-nav a { line-height: 0; }
 
-        .star.pink { background: var(--rose-light); }
+/* ── Header text ── */
+.player-header {
+    text-align: center;
+    padding: 0.5rem 1.5rem 1.25rem;
+    max-width: 400px;
+    width: 100%;
+}
+.press-label {
+    font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(232,160,170,0.6); margin-bottom: 0.5rem;
+}
+.main-heading {
+    font-family: 'Cormorant Garamond', serif; font-weight: 400;
+    font-size: 1.65rem; line-height: 1.25; color: var(--cream);
+    margin-bottom: 0.75rem;
+}
+.main-heading em { color: var(--rose-light); font-style: italic; }
+.time-row {
+    font-size: 0.7rem; letter-spacing: 2px;
+    color: rgba(250,246,241,0.45);
+}
+.time-sep { margin: 0 0.3em; }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.1; }
-            50% { opacity: 1; }
-        }
+/* ── Player stage ── */
+.player-stage {
+    position: relative;
+    width: 100%; max-width: 500px;
+    touch-action: pan-y; /* allow vertical scroll but we'll cancel horizontal in JS */
+}
 
-        /* ===== NAV ===== */
-        .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            padding: 1.2rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* ── Photo strip ── */
+.strip-viewport {
+    width: 100%; height: 185px;
+    overflow: hidden;
+    /* subtle vignette edges */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+.photo-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 40px;
+    height: 100%;
+    will-change: transform;
+    transition: transform 0.08s linear;
+}
+.photo-strip.snapping { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+.strip-card {
+    flex: 0 0 auto;
+    width: 118px;
+    background: #fff;
+    padding: 5px 5px 22px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+    border-radius: 1px;
+    overflow: hidden;
+}
+.strip-card:nth-child(odd)  { transform: rotate(-1.8deg); }
+.strip-card:nth-child(even) { transform: rotate(1.5deg); }
+.strip-card img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover; display: block;
+}
+.strip-empty {
+    width: 100%; height: 185px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 1rem; color: rgba(250,246,241,0.2);
+}
 
-        .nav-back {
-            color: rgba(232, 160, 170, 0.6);
-            text-decoration: none;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+/* ── Waveform ── */
+.waveform-area {
+    width: 100%; height: 70px;
+    position: relative;
+    margin-top: 2px;
+}
+#waveformCanvas { width: 100%; height: 100%; display: block; }
 
-        .nav-back:hover { color: var(--rose-light); }
+/* ── Scrubber (absolutely positioned over entire stage) ── */
+.scrubber-track {
+    position: absolute;
+    top: 0;
+    /* left controlled by JS */
+    height: calc(185px + 2px + 70px); /* strip + gap + wave */
+    width: 0;
+    pointer-events: none;
+    z-index: 20;
+}
+.scrubber-bar {
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 100%;
+    transform: translateX(-1px);
+    background: linear-gradient(to bottom,
+        rgba(250,246,241,0)   0%,
+        rgba(250,246,241,0.5) 6%,
+        rgba(250,246,241,0.85) 20%,
+        rgba(250,246,241,0.85) 80%,
+        rgba(250,246,241,0.5) 94%,
+        rgba(250,246,241,0)   100%);
+    pointer-events: none;
+}
+.scrubber-knob {
+    position: absolute;
+    bottom: -26px;
+    left: 0;
+    transform: translateX(-50%);
+    width: 50px; height: 50px;
+    background: var(--rose);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: grab;
+    touch-action: none;
+    pointer-events: all;
+    box-shadow:
+        0 4px 16px rgba(196,114,127,0.55),
+        0 0 0 3px rgba(196,114,127,0.2);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.scrubber-knob.active {
+    transform: translateX(-50%) scale(1.18);
+    box-shadow:
+        0 6px 24px rgba(196,114,127,0.75),
+        0 0 0 8px rgba(196,114,127,0.12);
+    cursor: grabbing;
+}
+.scrubber-knob svg { width: 20px; height: 20px; pointer-events: none; }
 
-        .nav-back svg {
-            width: 14px;
-            height: 14px;
-        }
+/* ── Hold hint ── */
+.hold-hint {
+    margin-top: 2.4rem;
+    font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(232,160,170,0.55);
+    text-align: center;
+    transition: opacity 0.35s ease;
+}
 
-        .nav-indicator {
-            display: flex;
-            gap: 0.5rem;
-        }
+/* ── Empty / loading states ── */
+.state-screen {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+}
+.empty-icon {
+    width: 52px; height: 52px;
+    color: rgba(196,114,127,0.35);
+    margin-bottom: 1.5rem;
+}
+.state-heading {
+    font-family: 'Cormorant Garamond', serif; font-weight: 400; font-style: italic;
+    font-size: 1.5rem; color: var(--cream); margin-bottom: 0.5rem;
+}
+.state-sub {
+    font-size: 0.78rem; color: rgba(250,246,241,0.4); line-height: 1.6;
+}
+.loading-dots span {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--rose-light); border-radius: 50%; margin: 0 3px;
+    animation: dot-pulse 1.4s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-pulse {
+    0%,80%,100% { opacity: 0.2; transform: scale(0.9); }
+    40% { opacity: 1; transform: scale(1.2); }
+}
 
-        .nav-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            border: 1px solid rgba(232, 160, 170, 0.3);
-            transition: all 0.3s ease;
-        }
+/* ── Footer ── */
+.footer {
+    position: fixed; bottom: 4.5rem; left: 0; right: 0;
+    text-align: center; font-size: 0.65rem;
+    color: rgba(250,246,241,0.25); letter-spacing: 1px;
+    pointer-events: none;
+}
+.page-nav-fixed {
+    position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 0.5rem; z-index: 50;
+}
 
-        .nav-dot.active {
-            background: var(--rose-light);
-            border-color: var(--rose-light);
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            min-height: 100svh;
-            padding: 2rem 1.5rem;
-        }
-
-        .label {
-            font-size: 0.65rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: rgba(232, 160, 170, 0.5);
-            margin-bottom: 1.2rem;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.3s forwards;
-        }
-
-        .heading {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2rem;
-            font-weight: 400;
-            text-align: center;
-            line-height: 1.3;
-            color: #e8e0e0;
-            margin-bottom: 2.5rem;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.6s forwards;
-        }
-
-        .heading em {
-            font-style: italic;
-            color: var(--rose-light);
-        }
-
-        /* ===== MUSIC BOX ===== */
-        .music-box {
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 40% 35%, rgba(196, 114, 127, 0.15), rgba(10, 10, 18, 0.6));
-            border: 1px solid rgba(232, 160, 170, 0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.9s forwards;
-            cursor: pointer;
-            transition: all 0.4s ease;
-        }
-
-        .music-box:hover {
-            border-color: rgba(232, 160, 170, 0.3);
-            box-shadow: 0 0 40px rgba(196, 114, 127, 0.1);
-        }
-
-        .music-box.playing {
-            border-color: rgba(232, 160, 170, 0.4);
-            box-shadow: 0 0 60px rgba(196, 114, 127, 0.15);
-        }
-
-        .play-icon {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 1rem;
-            color: var(--rose-light);
-            opacity: 0.7;
-            transition: all 0.3s ease;
-        }
-
-        .music-box:hover .play-icon { opacity: 1; }
-        .music-box.playing .play-icon { opacity: 1; }
-
-        .play-label {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 0.95rem;
-            color: rgba(232, 160, 170, 0.6);
-            transition: color 0.3s ease;
-        }
-
-        .music-box:hover .play-label { color: var(--rose-light); }
-        .music-box.playing .play-label { color: var(--rose-light); }
-
-        /* Sound wave animation */
-        .sound-waves {
-            display: none;
-            gap: 3px;
-            align-items: center;
-            height: 24px;
-            margin-bottom: 1rem;
-        }
-
-        .music-box.playing .sound-waves { display: flex; }
-        .music-box.playing .play-icon { display: none; }
-
-        .wave-bar {
-            width: 3px;
-            border-radius: 2px;
-            background: var(--rose-light);
-            animation: wave 1.2s ease-in-out infinite;
-        }
-
-        .wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
-        .wave-bar:nth-child(2) { height: 16px; animation-delay: 0.15s; }
-        .wave-bar:nth-child(3) { height: 24px; animation-delay: 0.3s; }
-        .wave-bar:nth-child(4) { height: 16px; animation-delay: 0.45s; }
-        .wave-bar:nth-child(5) { height: 8px; animation-delay: 0.6s; }
-
-        @keyframes wave {
-            0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
-            50% { transform: scaleY(1); opacity: 1; }
-        }
-
-        /* Progress ring */
-        .progress-ring {
-            position: absolute;
-            inset: -2px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .progress-ring circle {
-            fill: none;
-            stroke: var(--rose-light);
-            stroke-width: 1.5;
-            stroke-linecap: round;
-            transform: rotate(-90deg);
-            transform-origin: center;
-            transition: stroke-dashoffset 0.3s ease;
-        }
-
-        /* ===== PHOTOS ===== */
-        .photos-section {
-            margin-top: 3rem;
-            width: 100%;
-            max-width: 600px;
-            opacity: 0;
-            animation: fadeUp 1s ease 1.2s forwards;
-        }
-
-        .photos-grid {
-            display: flex;
-            gap: 0.8rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .photo-item {
-            width: 100px;
-            height: 100px;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(232, 160, 170, 0.15);
-            opacity: 0;
-            animation: fadeScale 0.6s ease forwards;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .photo-item:hover {
-            transform: scale(1.08);
-            border-color: rgba(232, 160, 170, 0.4);
-            box-shadow: 0 0 20px rgba(196, 114, 127, 0.15);
-        }
-
-        .photo-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            opacity: 0;
-            animation: fadeUp 1s ease 0.9s forwards;
-        }
-
-        .empty-icon {
-            width: 60px;
-            height: 60px;
-            color: rgba(232, 160, 170, 0.3);
-            margin-bottom: 1rem;
-        }
-
-        .empty-text {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 1.1rem;
-            color: rgba(232, 160, 170, 0.4);
-        }
-
-        /* ===== LIGHTBOX ===== */
-        .lightbox {
-            position: fixed;
-            inset: 0;
-            z-index: 200;
-            background: rgba(0, 0, 0, 0.92);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .lightbox.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .lightbox img {
-            max-width: 90%;
-            max-height: 85vh;
-            border-radius: 8px;
-            object-fit: contain;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            padding: 2rem;
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(232, 160, 170, 0.25);
-        }
-
-        .footer span { color: var(--rose); }
-
-        /* ===== ANIMATIONS ===== */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeScale {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 480px) {
-            .heading { font-size: 1.7rem; }
-            .music-box { width: 220px; height: 220px; }
-            .photo-item { width: 80px; height: 80px; }
-        }
-    </style>
+/* ── Rose glow behind player ── */
+.glow {
+    position: fixed;
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,114,127,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; z-index: 0;
+}
+</style>
 </head>
 <body>
 
-    <!-- ===== STARFIELD ===== -->
-    <div class="starfield" id="starfield"></div>
+<div class="starfield" id="starfield"></div>
+<div class="glow"></div>
 
-    <!-- ===== NAV ===== -->
-    <nav class="nav">
-        <a href="globe.html" class="nav-back">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back
+<div class="page" id="page">
+    <!-- Top nav -->
+    <nav class="topnav">
+        <a href="index.html#return" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            back
         </a>
-        <div class="nav-indicator">
-            <a href="index.html#return"><div class="nav-dot"></div></a>
-            <a href="globe.html"><div class="nav-dot"></div></a>
-            <div class="nav-dot active"></div>
-            <a href="excuses.html"><div class="nav-dot"></div></a>
-            <a href="card.html"><div class="nav-dot"></div></a>
-            <a href="newspaper.html"><div class="nav-dot"></div></a>
+        <div class="page-nav">
+            <a href="index.html#return"><span class="page-dot"></span></a>
+            <a href="globe.html"><span class="page-dot"></span></a>
+            <span class="page-dot active"></span>
+            <a href="excuses.html"><span class="page-dot"></span></a>
+            <a href="card.html"><span class="page-dot"></span></a>
+            <a href="newspaper.html"><span class="page-dot"></span></a>
         </div>
     </nav>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="content" id="content">
-        <p class="label">Press play</p>
-        <h1 class="heading">I recorded this <em>just for you</em></h1>
+    <!-- Loading state -->
+    <div class="state-screen" id="stateLoading">
+        <div class="loading-dots" style="margin-bottom:1rem">
+            <span></span><span></span><span></span>
+        </div>
+        <p class="state-sub">loading your voice note…</p>
+    </div>
 
-        <!-- Music box (shown when audio exists) -->
-        <div class="music-box" id="musicBox" style="display:none;">
-            <svg class="progress-ring" viewBox="0 0 284 284">
-                <circle id="progressCircle" cx="142" cy="142" r="140" stroke-dasharray="879.6" stroke-dashoffset="879.6"/>
-            </svg>
-            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5.14v14l11-7-11-7z"/>
-            </svg>
-            <div class="sound-waves">
-                <div class="wave-bar"></div>
-                <div class="wave-bar"></div>
-                <div class="wave-bar"></div>
-                <div class="wave-bar"></div>
-                <div class="wave-bar"></div>
+    <!-- Empty state -->
+    <div class="state-screen" id="stateEmpty" style="display:none">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+        </svg>
+        <h1 class="state-heading">a voice note is on its way…</h1>
+        <p class="state-sub">check back soon ♡</p>
+    </div>
+
+    <!-- Player (shown when voice note exists) -->
+    <div id="statePlayer" style="display:none; width:100%; display:none; flex-direction:column; align-items:center;">
+
+        <div class="player-header">
+            <p class="press-label">press play</p>
+            <h1 class="main-heading">I recorded this <em>just for you</em></h1>
+            <div class="time-row">
+                <span id="timeCurrent">0:00</span>
+                <span class="time-sep">/</span>
+                <span id="timeTotal">0:00</span>
             </div>
-            <span class="play-label" id="playLabel">tap to listen</span>
         </div>
 
-        <!-- Empty state (shown when no audio) -->
-        <div class="empty-state" id="emptyState">
-            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                <path d="M9 18V5l12-2v13"/>
-                <circle cx="6" cy="18" r="3"/>
-                <circle cx="18" cy="16" r="3"/>
-            </svg>
-            <p class="empty-text">A voice note is on its way...</p>
+        <!-- Player stage: strip + waveform + scrubber -->
+        <div class="player-stage" id="playerStage">
+
+            <!-- Photo filmstrip -->
+            <div class="strip-viewport" id="stripViewport">
+                <div class="photo-strip" id="photoStrip">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+            <!-- Waveform canvas -->
+            <div class="waveform-area" id="waveformArea">
+                <canvas id="waveformCanvas"></canvas>
+            </div>
+
+            <!-- Scrubber: bar + knob -->
+            <div class="scrubber-track" id="scrubberTrack">
+                <div class="scrubber-bar"></div>
+                <div class="scrubber-knob" id="scrubberKnob">
+                    <svg viewBox="0 0 30 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 25.5C15 25.5 2.5 17.5 2 9.5C1.7 5.5 4.5 2 8.5 2C11.2 2 13.5 3.8 15 6C16.5 3.8 18.8 2 21.5 2C25.5 2 28.3 5.5 28 9.5C27.5 17.5 15 25.5 15 25.5Z" fill="white" stroke="rgba(255,255,255,0.6)" stroke-width="0.5"/>
+                    </svg>
+                </div>
+            </div>
         </div>
 
-        <!-- Photos grid -->
-        <div class="photos-section" id="photosSection" style="display:none;">
-            <div class="photos-grid" id="photosGrid"></div>
-        </div>
+        <p class="hold-hint" id="holdHint">hold ♡ to listen · drag to explore</p>
     </div>
+</div>
 
-    <!-- ===== LIGHTBOX ===== -->
-    <div class="lightbox" id="lightbox">
-        <img id="lightboxImg" src="" alt="">
-    </div>
+<!-- Fixed page nav dots (duplicate, outside .page for z-index) -->
+<div class="page-nav-fixed">
+    <a href="index.html#return"><span class="page-dot"></span></a>
+    <a href="globe.html"><span class="page-dot"></span></a>
+    <span class="page-dot active"></span>
+    <a href="excuses.html"><span class="page-dot"></span></a>
+    <a href="card.html"><span class="page-dot"></span></a>
+    <a href="newspaper.html"><span class="page-dot"></span></a>
+</div>
 
-    <footer class="footer">made with <span><svg width="13" height="12" viewBox="0 0 30 27" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block;margin:0 1px;transform:translateY(-1px)"><path d="M15 25.5C15 25.5 2.5 17.5 2 9.5C1.7 5.5 4.5 2 8.5 2C11.2 2 13.5 3.8 15 6C16.5 3.8 18.8 2 21.5 2C25.5 2 28.3 5.5 28 9.5C27.5 17.5 15 25.5 15 25.5Z" fill="#c4727f" stroke="#b05a6f" stroke-width="0.5"/><path d="M8.5 6.5C7 8 6 10 6.5 12.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.8" stroke-linecap="round"/><circle cx="23" cy="5" r="1" fill="#e8a0aa" opacity="0.8"/><circle cx="26.5" cy="9" r="0.6" fill="#e8a0aa" opacity="0.6"/></svg></span> for lyka</footer>
+<footer class="footer">made with <span style="color:var(--rose)">♡</span> for lyka</footer>
 
-    <script>
-    // ===== STARFIELD =====
-    (function() {
-        const field = document.getElementById('starfield');
-        const count = 200;
-        for (let i = 0; i < count; i++) {
-            const star = document.createElement('div');
-            star.className = Math.random() < 0.1 ? 'star pink' : 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
-            star.style.animation = `twinkle ${2 + Math.random() * 4}s infinite ${Math.random() * 4}s`;
-            field.appendChild(star);
-        }
-    })();
+<script>
+(function () {
+'use strict';
 
-    // ===== INDEXEDDB HELPERS =====
-    function openDB() {
-        return new Promise((resolve, reject) => {
-            const req = indexedDB.open('lyka-bday-uploads', 1);
-            req.onupgradeneeded = () => {
-                const db = req.result;
-                if (!db.objectStoreNames.contains('files')) {
-                    db.createObjectStore('files', { keyPath: 'id' });
-                }
-            };
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject(req.error);
+// ── Supabase config ──
+var SB_URL = 'https://vforizrevnrzbzkwtdbc.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
+
+function sbFetch(path) {
+    return fetch(SB_URL + path, {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+}
+
+// ── Starfield ──
+(function () {
+    var field = document.getElementById('starfield');
+    for (var i = 0; i < 180; i++) {
+        var s = document.createElement('div');
+        s.className = Math.random() < 0.1 ? 'star pink' : 'star';
+        var sz = (Math.random() * 2 + 0.5).toFixed(1) + 'px';
+        s.style.cssText =
+            'left:' + (Math.random()*100) + '%;' +
+            'top:' + (Math.random()*100) + '%;' +
+            'width:' + sz + ';height:' + sz + ';' +
+            'animation:twinkle ' + (2 + Math.random()*4).toFixed(1) + 's infinite ' + (Math.random()*5).toFixed(1) + 's;';
+        field.appendChild(s);
+    }
+})();
+
+// ── State ──
+var audio        = null;
+var waveformBars = [];
+var fraction     = 0;
+var isDragging   = false;
+var raf          = null;
+
+// ── Elements ──
+var elLoading   = document.getElementById('stateLoading');
+var elEmpty     = document.getElementById('stateEmpty');
+var elPlayer    = document.getElementById('statePlayer');
+var photoStrip  = document.getElementById('photoStrip');
+var stripVP     = document.getElementById('stripViewport');
+var waveCanvas  = document.getElementById('waveformCanvas');
+var scrubTrack  = document.getElementById('scrubberTrack');
+var scrubKnob   = document.getElementById('scrubberKnob');
+var playerStage = document.getElementById('playerStage');
+var holdHint    = document.getElementById('holdHint');
+var timeCurrent = document.getElementById('timeCurrent');
+var timeTotal   = document.getElementById('timeTotal');
+
+// ── Helpers ──
+function fmt(s) {
+    if (!s || isNaN(s) || !isFinite(s)) return '0:00';
+    var m = Math.floor(s / 60);
+    var sec = Math.floor(s % 60);
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+// ── Init ──
+async function init() {
+    try {
+        // Load voice note URL
+        var r = await sbFetch('/rest/v1/site_content?key=eq.voice_note_url&select=value');
+        var rows = await r.json();
+        var vnUrl = rows && rows[0] ? rows[0].value : null;
+
+        if (!vnUrl) { showState('empty'); return; }
+
+        // Load photos in parallel
+        var photoUrls = [];
+        try {
+            var pr = await sbFetch('/rest/v1/lyson_photos?select=photo_url&order=display_order.asc&limit=16');
+            var photoRows = await pr.json();
+            photoUrls = photoRows.map(function(x) { return x.photo_url; }).filter(Boolean);
+        } catch(e) {}
+
+        // Build photo strip
+        buildStrip(photoUrls);
+
+        // Set up HTML audio element
+        audio = new Audio();
+        audio.crossOrigin = 'anonymous';
+        audio.preload = 'auto';
+
+        await new Promise(function(resolve, reject) {
+            audio.addEventListener('loadedmetadata', resolve, { once: true });
+            audio.addEventListener('error', reject, { once: true });
+            audio.src = vnUrl;
         });
-    }
 
-    async function getFile(id) {
-        const db = await openDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction('files', 'readonly');
-            const store = tx.objectStore('files');
-            const req = store.get(id);
-            req.onsuccess = () => resolve(req.result || null);
-            req.onerror = () => reject(req.error);
+        timeTotal.textContent = fmt(audio.duration);
+
+        // Show player
+        showState('player');
+        setScrubberPos(0);
+
+        // Decode waveform (non-blocking)
+        decodeWaveform(vnUrl).then(function(bars) {
+            waveformBars = bars;
+            drawWaveform(fraction);
         });
-    }
 
-    async function getAllFiles() {
-        const db = await openDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction('files', 'readonly');
-            const store = tx.objectStore('files');
-            const req = store.getAll();
-            req.onsuccess = () => resolve(req.result || []);
-            req.onerror = () => reject(req.error);
-        });
-    }
-
-    // ===== AUDIO PLAYER =====
-    const musicBox = document.getElementById('musicBox');
-    const emptyState = document.getElementById('emptyState');
-    const playLabel = document.getElementById('playLabel');
-    const progressCircle = document.getElementById('progressCircle');
-    const circumference = 879.6;
-    let audio = null;
-    let isPlaying = false;
-
-    function setProgress(pct) {
-        progressCircle.style.strokeDashoffset = circumference - (pct * circumference);
-    }
-
-    function togglePlay() {
-        if (!audio) return;
-        if (isPlaying) {
+        // Audio ended
+        audio.addEventListener('ended', function() {
+            isDragging = false;
+            fraction = 1;
             audio.pause();
-            musicBox.classList.remove('playing');
-            playLabel.textContent = 'tap to continue';
-            isPlaying = false;
-        } else {
-            audio.play();
-            musicBox.classList.add('playing');
-            playLabel.textContent = 'playing...';
-            isPlaying = true;
+            scrubKnob.classList.remove('active');
+            holdHint.style.opacity = '1';
+            updateUI();
+            cancelAnimationFrame(raf);
+        });
+
+    } catch(e) {
+        console.error(e);
+        showState('empty');
+    }
+}
+
+function showState(s) {
+    elLoading.style.display = 'none';
+    elEmpty.style.display   = 'none';
+    elPlayer.style.display  = 'none';
+    if (s === 'loading') elLoading.style.display = 'flex';
+    if (s === 'empty')   elEmpty.style.display   = 'flex';
+    if (s === 'player')  { elPlayer.style.display = 'flex'; elPlayer.style.flexDirection = 'column'; elPlayer.style.alignItems = 'center'; }
+}
+
+// ── Photo strip ──
+function buildStrip(urls) {
+    photoStrip.innerHTML = '';
+    if (!urls.length) {
+        var e = document.createElement('div');
+        e.className = 'strip-empty';
+        e.textContent = '♡';
+        stripVP.appendChild(e);
+        return;
+    }
+    urls.forEach(function(url) {
+        var card = document.createElement('div');
+        card.className = 'strip-card';
+        var img = document.createElement('img');
+        img.src = url;
+        img.alt = '';
+        img.draggable = false;
+        img.loading = 'lazy';
+        card.appendChild(img);
+        photoStrip.appendChild(card);
+    });
+}
+
+function updateStrip(frac) {
+    var totalW = photoStrip.scrollWidth;
+    var viewW  = stripVP.clientWidth;
+    var max = Math.max(0, totalW - viewW);
+    photoStrip.style.transform = 'translateX(' + (-frac * max) + 'px)';
+}
+
+// ── Waveform ──
+async function decodeWaveform(url) {
+    var N = 80;
+    try {
+        var resp = await fetch(url, { mode: 'cors' });
+        var buf  = await resp.arrayBuffer();
+        var actx = new (window.AudioContext || window.webkitAudioContext)();
+        var decoded = await actx.decodeAudioData(buf);
+        actx.close();
+
+        var raw = decoded.getChannelData(0);
+        var blockSize = Math.floor(raw.length / N);
+        var bars = [];
+        for (var i = 0; i < N; i++) {
+            var sum = 0;
+            for (var j = 0; j < blockSize; j++) sum += Math.abs(raw[i * blockSize + j]);
+            bars.push(sum / blockSize);
         }
+        var max = Math.max.apply(null, bars);
+        return bars.map(function(b) { return Math.max(0.05, b / max); });
+    } catch(e) {
+        return fakeBars(N);
+    }
+}
+
+function fakeBars(N) {
+    var out = [];
+    for (var i = 0; i < N; i++) {
+        var t = i / N;
+        var base = 0.15 + 0.7 * Math.sin(t * Math.PI) * (0.6 + 0.4 * Math.sin(t * Math.PI * 7));
+        out.push(Math.max(0.05, Math.min(1, base * (0.65 + Math.random() * 0.35))));
+    }
+    return out;
+}
+
+function drawWaveform(frac) {
+    var dpr  = window.devicePixelRatio || 1;
+    var W    = waveCanvas.clientWidth;
+    var H    = waveCanvas.clientHeight;
+    waveCanvas.width  = W * dpr;
+    waveCanvas.height = H * dpr;
+    var ctx = waveCanvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, W, H);
+
+    if (!waveformBars.length) {
+        // Draw placeholder shimmer bars
+        waveformBars = fakeBars(80);
     }
 
-    musicBox.addEventListener('click', togglePlay);
+    var N    = waveformBars.length;
+    var barW = W / N;
+    var gap  = barW > 6 ? 1.5 : 1;
+    var playX = frac * W;
 
-    // ===== PHOTOS =====
-    const photosSection = document.getElementById('photosSection');
-    const photosGrid = document.getElementById('photosGrid');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightboxImg');
+    waveformBars.forEach(function(h, i) {
+        var x   = i * barW;
+        var bh  = Math.max(3, h * H * 0.84);
+        var by  = (H - bh) / 2;
+        var bx  = x + gap;
+        var bw  = barW - gap * 2;
+        var r   = Math.min(2.5, bw / 2);
+        var mid = x + barW / 2;
 
-    lightbox.addEventListener('click', () => {
-        lightbox.classList.remove('active');
+        ctx.fillStyle = mid < playX ? '#c4727f' : 'rgba(250,246,241,0.13)';
+        rrect(ctx, bx, by, bw, bh, r);
+        ctx.fill();
     });
 
-    function showPhoto(src) {
-        lightboxImg.src = src;
-        lightbox.classList.add('active');
+    // Soft glow at playhead
+    if (frac > 0 && frac < 1) {
+        var gx  = frac * W;
+        var grd = ctx.createLinearGradient(gx - 10, 0, gx + 10, 0);
+        grd.addColorStop(0,   'rgba(232,160,170,0)');
+        grd.addColorStop(0.5, 'rgba(232,160,170,0.18)');
+        grd.addColorStop(1,   'rgba(232,160,170,0)');
+        ctx.fillStyle = grd;
+        ctx.fillRect(gx - 10, 0, 20, H);
     }
+}
 
-    // ===== LOAD CONTENT =====
-    async function loadContent() {
-        try {
-            const files = await getAllFiles();
-            const voiceNote = files.find(f => f.type === 'audio');
-            const photos = files.filter(f => f.type === 'photo');
+function rrect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
 
-            if (voiceNote) {
-                const blob = new Blob([voiceNote.data], { type: voiceNote.mime });
-                const url = URL.createObjectURL(blob);
-                audio = new Audio(url);
+// ── Scrubber position ──
+function setScrubberPos(frac) {
+    var x = frac * playerStage.clientWidth;
+    scrubTrack.style.left = x + 'px';
+}
 
-                audio.addEventListener('timeupdate', () => {
-                    if (audio.duration) {
-                        setProgress(audio.currentTime / audio.duration);
-                    }
-                });
+// ── Full UI update ──
+function updateUI() {
+    setScrubberPos(fraction);
+    updateStrip(fraction);
+    drawWaveform(fraction);
+    if (audio) {
+        timeCurrent.textContent = fmt(audio.currentTime);
+    }
+}
 
-                audio.addEventListener('ended', () => {
-                    musicBox.classList.remove('playing');
-                    playLabel.textContent = 'tap to replay';
-                    isPlaying = false;
-                    setProgress(0);
-                });
-
-                musicBox.style.display = 'flex';
-                emptyState.style.display = 'none';
-            } else {
-                musicBox.style.display = 'none';
-                emptyState.style.display = 'block';
-            }
-
-            if (photos.length > 0) {
-                photosSection.style.display = 'block';
-                photosGrid.innerHTML = '';
-                photos.forEach((photo, i) => {
-                    const blob = new Blob([photo.data], { type: photo.mime });
-                    const url = URL.createObjectURL(blob);
-                    const div = document.createElement('div');
-                    div.className = 'photo-item';
-                    div.style.animationDelay = (1.2 + i * 0.15) + 's';
-                    const img = document.createElement('img');
-                    img.src = url;
-                    img.alt = 'Memory';
-                    img.addEventListener('click', () => showPhoto(url));
-                    div.appendChild(img);
-                    photosGrid.appendChild(div);
-                });
-            }
-        } catch (err) {
-            console.error('Error loading content:', err);
-            musicBox.style.display = 'none';
-            emptyState.style.display = 'block';
+// ── Animation loop ──
+function startLoop() {
+    cancelAnimationFrame(raf);
+    function tick() {
+        if (audio && !audio.paused && !isDragging) {
+            fraction = audio.currentTime / (audio.duration || 1);
+        }
+        updateUI();
+        if (isDragging || (audio && !audio.paused)) {
+            raf = requestAnimationFrame(tick);
         }
     }
+    raf = requestAnimationFrame(tick);
+}
 
-    loadContent();
-    </script>
+// ── Scrubber interaction ──
+scrubKnob.addEventListener('pointerdown', function(e) {
+    e.preventDefault();
+    scrubKnob.setPointerCapture(e.pointerId);
+    isDragging = true;
+    scrubKnob.classList.add('active');
+    holdHint.style.opacity = '0';
+
+    photoStrip.classList.remove('snapping');
+
+    if (audio) audio.play().catch(function(){});
+    updateFromEvent(e);
+    startLoop();
+});
+
+scrubKnob.addEventListener('pointermove', function(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    updateFromEvent(e);
+});
+
+function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    scrubKnob.classList.remove('active');
+    holdHint.style.opacity = '1';
+    photoStrip.classList.add('snapping');
+    if (audio) audio.pause();
+    cancelAnimationFrame(raf);
+    updateUI();
+}
+
+scrubKnob.addEventListener('pointerup', endDrag);
+scrubKnob.addEventListener('pointercancel', endDrag);
+scrubKnob.addEventListener('lostpointercapture', endDrag);
+
+function updateFromEvent(e) {
+    var rect = playerStage.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    fraction = Math.max(0, Math.min(1, x / rect.width));
+    if (audio && audio.duration) {
+        audio.currentTime = fraction * audio.duration;
+        timeCurrent.textContent = fmt(audio.currentTime);
+    }
+    setScrubberPos(fraction);
+    updateStrip(fraction);
+    drawWaveform(fraction);
+}
+
+// ── Resize ──
+window.addEventListener('resize', function() {
+    setScrubberPos(fraction);
+    drawWaveform(fraction);
+});
+
+// ── Boot ──
+init();
+
+})();
+</script>
 </body>
 </html>
