@@ -400,8 +400,9 @@
                 <div class="progress-bar"><div class="progress-fill" id="vnProgressFill"></div></div>
             </div>
             <div class="status-msg" id="vnStatus"></div>
-            <div class="btn-row">
+            <div class="btn-row" id="vnBtnRow">
                 <button class="btn btn-primary" id="vnUploadBtn" disabled>Upload voice note</button>
+                <button class="btn btn-danger" id="vnDeleteBtn" style="display:none">Delete current</button>
             </div>
         </div>
     </div>
@@ -479,7 +480,7 @@
 // ================================================================
 //  ADMIN CONFIG — fill in your Supabase values
 // ================================================================
-var ADMIN_PIN = '1234';          // change this to your preferred PIN
+var ADMIN_PIN = '0246';          // change this to your preferred PIN
 var SB_URL    = 'https://vforizrevnrzbzkwtdbc.supabase.co';
 var SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
 var PHOTO_BUCKET = 'lyson-photos';
@@ -785,6 +786,7 @@ function loadVoiceNote() {
     sbFetch('/rest/v1/site_content?key=eq.voice_note_url&select=value')
     .then(function(r) { return r.json(); })
     .then(function(rows) {
+        var deleteBtn = document.getElementById('vnDeleteBtn');
         if (rows && rows[0] && rows[0].value) {
             var url = rows[0].value;
             document.getElementById('vnCurrentWrap').style.display = 'flex';
@@ -792,6 +794,12 @@ function loadVoiceNote() {
             var aud = document.getElementById('vnAudio');
             aud.src = url;
             aud.style.display = 'block';
+            if (deleteBtn) deleteBtn.style.display = 'inline-flex';
+        } else {
+            document.getElementById('vnCurrentWrap').style.display = 'none';
+            var aud = document.getElementById('vnAudio');
+            aud.src = ''; aud.style.display = 'none';
+            if (deleteBtn) deleteBtn.style.display = 'none';
         }
     }).catch(function(){});
 }
@@ -833,6 +841,63 @@ vnUploadBtn.addEventListener('click', function() {
         setStatus(vnStatus, 'err', err.message);
         vnUploadBtn.disabled = false;
         progress.classList.remove('visible');
+    });
+});
+
+// ── Delete voice note ──
+document.getElementById('vnDeleteBtn').addEventListener('click', function() {
+    var deleteBtn = document.getElementById('vnDeleteBtn');
+    var uploadBtn = document.getElementById('vnUploadBtn');
+    // Swap to inline confirmation
+    deleteBtn.style.display = 'none';
+    uploadBtn.style.display = 'none';
+    var row = document.getElementById('vnBtnRow');
+    var confirm = document.createElement('div');
+    confirm.id = 'vnDelConfirmRow';
+    confirm.style.cssText = 'display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;';
+    confirm.innerHTML =
+        '<span style="font-size:0.72rem;color:var(--text-light);flex:1">Delete voice note?</span>' +
+        '<button class="btn btn-secondary btn-sm" id="vnDelCancel">Cancel</button>' +
+        '<button class="btn btn-danger btn-sm" id="vnDelConfirm">Yes, delete</button>';
+    row.appendChild(confirm);
+
+    document.getElementById('vnDelCancel').addEventListener('click', function() {
+        confirm.remove();
+        uploadBtn.style.display = 'inline-flex';
+        deleteBtn.style.display = 'inline-flex';
+    });
+
+    document.getElementById('vnDelConfirm').addEventListener('click', function() {
+        confirm.remove();
+        setStatus(vnStatus, 'loading', 'Deleting…');
+        sbFetch('/rest/v1/site_content?key=eq.voice_note_url&select=value')
+        .then(function(r) { return r.json(); })
+        .then(function(rows) {
+            var del = Promise.resolve();
+            if (rows && rows[0] && rows[0].value) {
+                var marker = '/storage/v1/object/public/' + VN_BUCKET + '/';
+                var path = rows[0].value.split(marker)[1];
+                if (path) del = sbFetch('/storage/v1/object/' + VN_BUCKET + '/' + path, { method: 'DELETE' }).catch(function(){});
+            }
+            return del;
+        })
+        .then(function() {
+            return sbFetch('/rest/v1/site_content?key=eq.voice_note_url', { method: 'DELETE' });
+        })
+        .then(function() {
+            setStatus(vnStatus, 'ok', 'Voice note deleted ✓');
+            vnFile.value = '';
+            document.getElementById('vnPreview').innerHTML =
+                '<div class="upload-preview-label">tap to choose audio file<small>m4a · mp3 · aac · wav</small></div>';
+            uploadBtn.disabled = true;
+            uploadBtn.style.display = 'inline-flex';
+            loadVoiceNote(); // hides deleteBtn if no note exists
+        })
+        .catch(function(err) {
+            setStatus(vnStatus, 'err', 'Delete failed: ' + err.message);
+            uploadBtn.style.display = 'inline-flex';
+            deleteBtn.style.display = 'inline-flex';
+        });
     });
 });
 
