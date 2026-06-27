@@ -522,6 +522,27 @@
         }
         .flower-msg-signature em { font-style: normal; }
 
+        .animal-all-tapped-msg {
+            display: none;
+            max-width: 480px;
+            margin: 1.5rem auto 0;
+            padding: 1.4rem 1.5rem;
+            background: linear-gradient(135deg, rgba(240,212,216,0.35) 0%, rgba(250,246,241,0.55) 100%);
+            border: 1px solid rgba(196,114,127,0.22);
+            border-radius: 16px;
+            text-align: left;
+        }
+        .animal-all-tapped-msg.visible {
+            display: block;
+            animation: fadeIn 0.8s ease forwards;
+        }
+        .animal-all-tapped-msg p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--ink-light, #6b5c52);
+        }
+
         .cards-row {
             display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 1rem;
             scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
@@ -2635,68 +2656,70 @@
     <!-- ===== ANIMALS ===== -->
     <section class="cards-section">
         <div class="reveal">
-            <p class="section-label">Your world</p>
-            <h2 class="section-heading">Creatures that <em>adore</em> you</h2>
+            <p class="section-label">For you</p>
+            <h2 class="section-heading">Animals that <em>remind me</em> of you</h2>
         </div>
         <div class="reveal">
             <div class="carousel-container" id="animalCarousel">
                 <div class="carousel-scene">
                     <div class="carousel-drum">
                         <!-- CAT -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card animal-flip-card" onclick="this.classList.toggle('flipped'); animalCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="animal-cat.png" class="card-icon" alt="Cat">
                                     <span class="card-name">Cat</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Cat</div><div class="flip-back-text">Selective about who they love. But once they do — completely. Sound familiar?</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Cat</div><div class="flip-back-text">Are selective of who they choose to love, while also being independent, self-reliant, but very affectionate.<br><br><br>Someone&#8217;s name is ringing in my mind hearing this</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- DOG -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card animal-flip-card" onclick="this.classList.toggle('flipped'); animalCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="animal-dog.png" class="card-icon" alt="Dog">
                                     <span class="card-name">Dog</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Dog</div><div class="flip-back-text">Loyal. Joyful. Greets everyone like it's been years. This is basically you in any room.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Dog</div><div class="flip-back-text">Show loyalty, unconditional love, protection, and enthusiasm<br><br><br>Reminds me of someone I know xD</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- HAMSTER -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card animal-flip-card" onclick="this.classList.toggle('flipped'); animalCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="animal-hamster.png" class="card-icon" alt="Hamster">
                                     <span class="card-name">Hamster</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Hamster</div><div class="flip-back-text">Tiny. Dramatic. Has pockets somehow. Honestly, kind of iconic.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Hamster</div><div class="flip-back-text">Resourceful and adaptable, they know how to get things. They are also just sooooooo cute. Their cheeks are just wanting someone to pinch them<br><br><br>Sounds even more like someone I know</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- PANDA -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card animal-flip-card" onclick="this.classList.toggle('flipped'); animalCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="animal-panda.png" class="card-icon" alt="Panda">
                                     <span class="card-name">Panda</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Panda</div><div class="flip-back-text">Unbothered and deeply loveable. Has her bamboo, has her peace, doesn't stress the small stuff. Icon behavior.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Panda</div><div class="flip-back-text">Exhibits gentle strength, are very peaceful, and live in harmony with everyone around it.<br><br>You are very like them</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         <!-- MONKEY -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card animal-flip-card" onclick="this.classList.toggle('flipped'); animalCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="animal-monkey.png" class="card-icon" alt="Monkey">
                                     <span class="card-name">Monkey</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Monkey</div><div class="flip-back-text">Curious, clever, and always entertaining. The one who brings the energy to every room — and somehow makes it look effortless.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Monkey</div><div class="flip-back-text">Are so curious, intelligent, and playful. Need I say more?!<br><br>You are a monkey right? My Dearest Lyka!!!</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <p class="carousel-hint">drag to spin</p>
-            <div class="carousel-dots" id="animalDots"></div>
+            <p class="carousel-hint" id="animalCarouselHint">tap the cat to start</p>
+            <div class="animal-all-tapped-msg" id="animalAllTappedMsg">
+                <p>My favorite monkey, or huma-monkey as you would say xD. What can I say more, but I am just in awe of you, and how you somehow combine all these amazing characteristics and are wrapped up in one amazing person! I just can't stop thanking our God for you!</p>
+            </div>
         </div>
     </section>
 
@@ -4191,7 +4214,7 @@ who made heaven and earth.</p>
     //  3D CARD CAROUSEL
     // ==========================================================
     (function() {
-        function initCarousel(containerId, dotsId) {
+        function initCarousel(containerId, dotsId, lockUntilFirstTap) {
             var container = document.getElementById(containerId);
             if (!container) return;
             var drum = container.querySelector('.carousel-drum');
@@ -4225,9 +4248,22 @@ who made heaven and earth.</p>
             var isDragging = false;
             var lastX = 0;
             var lastTime = 0;
-            var autoRotate = true;
+            var locked = !!lockUntilFirstTap;
+            var autoRotate = !locked;
             var autoSpeed = 0.15; // degrees per frame
             var dragMoved = false;
+
+            // Unlock carousel (enable spin + auto-rotate) on first card tap
+            if (locked) {
+                var hintEl = document.getElementById(containerId.replace('Carousel', 'CarouselHint'));
+                cards[0].addEventListener('click', function() {
+                    if (locked) {
+                        locked = false;
+                        autoRotate = true;
+                        if (hintEl) hintEl.textContent = 'drag to spin';
+                    }
+                });
+            }
 
             function updateDrum() {
                 drum.style.transform = 'rotateY(' + currentAngle + 'deg)';
@@ -4261,6 +4297,7 @@ who made heaven and earth.</p>
 
             // Drag handlers (mouse + touch)
             function onStart(x) {
+                if (locked) return;
                 isDragging = true;
                 dragMoved = false;
                 lastX = x;
@@ -4337,7 +4374,7 @@ who made heaven and earth.</p>
         }
 
         // Init both carousels once DOM is ready
-        initCarousel('animalCarousel', 'animalDots');
+        initCarousel('animalCarousel', null, true);
         initCarousel('flowerCarousel', null);
     })();
 
@@ -6026,6 +6063,21 @@ who made heaven and earth.</p>
         var all = document.querySelectorAll('.flower-flip-card');
         if (_flowerTapped.size >= all.length) {
             var msg = document.getElementById('flowerAllTappedMsg');
+            if (msg && !msg.classList.contains('visible')) {
+                msg.classList.add('visible');
+                setTimeout(function() {
+                    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 400);
+            }
+        }
+    }
+
+    var _animalTapped = new Set();
+    function animalCardTapped(el) {
+        _animalTapped.add(el);
+        var all = document.querySelectorAll('.animal-flip-card');
+        if (_animalTapped.size >= all.length) {
+            var msg = document.getElementById('animalAllTappedMsg');
             if (msg && !msg.classList.contains('visible')) {
                 msg.classList.add('visible');
                 setTimeout(function() {
