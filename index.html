@@ -3330,11 +3330,15 @@ who made heaven and earth.</p>
         var UNLOCK_KEY = 'lyka_gate_done_v2';    // set to '1' when all done
         // ─────────────────────────────────────────────────────────────────
 
+        // Block scroll-based animations until gate dismisses
+        window.__gateActive = true;
+
         // Already fully unlocked on a previous visit → hide gate instantly
         try {
             if (localStorage.getItem(UNLOCK_KEY) === '1') {
                 var g = document.getElementById('siteGate');
                 if (g) g.style.display = 'none';
+                window.__gateActive = false;
                 return;
             }
         } catch(e) {}
@@ -3567,7 +3571,12 @@ who made heaven and earth.</p>
                 localStorage.setItem(UNLOCK_KEY, '1');
                 localStorage.removeItem(CACHE_KEY);
             } catch(e) {}
-            setTimeout(function() { gate.classList.add('gate-gone'); }, 3500);
+            setTimeout(function() {
+                gate.classList.add('gate-gone');
+                window.__gateActive = false;
+                window.dispatchEvent(new CustomEvent('gate-dismissed'));
+                setTimeout(function() { if (typeof onScroll === 'function') onScroll(); }, 80);
+            }, 3500);
         }
 
         function spawnConfetti() {
@@ -4078,8 +4087,15 @@ who made heaven and earth.</p>
             setTimeout(function() { rafId = requestAnimationFrame(tick); }, 1200);
         }
 
-        // Run on first load
-        doCountUp();
+        // Run on first load — wait for gate to dismiss if it's showing
+        if (window.__gateActive) {
+            window.addEventListener('gate-dismissed', function onGd() {
+                window.removeEventListener('gate-dismissed', onGd);
+                doCountUp();
+            });
+        } else {
+            doCountUp();
+        }
 
         // Re-run whenever the user navigates back to the hero section
         if (heroSection) {
@@ -4103,6 +4119,7 @@ who made heaven and earth.</p>
     var cascadeTrack = document.querySelector('.cascade-track');
 
     function onScroll() {
+        if (window.__gateActive) return;
         var vh = window.innerHeight;
 
         reveals.forEach(function(el) {
