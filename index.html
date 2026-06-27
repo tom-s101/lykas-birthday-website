@@ -494,6 +494,34 @@
             transform: scale(1.3);
         }
 
+        .flower-all-tapped-msg {
+            display: none;
+            max-width: 480px;
+            margin: 1.5rem auto 0;
+            padding: 1.4rem 1.5rem;
+            background: linear-gradient(135deg, rgba(240,212,216,0.35) 0%, rgba(250,246,241,0.55) 100%);
+            border: 1px solid rgba(196,114,127,0.22);
+            border-radius: 16px;
+            text-align: left;
+        }
+        .flower-all-tapped-msg.visible {
+            display: block;
+            animation: fadeIn 0.8s ease forwards;
+        }
+        .flower-all-tapped-msg p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--ink-light, #6b5c52);
+        }
+        .flower-all-tapped-msg p + p { margin-top: 0.9rem; }
+        .flower-msg-signature {
+            color: var(--rose) !important;
+            font-style: italic;
+            font-weight: 600;
+        }
+        .flower-msg-signature em { font-style: normal; }
+
         .cards-row {
             display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 1rem;
             scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
@@ -2925,68 +2953,68 @@
                 <div class="carousel-scene">
                     <div class="carousel-drum">
                         <!-- ============ 1. LOTUS ============ -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card flower-flip-card" onclick="this.classList.toggle('flipped'); flowerCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="flower-lotus.png" class="card-icon" alt="Lotus">
                                     <span class="card-name">Lotus</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Lotus</div><div class="flip-back-text">Rises through mud to bloom in pure stillness. A symbol of peace and grace — the flower version of always finding the light.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Lotus</div><div class="flip-back-text">Rise through the mud and from under the water to bloom above it all! They are a symbol of perseverance and not letting their surroundings hold them down. They are always finding the light, no matter how much water holds them down.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
                         <!-- ============ 2. DAHLIA ============ -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card flower-flip-card" onclick="this.classList.toggle('flipped'); flowerCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="flower-dahlia.png" class="card-icon" alt="Dahlia">
                                     <span class="card-name">Dahlia</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Dahlia</div><div class="flip-back-text">Means inner strength and the courage to embrace change. For someone who steps into a new year with quiet dignity and a glow that's entirely her own.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Dahlia</div><div class="flip-back-text">These flowers are known for having strong inner strength and resilience, they are tough plants that thrive even under challenging conditions and still bloom brightly no matter the times.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
                         <!-- ============ 3. SWEET PEA ============ -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card flower-flip-card" onclick="this.classList.toggle('flipped'); flowerCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="flower-sweet-pea.png" class="card-icon" alt="Sweet Pea">
                                     <span class="card-name">Sweet Pea</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Sweet Pea</div><div class="flip-back-text">Symbolizes blissful pleasure, kindness, and delicate beauty. The kind of presence that makes everywhere you go feel a little lighter and warmer.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Sweet Pea</div><div class="flip-back-text">Have soft ruffled petals and climbing vines. Showing that you do not always have to be so tough looking on the outside. Their climbing abilities also show the importance of always climbing up and not being content to always stay in the same place or the same status.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
                         <!-- ============ 4. CARNATION ============ -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card flower-flip-card" onclick="this.classList.toggle('flipped'); flowerCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="flower-carnation.png" class="card-icon" alt="Carnation">
                                     <span class="card-name">Carnation</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Carnation</div><div class="flip-back-text">Pink carnations mean "I'll never forget you." A love that stays through every season — steady, warm, and completely true.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Carnation</div><div class="flip-back-text">These flowers often represent a woman who is selfless, loving, and deeply devoted to family and loved ones. They also express thankfulness and mean that "I will never forget you!!!"</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
                         <!-- ============ 5. DAFFODIL ============ -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card flower-flip-card" onclick="this.classList.toggle('flipped'); flowerCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="flower-daffodil.jpeg" class="card-icon" alt="Daffodil">
                                     <span class="card-name">Daffodil</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Daffodil</div><div class="flip-back-text">The flower of new beginnings. Always the first to bloom after winter — just like you, always finding the light no matter the season.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Daffodil</div><div class="flip-back-text">Always among the first flowers to bloom in the spring. They show fresh starts, personal growth and transformation. As they push through the cold ground just after the snow melts, they show endurance and perseverance even when the going gets hard.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
                         <!-- ============ 6. GLADIOLUS ============ -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card flower-flip-card" onclick="this.classList.toggle('flipped'); flowerCardTapped(this);">
                             <div class="flip-inner">
                                 <div class="flip-front">
                                     <img src="flower-gladiolus.png" class="card-icon" alt="Gladiolus">
                                     <span class="card-name">Gladiolus</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Gladiolus</div><div class="flip-back-text">Named from the Latin word for sword. Symbolizes strength of character, faithfulness, and integrity — everything you carry so quietly, every single day.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Gladiolus</div><div class="flip-back-text">Come from the Latin word for "sword". They always stand tall and proud, no matter the challenges and trials they face. They represent those who are courageous and stand firm in their convictions no matter what others say.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
                         </div>
@@ -2994,7 +3022,10 @@
                 </div>
             </div>
             <p class="carousel-hint">drag to spin</p>
-            <div class="carousel-dots" id="flowerDots"></div>
+            <div class="flower-all-tapped-msg" id="flowerAllTappedMsg">
+                <p>These are just a tiny tiny sample of the many flowers that represent you, and what I have seen in you! They show a few, of the many characteristics that you display. So whenever there are times you get discouraged, just remember the flowers and how they bloom and brighten other people's lives even in the "not-so-easy" times. You have also been like these flowers in my life, in brightening it up, and adding so much more color to my life, and just making it so much better!</p>
+                <p class="flower-msg-signature">As the pink carnation represents, I will <em>NEVER</em> forget you, my Lyka!</p>
+            </div>
         </div>
     </section>
 
@@ -4549,7 +4580,7 @@ who made heaven and earth.</p>
 
         // Init both carousels once DOM is ready
         initCarousel('animalCarousel', 'animalDots');
-        initCarousel('flowerCarousel', 'flowerDots');
+        initCarousel('flowerCarousel', null);
     })();
 
     // ==========================================================
@@ -6227,6 +6258,24 @@ who made heaven and earth.</p>
             wrap.appendChild(iframe);
         }
     })();
+
+    // ==========================================================
+    //  FLOWER CARDS — reveal message after all 6 are tapped
+    // ==========================================================
+    var _flowerTapped = new Set();
+    function flowerCardTapped(el) {
+        _flowerTapped.add(el);
+        var all = document.querySelectorAll('.flower-flip-card');
+        if (_flowerTapped.size >= all.length) {
+            var msg = document.getElementById('flowerAllTappedMsg');
+            if (msg && !msg.classList.contains('visible')) {
+                msg.classList.add('visible');
+                setTimeout(function() {
+                    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 400);
+            }
+        }
+    }
 
     </script>
 
