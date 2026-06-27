@@ -5438,11 +5438,25 @@ who made heaven and earth.</p>
             if (isDrawing) { isDrawing = false; checkReveal(); }
         });
 
-        // init after layout is stable
+        var scratchReady = false;
+
+        // Exposed so pagination can call when this page becomes visible
+        window._initScratchOnce = function() {
+            if (scratchReady || revealed) return;
+            var r = canvas.getBoundingClientRect();
+            if (r.width === 0 || r.height === 0) return;
+            scratchReady = true;
+            ctx.globalCompositeOperation = 'source-over';
+            setup();
+        };
+
+        // init after layout is stable (works if page is already visible)
         if (document.readyState === 'complete') {
             setup();
         } else {
-            window.addEventListener('load', setup);
+            window.addEventListener('load', function() {
+                window._initScratchOnce();
+            });
         }
         // also re-init on resize (rare)
         var resizeT;
@@ -5545,6 +5559,10 @@ who made heaven and earth.</p>
                 setTimeout(onScroll, 50);
                 setTimeout(onScroll, 400);
             }
+            // Init scratch canvas once its page becomes visible
+            setTimeout(function() {
+                if (window._initScratchOnce) window._initScratchOnce();
+            }, 60);
         }
 
         prevBtn.addEventListener('click', function() { goTo(currentIndex - 1); });
