@@ -533,6 +533,7 @@
         .flip-back-text { font-size: 0.67rem; line-height: 1.45; color: var(--text-light); word-break: break-word; overflow-wrap: break-word; }
         .flip-back-hint { position: absolute; bottom: 0.6rem; font-size: 0.55rem; color: var(--text-faint); letter-spacing: 1px; text-transform: uppercase; }
         .card-icon { width: 96px; height: 96px; margin-bottom: 0.7rem; }
+        img.card-icon { object-fit: contain; }
         .card-name { font-size: 0.85rem; letter-spacing: 1px; color: var(--text-light); }
         .card-tap { font-size: 0.6rem; color: var(--text-faint); margin-top: 0.6rem; letter-spacing: 1px; text-transform: uppercase; }
         .flip-back-title { font-size: 1rem; }
@@ -2876,502 +2877,71 @@
             <div class="carousel-container" id="flowerCarousel">
                 <div class="carousel-scene">
                     <div class="carousel-drum">
-                        <!-- ============ 1. WATER LILY (Lyka's favorite) ============ -->
+                        <!-- ============ 1. LOTUS ============ -->
                         <div class="flip-card" onclick="this.classList.toggle('flipped')">
                             <div class="flip-inner">
                                 <div class="flip-front">
-                                    <svg class="card-icon" viewBox="0 0 80 80" aria-label="Water lily">
-                                        <defs>
-                                            <radialGradient id="wlPad" cx="45%" cy="55%" r="60%">
-                                                <stop offset="0%" stop-color="#b8d2a3"/>
-                                                <stop offset="55%" stop-color="#8eb076"/>
-                                                <stop offset="100%" stop-color="#5a8453"/>
-                                            </radialGradient>
-                                            <radialGradient id="wlOuter" cx="50%" cy="55%" r="70%">
-                                                <stop offset="0%" stop-color="#fff7fa"/>
-                                                <stop offset="55%" stop-color="#fce0ea"/>
-                                                <stop offset="100%" stop-color="#eaa4ba"/>
-                                            </radialGradient>
-                                            <radialGradient id="wlInner" cx="50%" cy="55%" r="60%">
-                                                <stop offset="0%" stop-color="#fffafb"/>
-                                                <stop offset="100%" stop-color="#f0b9cc"/>
-                                            </radialGradient>
-                                            <radialGradient id="wlCore" cx="50%" cy="50%" r="55%">
-                                                <stop offset="0%" stop-color="#fff0a8"/>
-                                                <stop offset="60%" stop-color="#f0c347"/>
-                                                <stop offset="100%" stop-color="#a97b1a"/>
-                                            </radialGradient>
-                                        </defs>
-                                        <!-- Water ripples -->
-                                        <ellipse cx="40" cy="68" rx="33" ry="2.5" fill="none" stroke="#cadcef" stroke-width="0.5" opacity="0.55"/>
-                                        <ellipse cx="40" cy="73" rx="25" ry="1.8" fill="none" stroke="#cadcef" stroke-width="0.4" opacity="0.35"/>
-                                        <!-- Lily pad (disc with V-notch) -->
-                                        <ellipse cx="40" cy="43" rx="23" ry="20" fill="url(#wlPad)" opacity="0.92"/>
-                                        <path d="M40 43 L22 28 L38 22 Z" fill="#faf8f5"/>
-                                        <!-- Pad veins -->
-                                        <g stroke="#466a42" stroke-width="0.35" fill="none" opacity="0.42" stroke-linecap="round">
-                                            <path d="M40 43 L40 23"/>
-                                            <path d="M40 43 L40 62"/>
-                                            <path d="M40 43 L20 38"/>
-                                            <path d="M40 43 L60 38"/>
-                                            <path d="M40 43 L25 54"/>
-                                            <path d="M40 43 L55 54"/>
-                                            <path d="M40 43 L50 27"/>
-                                        </g>
-                                        <!-- Subtle highlight on pad -->
-                                        <ellipse cx="30" cy="36" rx="6" ry="2.5" fill="#d8ebc8" opacity="0.35"/>
-                                        <!-- Flower -->
-                                        <g transform="translate(40 40)">
-                                            <!-- Back row (8 larger petals, slightly dropped) -->
-                                            <g fill="url(#wlOuter)" stroke="#d98fa8" stroke-width="0.32" opacity="0.96">
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z"/>
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z" transform="rotate(45)"/>
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z" transform="rotate(-45)"/>
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z" transform="rotate(90)"/>
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z" transform="rotate(-90)"/>
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z" transform="rotate(135)"/>
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z" transform="rotate(-135)"/>
-                                                <path d="M0 0 C-2.5 -10 -1 -22 0 -24 C1 -22 2.5 -10 0 0 Z" transform="rotate(180)"/>
-                                            </g>
-                                            <!-- Middle row (offset 22°, narrower) -->
-                                            <g fill="url(#wlInner)" stroke="#d07fa0" stroke-width="0.3">
-                                                <path d="M0 0 C-2 -8 -0.8 -18 0 -19 C0.8 -18 2 -8 0 0 Z" transform="rotate(22)"/>
-                                                <path d="M0 0 C-2 -8 -0.8 -18 0 -19 C0.8 -18 2 -8 0 0 Z" transform="rotate(-22)"/>
-                                                <path d="M0 0 C-2 -8 -0.8 -18 0 -19 C0.8 -18 2 -8 0 0 Z" transform="rotate(67)"/>
-                                                <path d="M0 0 C-2 -8 -0.8 -18 0 -19 C0.8 -18 2 -8 0 0 Z" transform="rotate(-67)"/>
-                                                <path d="M0 0 C-2 -8 -0.8 -18 0 -19 C0.8 -18 2 -8 0 0 Z" transform="rotate(112)"/>
-                                                <path d="M0 0 C-2 -8 -0.8 -18 0 -19 C0.8 -18 2 -8 0 0 Z" transform="rotate(-112)"/>
-                                            </g>
-                                            <!-- Inner tight cupped petals -->
-                                            <g fill="#fff1f5" stroke="#e9a9bd" stroke-width="0.28">
-                                                <path d="M0 0 C-1.4 -5 -0.6 -12 0 -13 C0.6 -12 1.4 -5 0 0 Z" transform="rotate(11)"/>
-                                                <path d="M0 0 C-1.4 -5 -0.6 -12 0 -13 C0.6 -12 1.4 -5 0 0 Z" transform="rotate(-11)"/>
-                                                <path d="M0 0 C-1.4 -5 -0.6 -12 0 -13 C0.6 -12 1.4 -5 0 0 Z" transform="rotate(55)"/>
-                                                <path d="M0 0 C-1.4 -5 -0.6 -12 0 -13 C0.6 -12 1.4 -5 0 0 Z" transform="rotate(-55)"/>
-                                                <path d="M0 0 C-1.4 -5 -0.6 -12 0 -13 C0.6 -12 1.4 -5 0 0 Z" transform="rotate(100)"/>
-                                                <path d="M0 0 C-1.4 -5 -0.6 -12 0 -13 C0.6 -12 1.4 -5 0 0 Z" transform="rotate(-100)"/>
-                                            </g>
-                                            <!-- Stamen crown -->
-                                            <g stroke="#c58a20" stroke-width="0.4" stroke-linecap="round">
-                                                <line x1="0" y1="0" x2="-1.5" y2="-7"/>
-                                                <line x1="0" y1="0" x2="1.5" y2="-7"/>
-                                                <line x1="0" y1="0" x2="-3.5" y2="-5.5"/>
-                                                <line x1="0" y1="0" x2="3.5" y2="-5.5"/>
-                                                <line x1="0" y1="0" x2="-5" y2="-3"/>
-                                                <line x1="0" y1="0" x2="5" y2="-3"/>
-                                                <line x1="0" y1="0" x2="0" y2="-8"/>
-                                            </g>
-                                            <g fill="#ffe680">
-                                                <circle cx="-1.5" cy="-7" r="0.85"/>
-                                                <circle cx="1.5" cy="-7" r="0.85"/>
-                                                <circle cx="-3.5" cy="-5.5" r="0.75"/>
-                                                <circle cx="3.5" cy="-5.5" r="0.75"/>
-                                                <circle cx="-5" cy="-3" r="0.7"/>
-                                                <circle cx="5" cy="-3" r="0.7"/>
-                                                <circle cx="0" cy="-8" r="0.9"/>
-                                            </g>
-                                            <!-- Center stigma -->
-                                            <circle r="2.3" fill="url(#wlCore)"/>
-                                            <circle r="1" fill="#8a6015"/>
-                                        </g>
-                                    </svg>
-                                    <span class="card-name">Water Lily</span><span class="card-tap">tap to flip</span>
-                                </div>
-                                <div class="flip-back"><div class="flip-back-title">Water Lily</div><div class="flip-back-text">Rooted in murky water. Blooms above it anyway. Soft on top, grounded underneath — a lot like you.</div><span class="flip-back-hint">tap again</span></div>
-                            </div>
-                        </div>
-
-                        <!-- ============ 2. LOTUS ============ -->
-                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
-                            <div class="flip-inner">
-                                <div class="flip-front">
-                                    <svg class="card-icon" viewBox="0 0 80 80" aria-label="Lotus">
-                                        <defs>
-                                            <linearGradient id="loOuter" x1="50%" y1="100%" x2="50%" y2="0%">
-                                                <stop offset="0%" stop-color="#e38ba6"/>
-                                                <stop offset="55%" stop-color="#f5b8cb"/>
-                                                <stop offset="100%" stop-color="#fde4ed"/>
-                                            </linearGradient>
-                                            <linearGradient id="loMid" x1="50%" y1="100%" x2="50%" y2="0%">
-                                                <stop offset="0%" stop-color="#db789a"/>
-                                                <stop offset="60%" stop-color="#f0a5c0"/>
-                                                <stop offset="100%" stop-color="#fcdeea"/>
-                                            </linearGradient>
-                                            <linearGradient id="loInner" x1="50%" y1="100%" x2="50%" y2="0%">
-                                                <stop offset="0%" stop-color="#c9658a"/>
-                                                <stop offset="70%" stop-color="#e79cb5"/>
-                                                <stop offset="100%" stop-color="#fbd8e5"/>
-                                            </linearGradient>
-                                            <radialGradient id="loPod" cx="50%" cy="40%" r="55%">
-                                                <stop offset="0%" stop-color="#ead78a"/>
-                                                <stop offset="100%" stop-color="#8a7230"/>
-                                            </radialGradient>
-                                        </defs>
-                                        <!-- Water -->
-                                        <ellipse cx="40" cy="70" rx="30" ry="2.2" fill="none" stroke="#cadcef" stroke-width="0.5" opacity="0.5"/>
-                                        <ellipse cx="40" cy="74" rx="22" ry="1.6" fill="none" stroke="#cadcef" stroke-width="0.4" opacity="0.32"/>
-                                        <!-- Back layer: 5 petals fanning outward -->
-                                        <g transform="translate(40 44)">
-                                            <g fill="url(#loOuter)" stroke="#c77a94" stroke-width="0.35">
-                                                <path d="M0 0 C-9 -6 -13 -20 -10 -26 C-4 -24 0 -15 0 0 Z"/>
-                                                <path d="M0 0 C9 -6 13 -20 10 -26 C4 -24 0 -15 0 0 Z"/>
-                                                <path d="M0 0 C-6 -4 -13 -14 -14 -22 C-9 -22 -4 -13 0 0 Z" transform="translate(-4 0)"/>
-                                                <path d="M0 0 C6 -4 13 -14 14 -22 C9 -22 4 -13 0 0 Z" transform="translate(4 0)"/>
-                                                <path d="M0 0 C-2 -10 -1 -22 0 -28 C1 -22 2 -10 0 0 Z"/>
-                                            </g>
-                                            <!-- Middle layer: 5 petals -->
-                                            <g fill="url(#loMid)" stroke="#bf6985" stroke-width="0.32">
-                                                <path d="M0 0 C-2.5 -9 -1 -20 0 -22 C1 -20 2.5 -9 0 0 Z" transform="rotate(-18)"/>
-                                                <path d="M0 0 C-2.5 -9 -1 -20 0 -22 C1 -20 2.5 -9 0 0 Z" transform="rotate(18)"/>
-                                                <path d="M0 0 C-2.5 -9 -1 -20 0 -22 C1 -20 2.5 -9 0 0 Z" transform="rotate(-36)"/>
-                                                <path d="M0 0 C-2.5 -9 -1 -20 0 -22 C1 -20 2.5 -9 0 0 Z" transform="rotate(36)"/>
-                                                <path d="M0 0 C-2.5 -9 -1 -20 0 -22 C1 -20 2.5 -9 0 0 Z"/>
-                                            </g>
-                                            <!-- Inner cupped petals -->
-                                            <g fill="url(#loInner)" stroke="#a85372" stroke-width="0.3">
-                                                <path d="M0 0 C-2 -7 -0.8 -16 0 -17 C0.8 -16 2 -7 0 0 Z" transform="rotate(-9)"/>
-                                                <path d="M0 0 C-2 -7 -0.8 -16 0 -17 C0.8 -16 2 -7 0 0 Z" transform="rotate(9)"/>
-                                                <path d="M0 0 C-2 -7 -0.8 -16 0 -17 C0.8 -16 2 -7 0 0 Z" transform="rotate(-27)"/>
-                                                <path d="M0 0 C-2 -7 -0.8 -16 0 -17 C0.8 -16 2 -7 0 0 Z" transform="rotate(27)"/>
-                                            </g>
-                                            <!-- Seed pod (lotus signature) -->
-                                            <ellipse cx="0" cy="-7" rx="3.2" ry="2.2" fill="url(#loPod)"/>
-                                            <g fill="#5a4a18">
-                                                <circle cx="-1.4" cy="-7.4" r="0.45"/>
-                                                <circle cx="0" cy="-7.8" r="0.5"/>
-                                                <circle cx="1.4" cy="-7.4" r="0.45"/>
-                                                <circle cx="-0.8" cy="-6.3" r="0.4"/>
-                                                <circle cx="0.8" cy="-6.3" r="0.4"/>
-                                            </g>
-                                            <!-- Fine stamens -->
-                                            <g stroke="#d4b438" stroke-width="0.3" stroke-linecap="round">
-                                                <line x1="-2.5" y1="-5.5" x2="-4" y2="-8"/>
-                                                <line x1="2.5" y1="-5.5" x2="4" y2="-8"/>
-                                                <line x1="-1.5" y1="-5" x2="-2" y2="-9"/>
-                                                <line x1="1.5" y1="-5" x2="2" y2="-9"/>
-                                            </g>
-                                        </g>
-                                    </svg>
+                                    <img src="flower-lotus.png" class="card-icon" alt="Lotus">
                                     <span class="card-name">Lotus</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Lotus</div><div class="flip-back-text">Grows through mud. Opens completely. Totally unbothered. The flower version of choosing peace.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Lotus</div><div class="flip-back-text">Rises through mud to bloom in pure stillness. A symbol of peace and grace — the flower version of always finding the light.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
-                        <!-- ============ 3. PEONY ============ -->
+                        <!-- ============ 2. DAHLIA ============ -->
                         <div class="flip-card" onclick="this.classList.toggle('flipped')">
                             <div class="flip-inner">
                                 <div class="flip-front">
-                                    <svg class="card-icon" viewBox="0 0 80 80" aria-label="Peony">
-                                        <defs>
-                                            <radialGradient id="pnOuter" cx="50%" cy="55%" r="70%">
-                                                <stop offset="0%" stop-color="#fff2f5"/>
-                                                <stop offset="60%" stop-color="#fbd3de"/>
-                                                <stop offset="100%" stop-color="#e9a0b8"/>
-                                            </radialGradient>
-                                            <radialGradient id="pnMid" cx="50%" cy="55%" r="65%">
-                                                <stop offset="0%" stop-color="#fde7ee"/>
-                                                <stop offset="100%" stop-color="#de8ba5"/>
-                                            </radialGradient>
-                                            <radialGradient id="pnCore" cx="50%" cy="50%" r="55%">
-                                                <stop offset="0%" stop-color="#f5bfd1"/>
-                                                <stop offset="100%" stop-color="#b35a78"/>
-                                            </radialGradient>
-                                            <linearGradient id="pnStem" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stop-color="#7a9a5e"/>
-                                                <stop offset="100%" stop-color="#4e7240"/>
-                                            </linearGradient>
-                                            <linearGradient id="pnLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stop-color="#9cbb7f"/>
-                                                <stop offset="100%" stop-color="#5e8448"/>
-                                            </linearGradient>
-                                        </defs>
-                                        <!-- Curved stem -->
-                                        <path d="M42 78 C 38 68, 44 56, 40 48" fill="none" stroke="url(#pnStem)" stroke-width="1.6" stroke-linecap="round"/>
-                                        <!-- Leaves -->
-                                        <path d="M42 64 C 34 62, 28 58, 26 54 C 30 55, 36 58, 42 62 Z" fill="url(#pnLeaf)" opacity="0.9"/>
-                                        <path d="M26 54 L 42 62" stroke="#3f5c30" stroke-width="0.3" fill="none" opacity="0.6"/>
-                                        <path d="M41 58 C 49 56, 55 52, 56 48 C 52 50, 46 53, 41 57 Z" fill="url(#pnLeaf)" opacity="0.85"/>
-                                        <path d="M56 48 L 41 57" stroke="#3f5c30" stroke-width="0.3" fill="none" opacity="0.55"/>
-                                        <!-- Peony bloom - ruffled layered petals -->
-                                        <g transform="translate(40 36)">
-                                            <!-- Outer ruffle layer - 7 wide petals -->
-                                            <g fill="url(#pnOuter)" stroke="#d388a0" stroke-width="0.32" opacity="0.95">
-                                                <path d="M0 0 C-10 -4 -14 -14 -10 -20 C-4 -18 -1 -10 0 0 Z"/>
-                                                <path d="M0 0 C10 -4 14 -14 10 -20 C4 -18 1 -10 0 0 Z"/>
-                                                <path d="M0 0 C-14 0 -18 -8 -16 -14 C-10 -10 -4 -4 0 0 Z"/>
-                                                <path d="M0 0 C14 0 18 -8 16 -14 C10 -10 4 -4 0 0 Z"/>
-                                                <path d="M0 0 C-3 -12 -1 -20 0 -21 C1 -20 3 -12 0 0 Z"/>
-                                                <path d="M0 0 C-13 4 -18 0 -18 -6 C-12 -4 -5 -2 0 0 Z"/>
-                                                <path d="M0 0 C13 4 18 0 18 -6 C12 -4 5 -2 0 0 Z"/>
-                                            </g>
-                                            <!-- Middle ruffle -->
-                                            <g fill="url(#pnMid)" stroke="#c47490" stroke-width="0.3">
-                                                <path d="M0 0 C-7 -3 -10 -10 -7 -15 C-3 -14 -1 -7 0 0 Z" transform="rotate(-15)"/>
-                                                <path d="M0 0 C7 -3 10 -10 7 -15 C3 -14 1 -7 0 0 Z" transform="rotate(15)"/>
-                                                <path d="M0 0 C-9 -1 -13 -6 -11 -10 C-6 -8 -2 -4 0 0 Z" transform="rotate(-45)"/>
-                                                <path d="M0 0 C9 -1 13 -6 11 -10 C6 -8 2 -4 0 0 Z" transform="rotate(45)"/>
-                                                <path d="M0 0 C-2 -8 -0.8 -14 0 -15 C0.8 -14 2 -8 0 0 Z"/>
-                                            </g>
-                                            <!-- Tight center -->
-                                            <g fill="url(#pnCore)">
-                                                <path d="M0 0 C-5 -2 -7 -6 -5 -9 C-2 -8 -1 -4 0 0 Z"/>
-                                                <path d="M0 0 C5 -2 7 -6 5 -9 C2 -8 1 -4 0 0 Z"/>
-                                                <path d="M0 0 C-4 2 -7 0 -7 -3 C-4 -2 -1 -1 0 0 Z"/>
-                                                <path d="M0 0 C4 2 7 0 7 -3 C4 -2 1 -1 0 0 Z"/>
-                                            </g>
-                                            <!-- Ruffle hint lines -->
-                                            <g stroke="#b35a78" stroke-width="0.25" fill="none" opacity="0.45">
-                                                <path d="M-6 -8 C -5 -6, -3 -4, 0 -2"/>
-                                                <path d="M6 -8 C 5 -6, 3 -4, 0 -2"/>
-                                                <path d="M-10 -6 C -8 -4, -5 -3, 0 -1"/>
-                                                <path d="M10 -6 C 8 -4, 5 -3, 0 -1"/>
-                                            </g>
-                                            <circle r="1.3" fill="#8a3f5a"/>
-                                        </g>
-                                    </svg>
-                                    <span class="card-name">Peony</span><span class="card-tap">tap to flip</span>
+                                    <img src="flower-dahlia.png" class="card-icon" alt="Dahlia">
+                                    <span class="card-name">Dahlia</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Peony</div><div class="flip-back-text">All softness, all abundance. Means a happy life and a good year. Every good wish in one flower.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Dahlia</div><div class="flip-back-text">Means inner strength and the courage to embrace change. For someone who steps into a new year with quiet dignity and a glow that's entirely her own.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
-                        <!-- ============ 4. GARDEN ROSE ============ -->
+                        <!-- ============ 3. SWEET PEA ============ -->
                         <div class="flip-card" onclick="this.classList.toggle('flipped')">
                             <div class="flip-inner">
                                 <div class="flip-front">
-                                    <svg class="card-icon" viewBox="0 0 80 80" aria-label="Garden rose">
-                                        <defs>
-                                            <radialGradient id="rsOuter" cx="50%" cy="50%" r="55%">
-                                                <stop offset="0%" stop-color="#fbcdd8"/>
-                                                <stop offset="100%" stop-color="#d57a93"/>
-                                            </radialGradient>
-                                            <radialGradient id="rsMid" cx="50%" cy="50%" r="55%">
-                                                <stop offset="0%" stop-color="#f5a6bc"/>
-                                                <stop offset="100%" stop-color="#b85c7a"/>
-                                            </radialGradient>
-                                            <radialGradient id="rsCore" cx="50%" cy="50%" r="55%">
-                                                <stop offset="0%" stop-color="#c96b86"/>
-                                                <stop offset="100%" stop-color="#7a3a52"/>
-                                            </radialGradient>
-                                            <linearGradient id="rsStem" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stop-color="#6f8c52"/>
-                                                <stop offset="100%" stop-color="#456630"/>
-                                            </linearGradient>
-                                            <linearGradient id="rsLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stop-color="#93b473"/>
-                                                <stop offset="100%" stop-color="#4f7138"/>
-                                            </linearGradient>
-                                        </defs>
-                                        <!-- Curved stem with slight bend -->
-                                        <path d="M40 78 C 36 66, 44 54, 40 46" fill="none" stroke="url(#rsStem)" stroke-width="1.6" stroke-linecap="round"/>
-                                        <!-- Thorn hints -->
-                                        <path d="M37 66 L 35 64 M43 58 L 45 56" stroke="#456630" stroke-width="0.7" stroke-linecap="round"/>
-                                        <!-- Leaves -->
-                                        <path d="M40 60 C 30 56, 24 48, 24 44 C 30 46, 36 52, 40 58 Z" fill="url(#rsLeaf)" opacity="0.92"/>
-                                        <path d="M24 44 Q 32 50 40 58" stroke="#3a5728" stroke-width="0.35" fill="none" opacity="0.6"/>
-                                        <path d="M40 56 C 50 52, 56 46, 56 42 C 50 44, 44 50, 40 56 Z" fill="url(#rsLeaf)" opacity="0.85"/>
-                                        <path d="M56 42 Q 48 48 40 56" stroke="#3a5728" stroke-width="0.32" fill="none" opacity="0.55"/>
-                                        <path d="M35 52 C 32 51, 30 48, 30 46 C 32.5 47, 34 49, 35 52 Z" fill="url(#rsLeaf)" opacity="0.8"/>
-                                        <!-- Rose spiral bloom -->
-                                        <g transform="translate(40 34)">
-                                            <!-- Outer unfurled petals -->
-                                            <g fill="url(#rsOuter)" stroke="#b06a82" stroke-width="0.3" opacity="0.95">
-                                                <path d="M0 0 C-14 -1 -16 -9 -12 -14 C-6 -12 -2 -7 0 0 Z"/>
-                                                <path d="M0 0 C14 -1 16 -9 12 -14 C6 -12 2 -7 0 0 Z"/>
-                                                <path d="M0 0 C-12 6 -16 2 -14 -5 C-9 -3 -4 -1 0 0 Z"/>
-                                                <path d="M0 0 C12 6 16 2 14 -5 C9 -3 4 -1 0 0 Z"/>
-                                                <path d="M0 0 C-2 -12 0 -15 2 -15 C3 -12 2 -6 0 0 Z"/>
-                                            </g>
-                                            <!-- Middle petals curling in -->
-                                            <g fill="url(#rsMid)" stroke="#9c4966" stroke-width="0.28">
-                                                <path d="M0 0 C-9 -1 -11 -6 -8 -10 C-4 -8 -1 -5 0 0 Z" transform="rotate(-10)"/>
-                                                <path d="M0 0 C9 -1 11 -6 8 -10 C4 -8 1 -5 0 0 Z" transform="rotate(10)"/>
-                                                <path d="M0 0 C-8 3 -11 -1 -9 -5 C-5 -4 -2 -2 0 0 Z" transform="rotate(40)"/>
-                                                <path d="M0 0 C8 3 11 -1 9 -5 C5 -4 2 -2 0 0 Z" transform="rotate(-40)"/>
-                                            </g>
-                                            <!-- Inner bud (tight spiral) -->
-                                            <g fill="url(#rsCore)">
-                                                <path d="M0 0 C-5 -1 -6 -4 -4 -7 C-2 -6 -1 -3 0 0 Z"/>
-                                                <path d="M0 0 C5 -1 6 -4 4 -7 C2 -6 1 -3 0 0 Z"/>
-                                                <path d="M0 0 C-3 3 -6 1 -5 -3 C-3 -2 -1 -1 0 0 Z"/>
-                                                <path d="M0 0 C3 3 6 1 5 -3 C3 -2 1 -1 0 0 Z"/>
-                                            </g>
-                                            <!-- Heart of spiral -->
-                                            <path d="M-1.8 -1 C -1 -2.5, 1 -2.5, 1.8 -1 C 1 0.5, -1 0.5, -1.8 -1 Z" fill="#5a2438"/>
-                                            <path d="M-0.8 -0.5 C 0 -1.2, 0.8 -0.5, 0 0.2 Z" fill="#3f1825"/>
-                                        </g>
-                                    </svg>
-                                    <span class="card-name">Garden Rose</span><span class="card-tap">tap to flip</span>
+                                    <img src="flower-sweet-pea.png" class="card-icon" alt="Sweet Pea">
+                                    <span class="card-name">Sweet Pea</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Garden Rose</div><div class="flip-back-text">Pink roses mean gratitude. That's exactly how I feel — every day that you exist.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Sweet Pea</div><div class="flip-back-text">Symbolizes blissful pleasure, kindness, and delicate beauty. The kind of presence that makes everywhere you go feel a little lighter and warmer.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
-                        <!-- ============ 5. RANUNCULUS ============ -->
+                        <!-- ============ 4. CARNATION ============ -->
                         <div class="flip-card" onclick="this.classList.toggle('flipped')">
                             <div class="flip-inner">
                                 <div class="flip-front">
-                                    <svg class="card-icon" viewBox="0 0 80 80" aria-label="Ranunculus">
-                                        <defs>
-                                            <radialGradient id="raOuter" cx="50%" cy="50%" r="60%">
-                                                <stop offset="0%" stop-color="#fff7fa"/>
-                                                <stop offset="70%" stop-color="#fbd8e2"/>
-                                                <stop offset="100%" stop-color="#e8a0b4"/>
-                                            </radialGradient>
-                                            <radialGradient id="raMid" cx="50%" cy="50%" r="55%">
-                                                <stop offset="0%" stop-color="#fde2ea"/>
-                                                <stop offset="100%" stop-color="#d88aa4"/>
-                                            </radialGradient>
-                                            <radialGradient id="raCore" cx="50%" cy="50%" r="50%">
-                                                <stop offset="0%" stop-color="#d888a0"/>
-                                                <stop offset="100%" stop-color="#6a3048"/>
-                                            </radialGradient>
-                                            <linearGradient id="raStem" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stop-color="#85a868"/>
-                                                <stop offset="100%" stop-color="#4e7238"/>
-                                            </linearGradient>
-                                        </defs>
-                                        <!-- Thin curved stem -->
-                                        <path d="M40 78 C 37 66, 43 56, 40 46" fill="none" stroke="url(#raStem)" stroke-width="1.3" stroke-linecap="round"/>
-                                        <!-- Fine ferny leaves -->
-                                        <g fill="none" stroke="#5e8448" stroke-width="0.5" stroke-linecap="round" opacity="0.85">
-                                            <path d="M39 64 C 34 64, 30 62, 28 58"/>
-                                            <path d="M28 58 L 26 55 M28 58 L 30 55 M30 60 L 28 57"/>
-                                            <path d="M41 58 C 46 58, 50 55, 52 51"/>
-                                            <path d="M52 51 L 50 48 M52 51 L 54 48"/>
-                                        </g>
-                                        <!-- Ranunculus - paper-thin layered petals, tight spiral -->
-                                        <g transform="translate(40 34)">
-                                            <!-- Outer layer (10 overlapping petals) -->
-                                            <g fill="url(#raOuter)" stroke="#d48ba2" stroke-width="0.28" opacity="0.96">
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(36)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(72)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(108)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(144)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(180)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(216)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(252)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(288)"/>
-                                                <path d="M0 0 C-7 -3 -9 -10 -6 -14 C-2 -12 0 -7 0 0 Z" transform="rotate(324)"/>
-                                            </g>
-                                            <!-- Middle tight layer -->
-                                            <g fill="url(#raMid)" stroke="#b87088" stroke-width="0.26" opacity="0.95">
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(18)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(54)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(90)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(126)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(162)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(198)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(234)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(270)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(306)"/>
-                                                <path d="M0 0 C-5 -2 -7 -7 -4 -10 C-1 -9 0 -5 0 0 Z" transform="rotate(342)"/>
-                                            </g>
-                                            <!-- Tight inner core -->
-                                            <circle r="4" fill="url(#raCore)"/>
-                                            <g fill="#faddea" opacity="0.7">
-                                                <circle cx="-1.3" cy="-1.3" r="0.5"/>
-                                                <circle cx="1.3" cy="-1.3" r="0.5"/>
-                                                <circle cx="-1.3" cy="1.3" r="0.5"/>
-                                                <circle cx="1.3" cy="1.3" r="0.5"/>
-                                                <circle cx="0" cy="-1.8" r="0.4"/>
-                                            </g>
-                                            <circle r="1" fill="#4a1f30"/>
-                                        </g>
-                                    </svg>
-                                    <span class="card-name">Ranunculus</span><span class="card-tap">tap to flip</span>
+                                    <img src="flower-carnation.png" class="card-icon" alt="Carnation">
+                                    <span class="card-name">Carnation</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Ranunculus</div><div class="flip-back-text">Means "radiant with charm." They named it before they even met you, but honestly — accurate.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Carnation</div><div class="flip-back-text">Pink carnations mean "I'll never forget you." A love that stays through every season — steady, warm, and completely true.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
                         </div>
 
-                        <!-- ============ 6. WILDFLOWER POSY (daisy + lavender + eucalyptus) ============ -->
+                        <!-- ============ 5. DAFFODIL ============ -->
                         <div class="flip-card" onclick="this.classList.toggle('flipped')">
                             <div class="flip-inner">
                                 <div class="flip-front">
-                                    <svg class="card-icon" viewBox="0 0 80 80" aria-label="Wildflower posy">
-                                        <defs>
-                                            <linearGradient id="wfStem" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stop-color="#8aa66a"/>
-                                                <stop offset="100%" stop-color="#506e3d"/>
-                                            </linearGradient>
-                                            <radialGradient id="wfEuc" cx="50%" cy="50%" r="60%">
-                                                <stop offset="0%" stop-color="#d2dec5"/>
-                                                <stop offset="100%" stop-color="#8aa684"/>
-                                            </radialGradient>
-                                            <radialGradient id="wfDaisy" cx="50%" cy="45%" r="65%">
-                                                <stop offset="0%" stop-color="#ffffff"/>
-                                                <stop offset="100%" stop-color="#f0e8dc"/>
-                                            </radialGradient>
-                                            <radialGradient id="wfLav" cx="50%" cy="50%" r="60%">
-                                                <stop offset="0%" stop-color="#d4c6e8"/>
-                                                <stop offset="100%" stop-color="#8672b0"/>
-                                            </radialGradient>
-                                        </defs>
-                                        <!-- Three curved stems converging at bottom -->
-                                        <path d="M40 76 C 30 62, 22 48, 18 32" fill="none" stroke="url(#wfStem)" stroke-width="1.2" stroke-linecap="round"/>
-                                        <path d="M40 76 C 42 60, 42 44, 42 28" fill="none" stroke="url(#wfStem)" stroke-width="1.3" stroke-linecap="round"/>
-                                        <path d="M40 76 C 52 62, 58 46, 62 28" fill="none" stroke="url(#wfStem)" stroke-width="1.2" stroke-linecap="round"/>
-                                        <!-- Eucalyptus branch (rightmost) - silver round leaves -->
-                                        <path d="M40 76 C 50 66, 58 54, 65 40" fill="none" stroke="url(#wfStem)" stroke-width="1" stroke-linecap="round" opacity="0.85"/>
-                                        <g fill="url(#wfEuc)" stroke="#637d5a" stroke-width="0.28" opacity="0.9">
-                                            <ellipse cx="48" cy="66" rx="3" ry="2.2" transform="rotate(-25 48 66)"/>
-                                            <ellipse cx="54" cy="58" rx="3.2" ry="2.4" transform="rotate(-20 54 58)"/>
-                                            <ellipse cx="59" cy="49" rx="3.3" ry="2.5" transform="rotate(-15 59 49)"/>
-                                            <ellipse cx="63" cy="41" rx="3" ry="2.2" transform="rotate(-10 63 41)"/>
-                                            <ellipse cx="44" cy="62" rx="2.6" ry="2" transform="rotate(15 44 62)"/>
-                                            <ellipse cx="49" cy="53" rx="2.8" ry="2.1" transform="rotate(10 49 53)"/>
-                                            <ellipse cx="54" cy="44" rx="2.8" ry="2.1" transform="rotate(5 54 44)"/>
-                                        </g>
-                                        <!-- Small leaves on left stem -->
-                                        <g fill="#7a9a5c" opacity="0.75">
-                                            <path d="M28 54 C 23 53, 20 50, 19 48 C 22 48, 26 50, 28 54 Z"/>
-                                            <path d="M23 44 C 18 44, 15 41, 14 39 C 17 39, 21 41, 23 44 Z"/>
-                                        </g>
-                                        <!-- Lavender spike (left, tiny bud cluster) -->
-                                        <g fill="url(#wfLav)" stroke="#6a568a" stroke-width="0.25" opacity="0.92">
-                                            <ellipse cx="18" cy="30" rx="1.6" ry="2"/>
-                                            <ellipse cx="19.5" cy="26" rx="1.5" ry="1.9"/>
-                                            <ellipse cx="17" cy="26" rx="1.4" ry="1.8"/>
-                                            <ellipse cx="18" cy="22" rx="1.4" ry="1.7"/>
-                                            <ellipse cx="19.8" cy="19" rx="1.2" ry="1.5"/>
-                                            <ellipse cx="16.5" cy="19" rx="1.2" ry="1.5"/>
-                                            <ellipse cx="18" cy="16" rx="1.1" ry="1.3"/>
-                                            <ellipse cx="18" cy="13" rx="0.9" ry="1.1"/>
-                                        </g>
-                                        <!-- Center daisy -->
-                                        <g transform="translate(42 28)">
-                                            <g fill="url(#wfDaisy)" stroke="#d6c9b0" stroke-width="0.28">
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5"/>
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5" transform="rotate(45)"/>
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5" transform="rotate(-45)"/>
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5" transform="rotate(90)"/>
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5" transform="rotate(-90)"/>
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5" transform="rotate(135)"/>
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5" transform="rotate(-135)"/>
-                                                <ellipse cx="0" cy="-7" rx="2" ry="5.5" transform="rotate(180)"/>
-                                            </g>
-                                            <circle r="2.4" fill="#e8b73f"/>
-                                            <circle r="2.4" fill="none" stroke="#b88820" stroke-width="0.4"/>
-                                            <g fill="#a66f15">
-                                                <circle cx="-0.8" cy="-0.8" r="0.35"/>
-                                                <circle cx="0.8" cy="-0.8" r="0.35"/>
-                                                <circle cx="-0.8" cy="0.8" r="0.35"/>
-                                                <circle cx="0.8" cy="0.8" r="0.35"/>
-                                                <circle cx="0" cy="0" r="0.4"/>
-                                            </g>
-                                        </g>
-                                        <!-- Tie / twine at base -->
-                                        <path d="M34 72 C 38 70, 44 70, 48 72" fill="none" stroke="#c9a67a" stroke-width="1.4" stroke-linecap="round"/>
-                                        <path d="M34 72 C 36 75, 32 77, 30 76" fill="none" stroke="#c9a67a" stroke-width="1" stroke-linecap="round" opacity="0.75"/>
-                                        <path d="M48 72 C 50 75, 54 75, 55 74" fill="none" stroke="#c9a67a" stroke-width="1" stroke-linecap="round" opacity="0.75"/>
-                                    </svg>
-                                    <span class="card-name">Wildflower</span><span class="card-tap">tap to flip</span>
+                                    <img src="flower-daffodil.jpeg" class="card-icon" alt="Daffodil">
+                                    <span class="card-name">Daffodil</span><span class="card-tap">tap to flip</span>
                                 </div>
-                                <div class="flip-back"><div class="flip-back-title">Wildflower Posy</div><div class="flip-back-text">Daisy, lavender, eucalyptus. Picked, not bought. A little wild, a little calm — the honest kind of pretty.</div><span class="flip-back-hint">tap again</span></div>
+                                <div class="flip-back"><div class="flip-back-title">Daffodil</div><div class="flip-back-text">The flower of new beginnings. Always the first to bloom after winter — just like you, always finding the light no matter the season.</div><span class="flip-back-hint">tap again</span></div>
                             </div>
+                        </div>
+
+                        <!-- ============ 6. GLADIOLUS ============ -->
+                        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-inner">
+                                <div class="flip-front">
+                                    <img src="flower-gladiolus.png" class="card-icon" alt="Gladiolus">
+                                    <span class="card-name">Gladiolus</span><span class="card-tap">tap to flip</span>
+                                </div>
+                                <div class="flip-back"><div class="flip-back-title">Gladiolus</div><div class="flip-back-text">Named from the Latin word for sword. Symbolizes strength of character, faithfulness, and integrity — everything you carry so quietly, every single day.</div><span class="flip-back-hint">tap again</span></div>
+                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>
