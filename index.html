@@ -1338,8 +1338,12 @@
             height: 80px;
             transform-origin: center bottom;
             animation: bloomPop 0.6s cubic-bezier(.34,1.56,.64,1);
-            pointer-events: none;
+            pointer-events: auto;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
         }
+        .bloom.dragging { cursor: grabbing; }
         .bloom img.flower-img { width: 100%; height: 100%; object-fit: contain; display: block; }
         @keyframes bloomPop {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(var(--rot, 0deg)); }
@@ -1352,13 +1356,14 @@
             left: 50%;
             width: 2px;
             background: linear-gradient(180deg, #8ba679 0%, #6b8a5a 100%);
-            transform-origin: top center;
+            transform-origin: bottom center;
             border-radius: 2px;
-            animation: stemGrow 0.6s cubic-bezier(.34,1.56,.64,1);
+            opacity: 0.8;
+            animation: stemFade 0.5s ease forwards;
         }
-        @keyframes stemGrow {
-            0% { opacity: 0; transform: translateX(-50%) scaleY(0); }
-            100% { opacity: 0.7; transform: translateX(-50%) scaleY(1); }
+        @keyframes stemFade {
+            from { opacity: 0; }
+            to   { opacity: 0.8; }
         }
         .ribbon-tie {
             position: absolute;
@@ -2995,6 +3000,7 @@
                 <div class="bouquet-controls">
                     <button class="bouquet-btn" id="clearBouquet">Start Over</button>
                     <button class="bouquet-btn primary" id="tieBouquet">Tie With Ribbon</button>
+                    <button class="bouquet-btn" id="saveBouquet">Save as Card ♡</button>
                 </div>
                 <p class="bouquet-note" id="bouquetNote">&nbsp;</p>
             </div>
@@ -4623,45 +4629,103 @@ who made heaven and earth.</p>
     // ==========================================================
     (function() {
         var canvas = document.getElementById('bouquetCanvas');
-        var empty = document.getElementById('bouquetEmpty');
+        var empty  = document.getElementById('bouquetEmpty');
         var ribbon = document.getElementById('ribbonTie');
-        var note = document.getElementById('bouquetNote');
+        var note   = document.getElementById('bouquetNote');
         var clearBtn = document.getElementById('clearBouquet');
-        var tieBtn = document.getElementById('tieBouquet');
+        var tieBtn   = document.getElementById('tieBouquet');
+        var saveBtn  = document.getElementById('saveBouquet');
         if (!canvas) return;
 
-        // 16 flower definitions using real watercolour images.
+        // 15 flower definitions (foxglove removed)
         var FLOWERS = [
-            { id: 'bluebell',      name: 'Bluebell',      svg: '<img src="flower-bluebell.jpeg"      class="flower-img" alt="">' },
-            { id: 'daffodil',      name: 'Daffodil',      svg: '<img src="flower-daffodil.jpeg"      class="flower-img" alt="">' },
-            { id: 'poppy',         name: 'Poppy',         svg: '<img src="flower-poppy.png"          class="flower-img" alt="">' },
-            { id: 'foxglove',      name: 'Foxglove',      svg: '<img src="flower-foxglove.png"       class="flower-img" alt="">' },
-            { id: 'daisy',         name: 'Daisy',         svg: '<img src="flower-daisy.png"          class="flower-img" alt="">' },
-            { id: 'dahlia',        name: 'Dahlia',        svg: '<img src="flower-dahlia.png"         class="flower-img" alt="">' },
-            { id: 'hyacinth',      name: 'Hyacinth',      svg: '<img src="flower-hyacinth.png"       class="flower-img" alt="">' },
-            { id: 'lotus',         name: 'Lotus',         svg: '<img src="flower-lotus.png"          class="flower-img" alt="">' },
-            { id: 'carnation',     name: 'Carnation',     svg: '<img src="flower-carnation.png"      class="flower-img" alt="">' },
-            { id: 'gerbera',       name: 'Gerbera',       svg: '<img src="flower-gerbera.png"        class="flower-img" alt="">' },
-            { id: 'gladiolus',     name: 'Gladiolus',     svg: '<img src="flower-gladiolus.png"      class="flower-img" alt="">' },
-            { id: 'larkspur',      name: 'Larkspur',      svg: '<img src="flower-larkspur.png"       class="flower-img" alt="">' },
-            { id: 'nigella',       name: 'Nigella',       svg: '<img src="flower-nigella.png"        class="flower-img" alt="">' },
-            { id: 'alstroemeria',  name: 'Alstroemeria',  svg: '<img src="flower-alstroemeria.png"   class="flower-img" alt="">' },
-            { id: 'sweet-pea',     name: 'Sweet Pea',     svg: '<img src="flower-sweet-pea.png"      class="flower-img" alt="">' },
-            { id: 'thistle',       name: 'Thistle',       svg: '<img src="flower-thistle.png"        class="flower-img" alt="">' }
+            { id: 'bluebell',     name: 'Bluebell',     src: 'flower-bluebell.jpeg',   svg: '<img src="flower-bluebell.jpeg"    class="flower-img" alt="">' },
+            { id: 'daffodil',     name: 'Daffodil',     src: 'flower-daffodil.jpeg',   svg: '<img src="flower-daffodil.jpeg"    class="flower-img" alt="">' },
+            { id: 'poppy',        name: 'Poppy',        src: 'flower-poppy.png',        svg: '<img src="flower-poppy.png"        class="flower-img" alt="">' },
+            { id: 'daisy',        name: 'Daisy',        src: 'flower-daisy.png',        svg: '<img src="flower-daisy.png"        class="flower-img" alt="">' },
+            { id: 'dahlia',       name: 'Dahlia',       src: 'flower-dahlia.png',       svg: '<img src="flower-dahlia.png"       class="flower-img" alt="">' },
+            { id: 'hyacinth',     name: 'Hyacinth',     src: 'flower-hyacinth.png',     svg: '<img src="flower-hyacinth.png"     class="flower-img" alt="">' },
+            { id: 'lotus',        name: 'Lotus',        src: 'flower-lotus.png',        svg: '<img src="flower-lotus.png"        class="flower-img" alt="">' },
+            { id: 'carnation',    name: 'Carnation',    src: 'flower-carnation.png',    svg: '<img src="flower-carnation.png"    class="flower-img" alt="">' },
+            { id: 'gerbera',      name: 'Gerbera',      src: 'flower-gerbera.png',      svg: '<img src="flower-gerbera.png"      class="flower-img" alt="">' },
+            { id: 'gladiolus',    name: 'Gladiolus',    src: 'flower-gladiolus.png',    svg: '<img src="flower-gladiolus.png"    class="flower-img" alt="">' },
+            { id: 'larkspur',     name: 'Larkspur',     src: 'flower-larkspur.png',     svg: '<img src="flower-larkspur.png"     class="flower-img" alt="">' },
+            { id: 'nigella',      name: 'Nigella',      src: 'flower-nigella.png',      svg: '<img src="flower-nigella.png"      class="flower-img" alt="">' },
+            { id: 'alstroemeria', name: 'Alstroemeria', src: 'flower-alstroemeria.png', svg: '<img src="flower-alstroemeria.png" class="flower-img" alt="">' },
+            { id: 'sweet-pea',    name: 'Sweet Pea',    src: 'flower-sweet-pea.png',    svg: '<img src="flower-sweet-pea.png"    class="flower-img" alt="">' },
+            { id: 'thistle',      name: 'Thistle',      src: 'flower-thistle.png',      svg: '<img src="flower-thistle.png"      class="flower-img" alt="">' }
         ];
-        var FLOWER_SVGS = {};
-        FLOWERS.forEach(function(f) { FLOWER_SVGS[f.id] = f.svg; });
+        var FLOWER_BY_ID = {};
+        FLOWERS.forEach(function(f) { FLOWER_BY_ID[f.id] = f; });
 
-        var blooms = [];
+        var blooms   = [];
         var uniqueId = 0;
         var NOTES = [
             'a beautiful choice.',
             'the bouquet is getting full.',
             'this one suits you.',
             'soft and lovely.',
-            'it\'s really coming together.',
+            "it's really coming together.",
             'so you.'
         ];
+
+        // Fan angles (degrees from vertical) for up to 14 flowers.
+        // Start at center, alternate left/right, widening out.
+        var FAN_ANGLES = [0, -20, 20, -38, 38, -55, 55, -10, 10, -28, 28, -46, 46, -62];
+        // Base stem lengths (px at canvas height 380 -- scaled proportionally at render time)
+        var BASE_STEMS = [155, 145, 145, 130, 130, 115, 115, 140, 140, 125, 125, 110, 110, 100];
+
+        function getTieXY() {
+            return { x: canvas.offsetWidth / 2, y: canvas.offsetHeight - 8 };
+        }
+
+        function updateStem(b) {
+            var tie = getTieXY();
+            var h   = canvas.offsetHeight;
+            var bx  = parseFloat(b.bloom.style.left);
+            var by  = parseFloat(b.bloom.style.top);
+            var dx  = bx - tie.x;
+            var dy  = tie.y - by;
+            var len = Math.sqrt(dx * dx + dy * dy);
+            var ang = Math.atan2(dx, dy) * 180 / Math.PI;
+            b.stem.style.left            = tie.x + 'px';
+            b.stem.style.bottom          = (h - tie.y) + 'px';
+            b.stem.style.height          = len + 'px';
+            b.stem.style.transformOrigin = 'bottom center';
+            b.stem.style.transform       = 'translateX(-50%) rotate(' + ang + 'deg)';
+        }
+
+        function attachDrag(b) {
+            b.bloom.addEventListener('pointerdown', function(e) {
+                e.preventDefault();
+                b.bloom.setPointerCapture(e.pointerId);
+                b.bloom.classList.add('dragging');
+                b.bloom.style.zIndex = 500;
+                var sx = e.clientX, sy = e.clientY;
+                var ox = parseFloat(b.bloom.style.left);
+                var oy = parseFloat(b.bloom.style.top);
+
+                function onMove(ev) {
+                    var w  = canvas.offsetWidth;
+                    var h  = canvas.offsetHeight;
+                    var nx = Math.max(20, Math.min(w - 20, ox + ev.clientX - sx));
+                    var ny = Math.max(20, Math.min(h - 20, oy + ev.clientY - sy));
+                    b.bloom.style.left = nx + 'px';
+                    b.bloom.style.top  = ny + 'px';
+                    updateStem(b);
+                }
+                function onUp() {
+                    b.bloom.classList.remove('dragging');
+                    b.bloom.style.zIndex = b.zBase;
+                    b.bloom.removeEventListener('pointermove',   onMove);
+                    b.bloom.removeEventListener('pointerup',     onUp);
+                    b.bloom.removeEventListener('pointercancel', onUp);
+                }
+                b.bloom.addEventListener('pointermove',   onMove);
+                b.bloom.addEventListener('pointerup',     onUp);
+                b.bloom.addEventListener('pointercancel', onUp);
+            });
+        }
 
         function updateEmpty() {
             if (blooms.length === 0) {
@@ -4674,63 +4738,49 @@ who made heaven and earth.</p>
         }
 
         function addFlower(type) {
-            var rect = canvas.getBoundingClientRect();
-            var w = rect.width;
-            var h = rect.height;
-
-            // Natural placement: cluster in an arc, later blooms at top and center
             var i = blooms.length;
-            // Tiered arrangement: bottom row first, then middle, then top
-            var tier = Math.floor(i / 3); // row
-            var col = i % 3;
+            if (i >= FAN_ANGLES.length) return;
 
-            var centerX = w / 2;
-            // base y is near the bottom (stems come from center-bottom "tie" point)
-            // tier 0 low, tier 1 middle, tier 2 high
-            var tierOffset = tier * (h * 0.15);
-            var baseY = h * 0.7 - tierOffset;
+            var w   = canvas.offsetWidth;
+            var h   = canvas.offsetHeight;
+            var tie = getTieXY();
 
-            // Column spread
-            var spread = Math.min(w * 0.28, 130);
-            var colX = centerX + (col - 1) * spread + (Math.random() - 0.5) * 20;
-            var y = baseY + (Math.random() - 0.5) * 20;
+            var angle   = FAN_ANGLES[i] + (Math.random() - 0.5) * 8;
+            var stemLen = BASE_STEMS[i] * (h / 380) + (Math.random() - 0.5) * 20;
+            var rad     = angle * Math.PI / 180;
+            var bloomX  = tie.x + Math.sin(rad) * stemLen;
+            var bloomY  = tie.y - Math.cos(rad) * stemLen;
 
-            // Stagger rotation slightly
-            var rot = (Math.random() - 0.5) * 24;
+            // Keep bloom within canvas bounds
+            bloomX = Math.max(30, Math.min(w - 30, bloomX));
+            bloomY = Math.max(20, Math.min(h - 60, bloomY));
 
-            // z-index: later tiers on top (front)
-            var z = 10 + tier * 10 + col;
-
-            // Stem: from bloom to near center-bottom
-            var stemHeight = Math.max(0, h - y - 10);
-            var stemRot = Math.atan2(centerX - colX, stemHeight) * 180 / Math.PI * 0.6;
+            var rot = angle * 0.35 + (Math.random() - 0.5) * 12;
+            var z   = 10 + i;
 
             var stem = document.createElement('div');
-            stem.className = 'bloom-stem';
-            stem.style.left = colX + 'px';
-            stem.style.bottom = (h - y - stemHeight - 10) + 'px';
-            stem.style.height = stemHeight + 'px';
-            stem.style.transform = 'translateX(-50%) rotate(' + stemRot + 'deg)';
-            stem.style.zIndex = z - 5;
-            stem.dataset.id = 'b' + uniqueId;
+            stem.className    = 'bloom-stem';
+            stem.style.zIndex = z - 1;
+            stem.dataset.id   = 'b' + uniqueId;
             canvas.appendChild(stem);
 
             var bloom = document.createElement('div');
             bloom.className = 'bloom';
-            bloom.style.left = colX + 'px';
-            bloom.style.top = y + 'px';
-            bloom.style.transform = 'translate(-50%, -50%) rotate(' + rot + 'deg)';
+            bloom.style.left = bloomX + 'px';
+            bloom.style.top  = bloomY + 'px';
+            bloom.style.transform = 'translate(-50%,-50%) rotate(' + rot + 'deg)';
             bloom.style.setProperty('--rot', rot + 'deg');
             bloom.style.zIndex = z;
-            bloom.dataset.id = 'b' + uniqueId;
-
-            var svg = FLOWER_SVGS[type];
-            bloom.innerHTML = svg;
+            bloom.dataset.id   = 'b' + uniqueId;
+            bloom.innerHTML    = FLOWER_BY_ID[type].svg;
             canvas.appendChild(bloom);
 
-            blooms.push({ id: 'b' + uniqueId, type: type, bloom: bloom, stem: stem });
+            var b = { id: 'b' + uniqueId, type: type, bloom: bloom, stem: stem, zBase: z, rot: rot };
+            blooms.push(b);
             uniqueId++;
 
+            updateStem(b);
+            attachDrag(b);
             updateEmpty();
 
             note.style.opacity = 0;
@@ -4740,7 +4790,7 @@ who made heaven and earth.</p>
             }, 200);
         }
 
-        // Populate picker grid dynamically
+        // Populate picker grid
         var pickerGrid = document.getElementById('pickerGrid');
         FLOWERS.forEach(function(f) {
             var btn = document.createElement('button');
@@ -4750,42 +4800,37 @@ who made heaven and earth.</p>
             btn.innerHTML = f.svg + '<span class="picker-chip-name">' + f.name + '</span>';
             pickerGrid.appendChild(btn);
         });
-        var chips = document.querySelectorAll('.picker-chip');
-        chips.forEach(function(chip) {
+        pickerGrid.querySelectorAll('.picker-chip').forEach(function(chip) {
             chip.addEventListener('click', function() {
-                if (blooms.length >= 14) {
+                if (blooms.length >= FAN_ANGLES.length) {
                     note.style.opacity = 0;
                     setTimeout(function() {
-                        note.textContent = 'a generous bouquet already — tie it off?';
+                        note.textContent = 'a generous bouquet already \u2014 tie it off?';
                         note.style.opacity = 1;
                     }, 200);
                     return;
                 }
-                var type = chip.getAttribute('data-flower');
-                addFlower(type);
+                addFlower(chip.getAttribute('data-flower'));
             });
         });
 
         // Clear
         clearBtn.addEventListener('click', function() {
             blooms.forEach(function(b) {
-                b.bloom.style.transition = 'opacity 0.4s, transform 0.4s';
-                b.bloom.style.opacity = 0;
-                b.bloom.style.transform = b.bloom.style.transform + ' scale(0.5)';
-                b.stem.style.transition = 'opacity 0.4s';
-                b.stem.style.opacity = 0;
+                b.bloom.style.transition = 'opacity 0.35s, transform 0.35s';
+                b.bloom.style.opacity    = '0';
+                b.bloom.style.transform += ' scale(0.4)';
+                b.stem.style.transition  = 'opacity 0.35s';
+                b.stem.style.opacity     = '0';
             });
             setTimeout(function() {
-                blooms.forEach(function(b) {
-                    b.bloom.remove();
-                    b.stem.remove();
-                });
+                blooms.forEach(function(b) { b.bloom.remove(); b.stem.remove(); });
                 blooms = [];
                 updateEmpty();
-            }, 400);
+            }, 380);
         });
 
-        // Tie ribbon + confetti
+        // Tie ribbon
         tieBtn.addEventListener('click', function() {
             if (blooms.length === 0) {
                 note.style.opacity = 0;
@@ -4801,28 +4846,254 @@ who made heaven and earth.</p>
                 note.textContent = 'tied with love \u2014 for Lyka.';
                 note.style.opacity = 1;
             }, 200);
-            // Small petal burst
             burstPetalsAt(canvas.getBoundingClientRect());
         });
 
+        // Save as Card
+        saveBtn.addEventListener('click', function() {
+            if (blooms.length === 0) {
+                note.style.opacity = 0;
+                setTimeout(function() {
+                    note.textContent = 'add some flowers first!';
+                    note.style.opacity = 1;
+                }, 200);
+                return;
+            }
+            note.style.opacity = 0;
+            setTimeout(function() {
+                note.textContent = 'saving your bouquet\u2026';
+                note.style.opacity = 1;
+            }, 100);
+            saveBouquetCard();
+        });
+
+        function saveBouquetCard() {
+            var CARD_W   = 800, CARD_H = 1050;
+            var BORDER   = 22;
+            var HEADER_H = 165;
+            var srcW = canvas.offsetWidth;
+            var srcH = canvas.offsetHeight;
+
+            // Collect image srcs from each bloom
+            var bloomImgSrcs = blooms.map(function(b) {
+                var el = b.bloom.querySelector('img');
+                return el ? el.src : null;
+            });
+
+            // Corner decoration images (absolute URLs)
+            var base = window.location.href.replace(/[^/]*$/, '');
+            var cornerSrcs = ['flower-lotus.png', 'flower-dahlia.png', 'flower-carnation.png', 'flower-sweet-pea.png']
+                .map(function(s) { return base + s; });
+
+            var allSrcs = bloomImgSrcs.concat(cornerSrcs).filter(function(s) { return !!s; });
+            var uniqueSrcs = allSrcs.filter(function(s, i, arr) { return arr.indexOf(s) === i; });
+
+            var loadedImgs = {};
+            var promises = uniqueSrcs.map(function(src) {
+                return new Promise(function(resolve) {
+                    var img = new Image();
+                    img.onload  = function() { loadedImgs[src] = img; resolve(); };
+                    img.onerror = function() { resolve(); };
+                    img.src = src;
+                });
+            });
+
+            Promise.all(promises).then(function() {
+                var off = document.createElement('canvas');
+                off.width = CARD_W; off.height = CARD_H;
+                var ctx = off.getContext('2d');
+
+                // Background gradient
+                var bg = ctx.createLinearGradient(0, 0, 0, CARD_H);
+                bg.addColorStop(0,   '#faf8f5');
+                bg.addColorStop(0.5, '#fff5f0');
+                bg.addColorStop(1,   '#fdf0ee');
+                ctx.fillStyle = bg;
+                ctx.fillRect(0, 0, CARD_W, CARD_H);
+
+                // Outer rose border
+                ctx.strokeStyle = '#c4727f';
+                ctx.lineWidth   = 3;
+                ctx.beginPath();
+                bqRoundRect(ctx, BORDER, BORDER, CARD_W - BORDER * 2, CARD_H - BORDER * 2, 18);
+                ctx.stroke();
+                // Inner faint border
+                ctx.strokeStyle = 'rgba(196,114,127,0.3)';
+                ctx.lineWidth   = 1;
+                ctx.beginPath();
+                bqRoundRect(ctx, BORDER + 7, BORDER + 7, CARD_W - (BORDER + 7) * 2, CARD_H - (BORDER + 7) * 2, 13);
+                ctx.stroke();
+
+                // Corner flower decorations
+                var corners = [
+                    { x: BORDER + 4,           y: BORDER + 4,           src: cornerSrcs[0], a: -25 },
+                    { x: CARD_W - BORDER - 4,  y: BORDER + 4,           src: cornerSrcs[1], a:  25 },
+                    { x: BORDER + 4,           y: CARD_H - BORDER - 4,  src: cornerSrcs[2], a:  15 },
+                    { x: CARD_W - BORDER - 4,  y: CARD_H - BORDER - 4,  src: cornerSrcs[3], a: -15 }
+                ];
+                corners.forEach(function(c) {
+                    var img = loadedImgs[c.src];
+                    if (!img) return;
+                    ctx.save();
+                    ctx.globalAlpha = 0.7;
+                    ctx.translate(c.x, c.y);
+                    ctx.rotate(c.a * Math.PI / 180);
+                    ctx.drawImage(img, -38, -38, 76, 76);
+                    ctx.restore();
+                });
+
+                // Header text
+                ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(196,114,127,0.7)';
+                ctx.font      = '13px Inter, sans-serif';
+                ctx.fillText('FOR YOU, ALWAYS', CARD_W / 2, 60);
+
+                ctx.fillStyle = '#3a322c';
+                ctx.font      = 'italic 600 54px "Cormorant Garamond", Georgia, serif';
+                ctx.fillText('Happy Birthday', CARD_W / 2, 110);
+
+                ctx.fillStyle = '#c4727f';
+                ctx.font      = 'italic 700 64px "Cormorant Garamond", Georgia, serif';
+                ctx.fillText('Lyka \u2665', CARD_W / 2, 158);
+
+                // Decorative divider line
+                ctx.strokeStyle = 'rgba(196,114,127,0.25)';
+                ctx.lineWidth   = 1;
+                ctx.beginPath();
+                ctx.moveTo(80, HEADER_H); ctx.lineTo(CARD_W - 80, HEADER_H);
+                ctx.stroke();
+
+                // Bouquet area -- scale to fit below header
+                var areaX = BORDER + 30;
+                var areaY = HEADER_H + 16;
+                var areaW = CARD_W - (BORDER + 30) * 2;
+                var areaH = CARD_H - HEADER_H - 16 - BORDER - 50;
+                var scale = Math.min(areaW / srcW, areaH / srcH) * 0.9;
+                var offX  = areaX + (areaW - srcW * scale) / 2;
+                var offY  = areaY + (areaH - srcH * scale) / 2;
+
+                var tie  = getTieXY();
+                var tieX = offX + tie.x * scale;
+                var tieY = offY + tie.y * scale;
+
+                // Draw stems
+                ctx.strokeStyle = '#7a9b68';
+                ctx.lineWidth   = 2.5;
+                ctx.lineCap     = 'round';
+                blooms.forEach(function(b) {
+                    var bx = offX + parseFloat(b.bloom.style.left) * scale;
+                    var by = offY + parseFloat(b.bloom.style.top)  * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(tieX, tieY);
+                    ctx.lineTo(bx, by);
+                    ctx.stroke();
+                });
+
+                // Ribbon at tie point
+                ctx.save();
+                ctx.translate(tieX, tieY - 4 * scale);
+                bqDrawRibbon(ctx, scale);
+                ctx.restore();
+
+                // Draw flowers
+                var bloomSz = 80 * scale;
+                blooms.forEach(function(b, bi) {
+                    var imgSrc = bloomImgSrcs[bi];
+                    var img    = imgSrc ? loadedImgs[imgSrc] : null;
+                    if (!img) return;
+                    var bx = offX + parseFloat(b.bloom.style.left) * scale;
+                    var by = offY + parseFloat(b.bloom.style.top)  * scale;
+                    ctx.save();
+                    ctx.translate(bx, by);
+                    ctx.rotate(b.rot * Math.PI / 180);
+                    ctx.drawImage(img, -bloomSz / 2, -bloomSz / 2, bloomSz, bloomSz);
+                    ctx.restore();
+                });
+
+                // Footer
+                ctx.fillStyle = 'rgba(107,92,82,0.5)';
+                ctx.font      = 'italic 15px "Cormorant Garamond", Georgia, serif';
+                ctx.fillText('built with love \u2014 june 28th', CARD_W / 2, CARD_H - BORDER - 12);
+
+                // Download
+                try {
+                    var url = off.toDataURL('image/png');
+                    var a   = document.createElement('a');
+                    a.download = 'happy-birthday-lyka.png';
+                    a.href = url;
+                    a.click();
+                    note.style.opacity = 0;
+                    setTimeout(function() {
+                        note.textContent = 'saved to your photos \u2665';
+                        note.style.opacity = 1;
+                    }, 200);
+                } catch (err) {
+                    note.style.opacity = 0;
+                    setTimeout(function() {
+                        note.textContent = 'could not save \u2014 try in a browser';
+                        note.style.opacity = 1;
+                    }, 200);
+                }
+            });
+        }
+
+        function bqRoundRect(ctx, x, y, w, h, r) {
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function bqDrawRibbon(ctx, scale) {
+            var s = Math.max(0.4, scale * 0.8);
+            ctx.save();
+            ctx.globalAlpha = 0.9;
+            ctx.fillStyle   = '#e8a0b4';
+            // Left bow loop
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-28*s, -10*s, -46*s, -4*s, -42*s, 10*s);
+            ctx.bezierCurveTo(-38*s,  18*s, -18*s, 13*s, 0, 0);
+            ctx.fill();
+            // Right bow loop
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo( 28*s, -10*s,  46*s, -4*s,  42*s, 10*s);
+            ctx.bezierCurveTo( 38*s,  18*s,  18*s, 13*s, 0, 0);
+            ctx.fill();
+            // Knot
+            ctx.globalAlpha = 1;
+            ctx.fillStyle   = '#b06d87';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 7*s, 5*s, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
         function burstPetalsAt(rect) {
-            var cx = rect.left + rect.width / 2;
-            var cy = rect.top + rect.height * 0.85;
+            var cx = rect.left + rect.width  / 2;
+            var cy = rect.top  + rect.height * 0.85;
             var colors = ['#f7c6d1', '#e8a0b4', '#fac6ca', '#fff0de', '#fae0cc', '#b5c4a8'];
             for (var i = 0; i < 18; i++) {
                 var el = document.createElement('div');
                 el.className = 'confetti-piece';
-                el.style.left = cx + 'px';
-                el.style.top = cy + 'px';
-                el.style.background = colors[i % colors.length];
+                el.style.left         = cx + 'px';
+                el.style.top          = cy + 'px';
+                el.style.background   = colors[i % colors.length];
                 el.style.borderRadius = '50% 10% 50% 10%';
                 var angle = (Math.PI * 2) * (i / 18);
-                var dist = 80 + Math.random() * 120;
-                var dx = Math.cos(angle) * dist + (Math.random() - 0.5) * 40;
-                var dy = Math.sin(angle) * dist - 100 - Math.random() * 80;
-                var rot = (Math.random() - 0.5) * 720;
+                var dist  = 80 + Math.random() * 120;
+                var dx    = Math.cos(angle) * dist + (Math.random() - 0.5) * 40;
+                var dy    = Math.sin(angle) * dist - 100 - Math.random() * 80;
+                var rot   = (Math.random() - 0.5) * 720;
                 el.animate([
-                    { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+                    { transform: 'translate(0,0) rotate(0deg)',                                          opacity: 1 },
                     { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + rot + 'deg)', opacity: 0 }
                 ], { duration: 1400 + Math.random() * 400, easing: 'cubic-bezier(.2,.6,.3,1)' });
                 document.body.appendChild(el);
