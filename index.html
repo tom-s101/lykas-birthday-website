@@ -648,7 +648,7 @@
 
         .wish {
             padding: 1.2rem 0; border-bottom: 1px solid var(--rose-pale);
-            font-size: 0.9rem; line-height: 1.7; color: var(--text-light);
+            font-size: 0.8rem; line-height: 1.7; color: var(--text-light);
             opacity: 0; transform: translateY(16px);
             transition: opacity 0.6s ease, transform 0.6s ease;
         }
@@ -681,6 +681,12 @@
             width: 100%;
             height: 100%;
             border: none;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+        /* Remove GPU compositing layer once revealed so iOS renders iframe at full res */
+        .bday-video-wrap.visible {
+            transform: none;
         }
         .bday-video-placeholder {
             position: absolute;
@@ -2887,7 +2893,7 @@
                 <div class="scratch-message">
                     <span class="msg-label">a secret for you</span>
                     <h3>You matter <em>so much,</em><br>Lyka.</h3>
-                    <p>There are so many people that are glad you were born — me especially! You have been a blessing to so many people.</p>
+                    <p>There are so many people that are glad you were born, me especially! You have been a blessing to so many people.</p>
                     <p style="margin-top:0.6rem">Because what would life be like without you? I'm so grateful that God brought you into my life.</p>
                     <p style="margin-top:0.6rem">Here's to a very bright 26th year! ♡</p>
                 </div>
