@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Songs — For Lyka</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rose: #c4727f;
+            --rose-light: #e8a0aa;
+            --rose-pale: #f5dde0;
+            --sage: #8a9a7b;
+            --gold: #d4a574;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            background: #0a0a12;
+            color: #e8e0e0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            min-height: 100svh;
+        }
+
+        /* ===== STARFIELD ===== */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+        }
+        .star.pink { background: var(--rose-light); }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.08; }
+            50% { opacity: 0.9; }
+        }
+
+        /* ===== NAV ===== */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-back {
+            color: rgba(232,160,170,0.5);
+            text-decoration: none;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s;
+        }
+        .nav-back:hover { color: var(--rose-light); }
+        .nav-back svg { width: 14px; height: 14px; }
+
+        /* ===== CONTENT ===== */
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 6rem 1.5rem 5rem;
+        }
+
+        .label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(232,160,170,0.4);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.2s forwards;
+        }
+
+        .heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 6vw, 2.6rem);
+            font-weight: 400;
+            line-height: 1.25;
+            color: #ede5e5;
+            margin-bottom: 0.6rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.4s forwards;
+        }
+        .heading em { font-style: italic; color: var(--rose-light); }
+
+        .subheading {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: rgba(232,160,170,0.45);
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.6s forwards;
+        }
+
+        /* ===== SONG CARDS ===== */
+        .songs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.8s forwards;
+        }
+
+        .song-card {
+            background: rgba(232,160,170,0.04);
+            border: 1px solid rgba(232,160,170,0.1);
+            border-radius: 18px;
+            padding: 1.4rem 1.5rem;
+            transition: border-color 0.3s, background 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .song-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 0% 0%, rgba(196,114,127,0.06), transparent 70%);
+            pointer-events: none;
+        }
+        .song-card.playing {
+            border-color: rgba(232,160,170,0.3);
+            background: rgba(196,114,127,0.07);
+        }
+
+        .song-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .song-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(196,114,127,0.4);
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+            min-width: 20px;
+        }
+
+        .song-meta { flex: 1; min-width: 0; }
+
+        .song-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: rgba(240,232,232,0.9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+
+        .song-note {
+            font-size: 0.72rem;
+            font-style: italic;
+            color: rgba(232,160,170,0.4);
+            margin-top: 0.3rem;
+            line-height: 1.5;
+        }
+
+        /* Play button */
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(232,160,170,0.25);
+            background: rgba(196,114,127,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+            color: var(--rose-light);
+            margin-top: 0.05rem;
+        }
+        .play-btn:hover {
+            border-color: rgba(232,160,170,0.5);
+            background: rgba(196,114,127,0.15);
+        }
+        .song-card.playing .play-btn {
+            border-color: rgba(232,160,170,0.6);
+            background: rgba(196,114,127,0.2);
+            box-shadow: 0 0 20px rgba(196,114,127,0.15);
+        }
+        .play-btn svg { width: 16px; height: 16px; }
+        .play-btn .pause-icon { display: none; }
+        .play-btn .play-icon { display: block; }
+        .song-card.playing .play-btn .play-icon { display: none; }
+        .song-card.playing .play-btn .pause-icon { display: block; }
+
+        /* Progress row */
+        .song-progress-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        /* Wave bars (shown when playing) */
+        .wave-bars {
+            display: none;
+            gap: 2px;
+            align-items: center;
+            height: 14px;
+            flex-shrink: 0;
+        }
+        .song-card.playing .wave-bars { display: flex; }
+        .wave-bar {
+            width: 2.5px;
+            border-radius: 2px;
+            background: var(--rose-light);
+            animation: songWave 1.2s ease-in-out infinite;
+        }
+        .wave-bar:nth-child(1) { height: 5px;  animation-delay: 0s;     }
+        .wave-bar:nth-child(2) { height: 10px; animation-delay: 0.15s;  }
+        .wave-bar:nth-child(3) { height: 14px; animation-delay: 0.3s;   }
+        .wave-bar:nth-child(4) { height: 10px; animation-delay: 0.45s;  }
+        .wave-bar:nth-child(5) { height: 5px;  animation-delay: 0.6s;   }
+        @keyframes songWave {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+            50%       { transform: scaleY(1);   opacity: 1;   }
+        }
+
+        /* Seek bar */
+        .seek-wrap {
+            flex: 1;
+            height: 3px;
+            background: rgba(232,160,170,0.1);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+        .seek-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rose), var(--rose-light));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s linear;
+            pointer-events: none;
+        }
+        .seek-wrap:hover .seek-fill { opacity: 0.9; }
+
+        .song-time {
+            font-size: 0.65rem;
+            color: rgba(232,160,170,0.35);
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+            min-width: 36px;
+            text-align: right;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 0;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.8s forwards;
+        }
+        .empty-icon {
+            width: 52px;
+            height: 52px;
+            color: rgba(232,160,170,0.2);
+            margin: 0 auto 1.2rem;
+        }
+        .empty-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: rgba(232,160,170,0.35);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 1rem 1rem 3rem;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(232,160,170,0.18);
+        }
+        footer span { color: var(--rose); }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0);    }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="starfield" id="starfield"></div>
+
+    <nav class="nav">
+        <a href="index.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            back
+        </a>
+    </nav>
+
+    <div class="content">
+        <p class="label">just between us</p>
+        <h1 class="heading">Songs that always make me<br>think of <em>you</em></h1>
+        <p class="subheading">whenever these come on, it's you.</p>
+
+        <div class="songs-list" id="songsList"></div>
+
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+            </svg>
+            <p class="empty-text">songs are on their way...</p>
+        </div>
+    </div>
+
+    <footer>made with <span>&hearts;</span> For YOU</footer>
+
+    <script>
+    // ===== STARFIELD =====
+    (function() {
+        var field = document.getElementById('starfield');
+        for (var i = 0; i < 180; i++) {
+            var star = document.createElement('div');
+            star.className = Math.random() < 0.1 ? 'star pink' : 'star';
+            var size = Math.random() * 2 + 1;
+            star.style.cssText = [
+                'left:' + (Math.random()*100) + '%',
+                'top:' + (Math.random()*100) + '%',
+                'width:' + size + 'px',
+                'height:' + size + 'px',
+                'animation:twinkle ' + (2 + Math.random()*4) + 's infinite ' + (Math.random()*4) + 's'
+            ].join(';');
+            field.appendChild(star);
+        }
+    })();
+
+    // ===== INDEXEDDB =====
+    function openDB() {
+        return new Promise(function(resolve, reject) {
+            var req = indexedDB.open('lyka-bday-uploads', 1);
+            req.onupgradeneeded = function() {
+                var db = req.result;
+                if (!db.objectStoreNames.contains('files')) {
+                    db.createObjectStore('files', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = function() { resolve(req.result); };
+            req.onerror = function() { reject(req.error); };
+        });
+    }
+
+    function getAllFiles() {
+        return openDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+                var tx = db.transaction('files', 'readonly');
+                var req = tx.objectStore('files').getAll();
+                req.onsuccess = function() { resolve(req.result || []); };
+                req.onerror = function() { reject(req.error); };
+            });
+        });
+    }
+
+    // ===== FORMAT TIME =====
+    function formatTime(secs) {
+        if (isNaN(secs)) return '--:--';
+        var m = Math.floor(secs / 60);
+        var s = Math.floor(secs % 60);
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function stripExt(name) {
+        return (name || 'Untitled').replace(/\.[^.]+$/, '');
+    }
+
+    // ===== SONG PLAYER STATE =====
+    var currentAudio = null;
+    var currentCard = null;
+
+    function stopCurrent() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+        if (currentCard) {
+            currentCard.classList.remove('playing');
+            currentCard = null;
+        }
+    }
+
+    function buildCard(song, index) {
+        var blob = new Blob([song.data], { type: song.mime || 'audio/mpeg' });
+        var url = URL.createObjectURL(blob);
+
+        var card = document.createElement('div');
+        card.className = 'song-card';
+
+        var title = song.title || stripExt(song.name);
+        var note  = song.note  || '';
+        var num   = String(index + 1).padStart(2, '0');
+
+        card.innerHTML = [
+            '<div class="song-top">',
+                '<div class="song-num">' + num + '</div>',
+                '<div class="song-meta">',
+                    '<div class="song-title">' + escHtml(title) + '</div>',
+                    note ? '<div class="song-note">"' + escHtml(note) + '"</div>' : '',
+                '</div>',
+                '<button class="play-btn" aria-label="Play">',
+                    '<svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg>',
+                    '<svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+                '</button>',
+            '</div>',
+            '<div class="song-progress-row">',
+                '<div class="wave-bars">',
+                    '<div class="wave-bar"></div>',
+                    '<div class="wave-bar"></div>',
+                    '<div class="wave-bar"></div>',
+                    '<div class="wave-bar"></div>',
+                    '<div class="wave-bar"></div>',
+                '</div>',
+                '<div class="seek-wrap" id="seek-' + index + '">',
+                    '<div class="seek-fill" id="fill-' + index + '"></div>',
+                '</div>',
+                '<div class="song-time" id="time-' + index + '">--:--</div>',
+            '</div>'
+        ].join('');
+
+        var audio   = new Audio(url);
+        var seekEl  = card.querySelector('.seek-wrap');
+        var fillEl  = card.querySelector('.seek-fill');
+        var timeEl  = card.querySelector('.song-time');
+        var playBtn = card.querySelector('.play-btn');
+
+        // Time update
+        audio.addEventListener('timeupdate', function() {
+            if (audio.duration) {
+                var pct = audio.currentTime / audio.duration * 100;
+                fillEl.style.width = pct + '%';
+                timeEl.textContent = formatTime(audio.currentTime);
+            }
+        });
+
+        audio.addEventListener('loadedmetadata', function() {
+            timeEl.textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener('ended', function() {
+            card.classList.remove('playing');
+            fillEl.style.width = '0%';
+            timeEl.textContent = formatTime(audio.duration);
+            currentAudio = null;
+            currentCard = null;
+        });
+
+        // Play/pause toggle
+        function togglePlay() {
+            if (card.classList.contains('playing')) {
+                audio.pause();
+                card.classList.remove('playing');
+                currentAudio = null;
+                currentCard = null;
+            } else {
+                stopCurrent();
+                audio.play();
+                card.classList.add('playing');
+                currentAudio = audio;
+                currentCard = card;
+            }
+        }
+
+        playBtn.addEventListener('click', togglePlay);
+
+        // Seek on click
+        seekEl.addEventListener('click', function(e) {
+            var rect = seekEl.getBoundingClientRect();
+            var pct = (e.clientX - rect.left) / rect.width;
+            if (audio.duration) {
+                audio.currentTime = pct * audio.duration;
+            }
+        });
+
+        return card;
+    }
+
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    // ===== LOAD =====
+    var listEl  = document.getElementById('songsList');
+    var emptyEl = document.getElementById('emptyState');
+
+    getAllFiles().then(function(files) {
+        var songs = files
+            .filter(function(f) { return f.type === 'song'; })
+            .sort(function(a, b) { return (a.timestamp || 0) - (b.timestamp || 0); });
+
+        if (songs.length === 0) {
+            listEl.style.display = 'none';
+            emptyEl.style.display = 'block';
+            return;
+        }
+
+        songs.forEach(function(song, i) {
+            var card = buildCard(song, i);
+            card.style.animationDelay = (0.8 + i * 0.1) + 's';
+            listEl.appendChild(card);
+        });
+    }).catch(function() {
+        listEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+    });
+    </script>
+</body>
+</html>

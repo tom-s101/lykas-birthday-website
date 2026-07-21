@@ -291,8 +291,32 @@
         <div class="current-files" id="photoFiles"></div>
     </div>
 
+    <div class="divider"></div>
+
+    <!-- Songs Upload -->
+    <div class="upload-section">
+        <p class="section-title">Songs for her</p>
+        <div class="drop-zone" id="songDropZone">
+            <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+            </svg>
+            <p class="drop-zone-text">Tap to select songs</p>
+            <p class="drop-zone-hint">or drag and drop MP3 / audio files (multiple allowed)</p>
+        </div>
+        <input type="file" id="songInput" accept="audio/*" multiple>
+        <div class="status" id="songStatus"></div>
+        <div class="current-files" id="songFiles"></div>
+    </div>
+
+    <a href="songs.html" class="site-link" style="margin-top:0.5rem;">
+        Preview songs page
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+
     <a href="voice-note.html" class="site-link">
-        View on site
+        View voice note on site
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
 
@@ -475,6 +499,7 @@
         const files = await getAllFiles();
         const audioFiles = files.filter(f => f.type === 'audio');
         const photoFiles = files.filter(f => f.type === 'photo');
+        const songFiles  = files.filter(f => f.type === 'song').sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
 
         // Audio
         audioFilesEl.innerHTML = '';
@@ -512,6 +537,30 @@
             html += '</div>';
             photoFilesEl.innerHTML = html;
         }
+
+        // Songs
+        songFilesEl.innerHTML = '';
+        songFiles.forEach((f, i) => {
+            const blob = new Blob([f.data], { type: f.mime });
+            const url  = URL.createObjectURL(blob);
+            const title = (f.name || 'song').replace(/\.[^.]+$/, '');
+            songFilesEl.innerHTML += `
+                <div class="file-item" style="flex-direction:column;align-items:stretch;gap:0.5rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div class="file-info">
+                            <span class="file-name">${title}</span>
+                            <span class="file-size">${formatSize(f.data.byteLength)}</span>
+                        </div>
+                        <button class="delete-btn" onclick="removeSong('${f.id}')">✕</button>
+                    </div>
+                    <input type="text" placeholder="Add a personal note for this song (optional)..."
+                        value="${(f.note || '').replace(/"/g,'&quot;')}"
+                        oninput="updateSongNote('${f.id}', this.value)"
+                        style="background:transparent;border:none;border-bottom:1px solid rgba(232,160,170,0.15);color:rgba(232,160,170,0.6);font-size:0.72rem;font-family:inherit;padding:0.3rem 0;outline:none;width:100%;">
+                    <div class="preview-audio"><audio controls src="${url}"></audio></div>
+                </div>
+            `;
+        });
     }
 
     async function removeFile(id) {
@@ -528,6 +577,39 @@
         refreshFiles();
     }
 
+    async function removeSong(id) {
+        await deleteFile(id);
+        // Re-index songs to keep IDs sequential
+        const files = await getAllFiles();
+        const songs = files.filter(f => f.type === 'song').sort((a,b) => (a.timestamp||0)-(b.timestamp||0));
+        for (let i = 0; i < songs.length; i++) {
+            if (songs[i].id !== 'song-' + i) {
+                await saveFile('song-' + i, 'song', songs[i].mime, songs[i].data, songs[i].name);
+                if (songs[i].note !== undefined) {
+                    const db = await openDB();
+                    await new Promise((res,rej) => {
+                        const tx = db.transaction('files','readwrite');
+                        tx.objectStore('files').put({ id: 'song-'+i, type:'song', mime:songs[i].mime, data:songs[i].data, name:songs[i].name, note:songs[i].note||'', timestamp:songs[i].timestamp });
+                        tx.oncomplete = res; tx.onerror = rej;
+                    });
+                }
+                await deleteFile(songs[i].id);
+            }
+        }
+        refreshFiles();
+    }
+
+    async function updateSongNote(id, note) {
+        const db = await openDB();
+        const tx  = db.transaction('files', 'readwrite');
+        const store = tx.objectStore('files');
+        const req = store.get(id);
+        req.onsuccess = () => {
+            const rec = req.result;
+            if (rec) { rec.note = note; store.put(rec); }
+        };
+    }
+
     // ===== CLEAR ALL =====
     document.getElementById('clearAll').addEventListener('click', async () => {
         if (confirm('Remove all uploads? This cannot be undone.')) {
@@ -537,6 +619,47 @@
             refreshFiles();
         }
     });
+
+    // ===== SONG UPLOAD =====
+    const songDropZone = document.getElementById('songDropZone');
+    const songInput    = document.getElementById('songInput');
+    const songStatus   = document.getElementById('songStatus');
+    const songFilesEl  = document.getElementById('songFiles');
+
+    songDropZone.addEventListener('click', () => songInput.click());
+    songDropZone.addEventListener('dragover', (e) => { e.preventDefault(); songDropZone.classList.add('dragover'); });
+    songDropZone.addEventListener('dragleave', () => songDropZone.classList.remove('dragover'));
+    songDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        songDropZone.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('audio/'));
+        if (files.length) handleSongFiles(files);
+    });
+    songInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length) handleSongFiles(files);
+        e.target.value = '';
+    });
+
+    async function handleSongFiles(files) {
+        songStatus.className = 'status info';
+        songStatus.textContent = `Saving ${files.length} song(s)...`;
+        try {
+            const existing = (await getAllFiles()).filter(f => f.type === 'song');
+            let idx = existing.length;
+            for (const file of files) {
+                const buffer = await readFileAsArrayBuffer(file);
+                await saveFile('song-' + idx, 'song', file.type, buffer, file.name);
+                idx++;
+            }
+            songStatus.className = 'status success';
+            songStatus.textContent = `${files.length} song(s) saved!`;
+            refreshFiles();
+        } catch (err) {
+            songStatus.className = 'status info';
+            songStatus.textContent = 'Error saving: ' + err.message;
+        }
+    }
 
     // Initial load
     refreshFiles();
