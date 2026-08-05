@@ -316,6 +316,7 @@
     <div class="admin-tabs">
         <button class="tab-btn active" data-tab="photos">Photos</button>
         <button class="tab-btn" data-tab="voice">Voice Note</button>
+        <button class="tab-btn" data-tab="songs">Songs</button>
         <button class="tab-btn" data-tab="lyka">Lyka's Photos</button>
         <button class="tab-btn" data-tab="content">Content</button>
         <button class="tab-btn" data-tab="settings">Settings</button>
@@ -405,6 +406,37 @@
                 <button class="btn btn-primary" id="vnUploadBtn" disabled>Upload voice note</button>
                 <button class="btn btn-danger" id="vnDeleteBtn" style="display:none">Delete current</button>
             </div>
+        </div>
+    </div>
+
+    <!-- SONGS tab -->
+    <div class="tab-panel" id="tab-songs">
+        <div class="admin-card">
+            <div class="admin-card-title">Upload songs</div>
+            <p style="font-size:0.78rem; color:var(--text-light); margin-bottom:1.25rem; line-height:1.6">
+                These play on the secret songs page. Upload one or more at once, then add a title or note to each below.<br>
+                <strong>Note:</strong> Make sure a public bucket named <code>songs</code> and a table named <code>site_songs</code> exist in your Supabase project.
+            </p>
+
+            <div class="upload-preview" id="songsDropzone"
+                 onclick="document.getElementById('songsFileInput').click()"
+                 style="aspect-ratio:auto; min-height:80px; padding:1.5rem; cursor:pointer">
+                <div class="upload-preview-label">
+                    tap to choose songs
+                    <small>mp3 &middot; m4a &middot; wav (multiple allowed)</small>
+                </div>
+            </div>
+            <input type="file" id="songsFileInput" accept="audio/*" multiple>
+
+            <div class="progress-wrap" id="songsProgress">
+                <div class="progress-bar"><div class="progress-fill" id="songsProgressFill"></div></div>
+            </div>
+            <div class="status-msg" id="songsStatus"></div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card-title">All songs</div>
+            <div id="songsList"><div class="loading-spinner">loading songs…</div></div>
         </div>
     </div>
 
@@ -519,6 +551,7 @@ var SB_URL    = 'https://vforizrevnrzbzkwtdbc.supabase.co';
 var SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
 var PHOTO_BUCKET = 'lyson-photos';
 var VN_BUCKET    = 'voice-notes';
+var SONGS_BUCKET = 'songs';
 var sbOK = true;
 
 // ── Content keys shown on the Content tab ──
@@ -618,6 +651,7 @@ function initApp() {
     document.getElementById('settingKey').value = SB_KEY ? (SB_KEY.substring(0, 20) + '…') : '—';
     loadPhotos();
     loadVoiceNote();
+    loadSongs();
     loadLykaPhotos();
     loadContent();
 }
@@ -933,6 +967,148 @@ document.getElementById('vnDeleteBtn').addEventListener('click', function() {
             uploadBtn.style.display = 'inline-flex';
             deleteBtn.style.display = 'inline-flex';
         });
+    });
+});
+
+// ================================================================
+//  SONGS
+// ================================================================
+function loadSongs() {
+    var list = document.getElementById('songsList');
+    if (!list || !sbOK) return;
+    list.innerHTML = '<div class="loading-spinner">loading…</div>';
+    sbFetch('/rest/v1/site_songs?select=*&order=display_order.asc,id.asc')
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+        if (!rows || !rows.length) {
+            list.innerHTML = '<p style="font-size:0.78rem;color:var(--text-faint);padding:1rem 0">No songs yet — upload some above ♡</p>';
+            return;
+        }
+        list.innerHTML = '';
+        rows.forEach(function(row) {
+            var card = document.createElement('div');
+            card.className = 'admin-card';
+            card.style.marginBottom = '1rem';
+            card.innerHTML =
+                '<audio controls src="' + row.song_url + '"></audio>' +
+                '<div class="field-group" style="margin-top:0.9rem">' +
+                    '<label class="field-label">Title</label>' +
+                    '<input class="field-input" id="songTitle-' + row.id + '" type="text" value="' + escAttr(row.title || '') + '">' +
+                '</div>' +
+                '<div class="field-group">' +
+                    '<label class="field-label">Note</label>' +
+                    '<textarea class="field-textarea" id="songNote-' + row.id + '" style="min-height:60px">' + escHtml(row.note || '') + '</textarea>' +
+                '</div>' +
+                '<div class="field-group">' +
+                    '<label class="field-label">Display order</label>' +
+                    '<input class="field-input" id="songOrder-' + row.id + '" type="number" min="0" value="' + (row.display_order || 0) + '">' +
+                '</div>' +
+                '<div class="status-msg" id="songStatus-' + row.id + '"></div>' +
+                '<div class="btn-row" id="songBtnRow-' + row.id + '">' +
+                    '<button class="btn btn-primary btn-sm" data-id="' + row.id + '" data-action="song-save">Save</button>' +
+                    '<button class="btn btn-danger btn-sm" data-id="' + row.id + '" data-action="song-delete">Delete</button>' +
+                '</div>';
+            list.appendChild(card);
+        });
+    })
+    .catch(function(err) {
+        list.innerHTML = '<p style="font-size:0.78rem;color:#c0392b;padding:1rem 0">Error: ' + err.message + '</p>';
+    });
+}
+
+document.getElementById('songsList').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var id = btn.dataset.id;
+    var action = btn.dataset.action;
+    var btnRow = document.getElementById('songBtnRow-' + id);
+    if (action === 'song-save') saveSong(id);
+    if (action === 'song-delete') {
+        btnRow.innerHTML =
+            '<span style="font-size:0.72rem;color:var(--text-light);flex:1;align-self:center">Delete this song?</span>' +
+            '<button class="btn btn-secondary btn-sm" data-id="' + id + '" data-action="song-delete-cancel">Cancel</button>' +
+            '<button class="btn btn-danger btn-sm" data-id="' + id + '" data-action="song-delete-confirm">Yes</button>';
+    }
+    if (action === 'song-delete-cancel') {
+        btnRow.innerHTML =
+            '<button class="btn btn-primary btn-sm" data-id="' + id + '" data-action="song-save">Save</button>' +
+            '<button class="btn btn-danger btn-sm" data-id="' + id + '" data-action="song-delete">Delete</button>';
+    }
+    if (action === 'song-delete-confirm') deleteSong(id);
+});
+
+function saveSong(id) {
+    var st = document.getElementById('songStatus-' + id);
+    var body = {
+        title: document.getElementById('songTitle-' + id).value.trim(),
+        note: document.getElementById('songNote-' + id).value.trim(),
+        display_order: parseInt(document.getElementById('songOrder-' + id).value) || 0,
+    };
+    setStatus(st, 'loading', 'Saving…');
+    sbFetch('/rest/v1/site_songs?id=eq.' + id, {
+        method: 'PATCH',
+        headers: { 'Prefer': 'return=representation' },
+        body: JSON.stringify(body),
+    })
+    .then(function() { setStatus(st, 'ok', 'Saved ♡'); })
+    .catch(function(err) { setStatus(st, 'err', err.message); });
+}
+
+function deleteSong(id) {
+    sbFetch('/rest/v1/site_songs?id=eq.' + id + '&select=song_url')
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+        var del = Promise.resolve();
+        if (rows && rows[0] && rows[0].song_url) {
+            var marker = '/storage/v1/object/public/' + SONGS_BUCKET + '/';
+            var path = rows[0].song_url.split(marker)[1];
+            if (path) del = sbFetch('/storage/v1/object/' + SONGS_BUCKET + '/' + path, { method: 'DELETE' }).catch(function(){});
+        }
+        return del;
+    })
+    .then(function() {
+        return sbFetch('/rest/v1/site_songs?id=eq.' + id, { method: 'DELETE' });
+    })
+    .then(function() { loadSongs(); })
+    .catch(function(err) { alert('Delete failed: ' + err.message); });
+}
+
+document.getElementById('songsFileInput').addEventListener('change', function() {
+    var files = Array.from(this.files);
+    if (!files.length) return;
+    var status = document.getElementById('songsStatus');
+    var progress = document.getElementById('songsProgress');
+    var fill = document.getElementById('songsProgressFill');
+    var input = this;
+    setStatus(status, 'loading', 'Uploading ' + files.length + ' song(s)…');
+    progress.classList.add('visible');
+    var done = 0;
+    Promise.all(files.map(function(file) {
+        return uploadFile(SONGS_BUCKET, file, function() {})
+            .then(function(result) {
+                done++;
+                fill.style.width = Math.round(done / files.length * 100) + '%';
+                return sbFetch('/rest/v1/site_songs', {
+                    method: 'POST',
+                    headers: { 'Prefer': 'return=representation' },
+                    body: JSON.stringify({
+                        song_url: result.url,
+                        title: file.name.replace(/\.[^.]+$/, ''),
+                        note: '',
+                        display_order: 0,
+                    }),
+                });
+            });
+    }))
+    .then(function() {
+        setStatus(status, 'ok', 'Uploaded ' + files.length + ' song(s) ♡');
+        progress.classList.remove('visible');
+        input.value = '';
+        loadSongs();
+    })
+    .catch(function(err) {
+        setStatus(status, 'err', err.message);
+        progress.classList.remove('visible');
     });
 });
 

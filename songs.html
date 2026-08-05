@@ -363,30 +363,14 @@
         }
     })();
 
-    // ===== INDEXEDDB =====
-    function openDB() {
-        return new Promise(function(resolve, reject) {
-            var req = indexedDB.open('lyka-bday-uploads', 1);
-            req.onupgradeneeded = function() {
-                var db = req.result;
-                if (!db.objectStoreNames.contains('files')) {
-                    db.createObjectStore('files', { keyPath: 'id' });
-                }
-            };
-            req.onsuccess = function() { resolve(req.result); };
-            req.onerror = function() { reject(req.error); };
-        });
-    }
+    // ===== SUPABASE =====
+    var SUPABASE_URL = 'https://vforizrevnrzbzkwtdbc.supabase.co';
+    var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
 
-    function getAllFiles() {
-        return openDB().then(function(db) {
-            return new Promise(function(resolve, reject) {
-                var tx = db.transaction('files', 'readonly');
-                var req = tx.objectStore('files').getAll();
-                req.onsuccess = function() { resolve(req.result || []); };
-                req.onerror = function() { reject(req.error); };
-            });
-        });
+    function getAllSongs() {
+        return fetch(SUPABASE_URL + '/rest/v1/site_songs?select=*&order=display_order.asc,id.asc', {
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+        }).then(function(r) { return r.json(); });
     }
 
     // ===== FORMAT TIME =====
@@ -417,8 +401,7 @@
     }
 
     function buildCard(song, index) {
-        var blob = new Blob([song.data], { type: song.mime || 'audio/mpeg' });
-        var url = URL.createObjectURL(blob);
+        var url = song.song_url;
 
         var card = document.createElement('div');
         card.className = 'song-card';
@@ -523,10 +506,8 @@
     var listEl  = document.getElementById('songsList');
     var emptyEl = document.getElementById('emptyState');
 
-    getAllFiles().then(function(files) {
-        var songs = files
-            .filter(function(f) { return f.type === 'song'; })
-            .sort(function(a, b) { return (a.timestamp || 0) - (b.timestamp || 0); });
+    getAllSongs().then(function(songs) {
+        songs = Array.isArray(songs) ? songs : [];
 
         if (songs.length === 0) {
             listEl.style.display = 'none';
