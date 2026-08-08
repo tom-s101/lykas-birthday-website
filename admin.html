@@ -452,7 +452,7 @@
             <div class="admin-card-title">Upload songs</div>
             <p style="font-size:0.78rem; color:var(--text-light); margin-bottom:1.25rem; line-height:1.6">
                 These play on the secret songs page. Upload one or more at once, then add a title or note to each below.<br>
-                <strong>Note:</strong> Make sure a public bucket named <code>songs</code> and a table named <code>site_songs</code> exist in your Supabase project.
+                <strong>Note:</strong> These upload into the same <code>voice-notes</code> bucket the voice notes use, so make sure a table named <code>site_songs</code> exists in your Supabase project.
             </p>
 
             <div class="upload-preview" id="songsDropzone"
@@ -588,7 +588,7 @@ var SB_URL    = 'https://vforizrevnrzbzkwtdbc.supabase.co';
 var SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
 var PHOTO_BUCKET = 'lyson-photos';
 var VN_BUCKET    = 'voice-notes';
-var SONGS_BUCKET = 'songs';
+var SONGS_BUCKET = VN_BUCKET; // reuse the already-working voice-notes bucket instead of a separate "songs" bucket
 var sbOK = true;
 
 // ── Content keys shown on the Content tab ──
