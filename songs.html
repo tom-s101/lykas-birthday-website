@@ -274,6 +274,45 @@
             text-align: right;
         }
 
+        /* ===== VIDEO ===== */
+        .video-section {
+            margin-top: 2.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 1s forwards;
+        }
+        .video-label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(232,160,170,0.4);
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+        .video-wrap {
+            position: relative;
+            width: 100%;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(232,160,170,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            background: #000;
+        }
+        .video-wrap::before {
+            content: '';
+            display: block;
+            padding-top: 56.25%; /* 16:9 */
+        }
+        .video-wrap iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+        .video-wrap.visible { transform: none; }
+
         /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
@@ -339,6 +378,11 @@
                 <circle cx="18" cy="16" r="3"/>
             </svg>
             <p class="empty-text">songs are on their way...</p>
+        </div>
+
+        <div class="video-section">
+            <p class="video-label">and this one, too</p>
+            <div class="video-wrap" id="videoWrap"></div>
         </div>
     </div>
 
@@ -524,6 +568,20 @@
         listEl.style.display = 'none';
         emptyEl.style.display = 'block';
     });
+
+    // ===== VIDEO =====
+    (function() {
+        var YOUTUBE_ID = 'AcfYs1I3Xwg';
+        var wrap = document.getElementById('videoWrap');
+        if (!wrap || !YOUTUBE_ID) return;
+        var iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/' + YOUTUBE_ID + '?rel=0&playsinline=1';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('allowfullscreen', '');
+        wrap.appendChild(iframe);
+        setTimeout(function() { wrap.classList.add('visible'); }, 50);
+    })();
     </script>
 </body>
 </html>
