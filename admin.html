@@ -463,7 +463,7 @@
                     <small>mp3 &middot; m4a &middot; wav (multiple allowed)</small>
                 </div>
             </div>
-            <input type="file" id="songsFileInput" accept="audio/*" multiple>
+            <input type="file" id="songsFileInput" accept=".m4a,.mp3,.aac,.wav,.mp4,.caf,audio/*,audio/mp4,audio/x-m4a,audio/mpeg,audio/aac,audio/wav" multiple>
 
             <div class="progress-wrap" id="songsProgress">
                 <div class="progress-bar"><div class="progress-fill" id="songsProgressFill"></div></div>
@@ -624,6 +624,21 @@ function storageUrl(bucket, path) {
     return SB_URL + '/storage/v1/object/public/' + bucket + '/' + encodeURIComponent(path);
 }
 
+// iOS exports (e.g. Voice Memos saved to Files) often hand us a File with an
+// empty .type, which means the browser sends no Content-Type at all — guess
+// one from the extension so Supabase Storage doesn't reject the upload.
+var EXT_MIME_MAP = {
+    m4a: 'audio/mp4', mp4: 'audio/mp4', caf: 'audio/x-caf',
+    mp3: 'audio/mpeg', aac: 'audio/aac', wav: 'audio/wav',
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+    webp: 'image/webp', heic: 'image/heic', gif: 'image/gif',
+};
+function guessMime(file) {
+    if (file.type) return file.type;
+    var ext = (file.name.split('.').pop() || '').toLowerCase();
+    return EXT_MIME_MAP[ext] || 'application/octet-stream';
+}
+
 function uploadFile(bucket, file, onProgress) {
     return new Promise(function(resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -631,6 +646,8 @@ function uploadFile(bucket, file, onProgress) {
         xhr.open('POST', SB_URL + '/storage/v1/object/' + bucket + '/' + encodeURIComponent(path));
         xhr.setRequestHeader('Authorization', 'Bearer ' + SB_KEY);
         xhr.setRequestHeader('apikey', SB_KEY);
+        xhr.setRequestHeader('Content-Type', guessMime(file));
+        xhr.timeout = 5 * 60 * 1000; // 5 min — large voice memos over slow connections shouldn't hang forever
         xhr.upload.onprogress = function(e) {
             if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100));
         };
@@ -638,10 +655,11 @@ function uploadFile(bucket, file, onProgress) {
             if (xhr.status >= 200 && xhr.status < 300) {
                 resolve({ url: storageUrl(bucket, path), path: path });
             } else {
-                reject(new Error('Upload failed: ' + xhr.responseText));
+                reject(new Error('Upload failed (' + xhr.status + '): ' + xhr.responseText));
             }
         };
-        xhr.onerror = function() { reject(new Error('Network error')); };
+        xhr.onerror = function() { reject(new Error('Network error — check your connection and try again.')); };
+        xhr.ontimeout = function() { reject(new Error('Upload timed out — the file may be too large for your connection. Try again on wifi.')); };
         xhr.send(file);
     });
 }
@@ -930,8 +948,9 @@ vnUploadBtn.addEventListener('click', function() {
     progress.classList.add('visible');
     setStatus(vnStatus, 'loading', 'Uploading…');
 
-    uploadFile(VN_BUCKET, file, function(pct) { fill.style.width = pct + '%'; })
+    uploadFile(VN_BUCKET, file, function(pct) { fill.style.width = pct + '%'; setStatus(vnStatus, 'loading', 'Uploading… ' + pct + '%'); })
     .then(function(result) {
+        setStatus(vnStatus, 'loading', 'Saving…');
         return sbFetch('/rest/v1/site_content', {
             method: 'POST',
             headers: { 'Prefer': 'resolution=merge-duplicates' },
@@ -1058,8 +1077,9 @@ lvnUploadBtn.addEventListener('click', function() {
     progress.classList.add('visible');
     setStatus(lvnStatus, 'loading', 'Uploading…');
 
-    uploadFile(VN_BUCKET, file, function(pct) { fill.style.width = pct + '%'; })
+    uploadFile(VN_BUCKET, file, function(pct) { fill.style.width = pct + '%'; setStatus(lvnStatus, 'loading', 'Uploading… ' + pct + '%'); })
     .then(function(result) {
+        setStatus(lvnStatus, 'loading', 'Saving…');
         return sbFetch('/rest/v1/site_content', {
             method: 'POST',
             headers: { 'Prefer': 'resolution=merge-duplicates' },
