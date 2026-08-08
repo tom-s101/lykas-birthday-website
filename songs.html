@@ -15,6 +15,12 @@
             --rose-light: #e8a0aa;
             --rose-pale: #f5dde0;
             --sage: #8a9a7b;
+            --sage-pale: #e4ebe0;
+            --cream: #faf8f5;
+            --warm: #f5f0eb;
+            --text: #3a3535;
+            --text-light: #7a7070;
+            --text-faint: #b0a5a5;
             --gold: #d4a574;
         }
 
@@ -23,45 +29,35 @@
         body {
             font-family: 'Inter', sans-serif;
             font-weight: 300;
-            background: #0a0a12;
-            color: #e8e0e0;
+            background: var(--cream);
+            color: var(--text);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             min-height: 100svh;
         }
 
-        /* ===== STARFIELD ===== */
-        .starfield {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
+        /* ===== Soft background blobs (same motif as the main page hero) ===== */
+        .bg-blobs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .bg-blobs .blob {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
+            animation: drift 20s ease-in-out infinite alternate;
         }
-        .star {
-            position: absolute;
-            border-radius: 50%;
-            background: white;
-        }
-        .star.pink { background: var(--rose-light); }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.08; }
-            50% { opacity: 0.9; }
-        }
+        .bg-blobs .blob:nth-child(1) { width: 60vw; height: 60vw; max-width: 500px; max-height: 500px; background: var(--rose-pale); top: -10%; right: -15%; }
+        .bg-blobs .blob:nth-child(2) { width: 50vw; height: 50vw; max-width: 400px; max-height: 400px; background: var(--sage-pale); bottom: -5%; left: -10%; animation-delay: -7s; }
+        @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,-20px) scale(1.05); } }
 
         /* ===== NAV ===== */
         .nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
+            position: relative;
+            z-index: 1;
             padding: 1.2rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .nav-back {
-            color: rgba(232,160,170,0.5);
+            color: var(--rose);
             text-decoration: none;
             font-size: 0.65rem;
             letter-spacing: 2px;
@@ -71,7 +67,7 @@
             gap: 0.5rem;
             transition: color 0.3s;
         }
-        .nav-back:hover { color: var(--rose-light); }
+        .nav-back:hover { color: var(--text); }
         .nav-back svg { width: 14px; height: 14px; }
 
         /* ===== CONTENT ===== */
@@ -80,14 +76,14 @@
             z-index: 1;
             max-width: 560px;
             margin: 0 auto;
-            padding: 6rem 1.5rem 5rem;
+            padding: 0.5rem 1.5rem 5rem;
         }
 
         .label {
             font-size: 0.6rem;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: rgba(232,160,170,0.4);
+            color: var(--sage);
             margin-bottom: 1rem;
             opacity: 0;
             animation: fadeUp 1s ease 0.2s forwards;
@@ -98,18 +94,18 @@
             font-size: clamp(1.8rem, 6vw, 2.6rem);
             font-weight: 400;
             line-height: 1.25;
-            color: #ede5e5;
+            color: var(--text);
             margin-bottom: 0.6rem;
             opacity: 0;
             animation: fadeUp 1s ease 0.4s forwards;
         }
-        .heading em { font-style: italic; color: var(--rose-light); }
+        .heading em { font-style: italic; color: var(--gold); }
 
         .subheading {
             font-family: 'Cormorant Garamond', serif;
             font-style: italic;
             font-size: 1rem;
-            color: rgba(232,160,170,0.45);
+            color: var(--text-light);
             margin-bottom: 3rem;
             opacity: 0;
             animation: fadeUp 1s ease 0.6s forwards;
@@ -125,10 +121,11 @@
         }
 
         .song-card {
-            background: rgba(232,160,170,0.04);
-            border: 1px solid rgba(232,160,170,0.1);
+            background: #fff;
+            border: 1px solid var(--rose-pale);
             border-radius: 18px;
             padding: 1.4rem 1.5rem;
+            box-shadow: 0 4px 18px rgba(196,114,127,0.08);
             transition: border-color 0.3s, background 0.3s;
             position: relative;
             overflow: hidden;
@@ -137,12 +134,12 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(ellipse at 0% 0%, rgba(196,114,127,0.06), transparent 70%);
+            background: radial-gradient(ellipse at 0% 0%, rgba(196,114,127,0.05), transparent 70%);
             pointer-events: none;
         }
         .song-card.playing {
-            border-color: rgba(232,160,170,0.3);
-            background: rgba(196,114,127,0.07);
+            border-color: var(--rose-light);
+            background: var(--warm);
         }
 
         .song-top {
@@ -156,7 +153,7 @@
             font-family: 'Cormorant Garamond', serif;
             font-size: 0.85rem;
             font-weight: 500;
-            color: rgba(196,114,127,0.4);
+            color: var(--rose-light);
             flex-shrink: 0;
             margin-top: 0.15rem;
             min-width: 20px;
@@ -168,7 +165,7 @@
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.15rem;
             font-weight: 500;
-            color: rgba(240,232,232,0.9);
+            color: var(--text);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -178,7 +175,7 @@
         .song-note {
             font-size: 0.72rem;
             font-style: italic;
-            color: rgba(232,160,170,0.4);
+            color: var(--text-light);
             margin-top: 0.3rem;
             line-height: 1.5;
         }
@@ -188,25 +185,25 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            border: 1px solid rgba(232,160,170,0.25);
-            background: rgba(196,114,127,0.08);
+            border: 1px solid var(--rose-pale);
+            background: var(--warm);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
             transition: all 0.25s ease;
-            color: var(--rose-light);
+            color: var(--rose);
             margin-top: 0.05rem;
         }
         .play-btn:hover {
-            border-color: rgba(232,160,170,0.5);
-            background: rgba(196,114,127,0.15);
+            border-color: var(--rose-light);
+            background: var(--rose-pale);
         }
         .song-card.playing .play-btn {
-            border-color: rgba(232,160,170,0.6);
-            background: rgba(196,114,127,0.2);
-            box-shadow: 0 0 20px rgba(196,114,127,0.15);
+            border-color: var(--rose);
+            background: var(--rose-pale);
+            box-shadow: 0 0 16px rgba(196,114,127,0.2);
         }
         .play-btn svg { width: 16px; height: 16px; }
         .play-btn .pause-icon { display: none; }
@@ -233,7 +230,7 @@
         .wave-bar {
             width: 2.5px;
             border-radius: 2px;
-            background: var(--rose-light);
+            background: var(--rose);
             animation: songWave 1.2s ease-in-out infinite;
         }
         .wave-bar:nth-child(1) { height: 5px;  animation-delay: 0s;     }
@@ -250,7 +247,7 @@
         .seek-wrap {
             flex: 1;
             height: 3px;
-            background: rgba(232,160,170,0.1);
+            background: var(--rose-pale);
             border-radius: 2px;
             cursor: pointer;
             position: relative;
@@ -267,7 +264,7 @@
 
         .song-time {
             font-size: 0.65rem;
-            color: rgba(232,160,170,0.35);
+            color: var(--text-faint);
             font-variant-numeric: tabular-nums;
             flex-shrink: 0;
             min-width: 36px;
@@ -284,7 +281,7 @@
             font-size: 0.6rem;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: rgba(232,160,170,0.4);
+            color: var(--sage);
             margin-bottom: 0.8rem;
             text-align: center;
         }
@@ -293,8 +290,7 @@
             width: 100%;
             border-radius: 18px;
             overflow: hidden;
-            border: 1px solid rgba(232,160,170,0.1);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(196,114,127,0.18), 0 2px 8px rgba(0,0,0,0.08);
             background: #000;
         }
         .video-wrap::before {
@@ -323,14 +319,15 @@
         .empty-icon {
             width: 52px;
             height: 52px;
-            color: rgba(232,160,170,0.2);
+            color: var(--rose-light);
+            opacity: 0.6;
             margin: 0 auto 1.2rem;
         }
         .empty-text {
             font-family: 'Cormorant Garamond', serif;
             font-style: italic;
             font-size: 1.1rem;
-            color: rgba(232,160,170,0.35);
+            color: var(--text-light);
         }
 
         /* ===== FOOTER ===== */
@@ -342,7 +339,7 @@
             font-size: 0.6rem;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: rgba(232,160,170,0.18);
+            color: var(--text-faint);
         }
         footer span { color: var(--rose); }
 
@@ -355,10 +352,10 @@
 </head>
 <body>
 
-    <div class="starfield" id="starfield"></div>
+    <div class="bg-blobs"><div class="blob"></div><div class="blob"></div></div>
 
     <nav class="nav">
-        <a href="index.html" class="nav-back">
+        <a href="index.html#return" class="nav-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             back
         </a>
@@ -389,24 +386,6 @@
     <footer>made with <span>&hearts;</span> For YOU</footer>
 
     <script>
-    // ===== STARFIELD =====
-    (function() {
-        var field = document.getElementById('starfield');
-        for (var i = 0; i < 180; i++) {
-            var star = document.createElement('div');
-            star.className = Math.random() < 0.1 ? 'star pink' : 'star';
-            var size = Math.random() * 2 + 1;
-            star.style.cssText = [
-                'left:' + (Math.random()*100) + '%',
-                'top:' + (Math.random()*100) + '%',
-                'width:' + size + 'px',
-                'height:' + size + 'px',
-                'animation:twinkle ' + (2 + Math.random()*4) + 's infinite ' + (Math.random()*4) + 's'
-            ].join(';');
-            field.appendChild(star);
-        }
-    })();
-
     // ===== SUPABASE =====
     var SUPABASE_URL = 'https://vforizrevnrzbzkwtdbc.supabase.co';
     var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmb3JpenJldm5yemJ6a3d0ZGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5Mzk4NzIsImV4cCI6MjA5NzUxNTg3Mn0.VchST6lQCv7LrCZc3reuVa0HIpgFsfJ8jfwrRyu6PxQ';
