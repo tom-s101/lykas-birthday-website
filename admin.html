@@ -316,6 +316,7 @@
     <div class="admin-tabs">
         <button class="tab-btn active" data-tab="photos">Photos</button>
         <button class="tab-btn" data-tab="voice">Voice Note</button>
+        <button class="tab-btn" data-tab="littlevoice">Little Voice Note</button>
         <button class="tab-btn" data-tab="songs">Songs</button>
         <button class="tab-btn" data-tab="lyka">Lyka's Photos</button>
         <button class="tab-btn" data-tab="content">Content</button>
@@ -405,6 +406,42 @@
             <div class="btn-row" id="vnBtnRow">
                 <button class="btn btn-primary" id="vnUploadBtn" disabled>Upload voice note</button>
                 <button class="btn btn-danger" id="vnDeleteBtn" style="display:none">Delete current</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LITTLE VOICE NOTE tab -->
+    <div class="tab-panel" id="tab-littlevoice">
+        <div class="admin-card">
+            <div class="admin-card-title">Little voice note</div>
+            <p style="font-size:0.78rem; color:var(--text-light); margin-bottom:1.25rem; line-height:1.6">
+                Plays on the <code>/littlevoicenote</code> page — for whenever she just wants to hear your voice.
+            </p>
+
+            <div class="vn-current" id="lvnCurrentWrap" style="display:none">
+                <div class="vn-icon">🎙</div>
+                <div class="vn-info">
+                    <div class="vn-name" id="lvnCurrentName">—</div>
+                    <div class="vn-sub">current little voice note</div>
+                </div>
+            </div>
+            <audio id="lvnAudio" controls style="display:none"></audio>
+
+            <div class="upload-preview" id="lvnPreview" onclick="document.getElementById('lvnFile').click()" style="aspect-ratio:3/1; min-height:80px">
+                <div class="upload-preview-label">
+                    tap to choose audio file
+                    <small>m4a · mp3 · aac · wav</small>
+                </div>
+            </div>
+            <input type="file" id="lvnFile" accept=".m4a,.mp3,.aac,.wav,.mp4,.caf,audio/*,audio/mp4,audio/x-m4a,audio/mpeg,audio/aac,audio/wav">
+
+            <div class="progress-wrap" id="lvnProgress">
+                <div class="progress-bar"><div class="progress-fill" id="lvnProgressFill"></div></div>
+            </div>
+            <div class="status-msg" id="lvnStatus"></div>
+            <div class="btn-row" id="lvnBtnRow">
+                <button class="btn btn-primary" id="lvnUploadBtn" disabled>Upload voice note</button>
+                <button class="btn btn-danger" id="lvnDeleteBtn" style="display:none">Delete current</button>
             </div>
         </div>
     </div>
@@ -651,6 +688,7 @@ function initApp() {
     document.getElementById('settingKey').value = SB_KEY ? (SB_KEY.substring(0, 20) + '…') : '—';
     loadPhotos();
     loadVoiceNote();
+    loadLittleVoiceNote();
     loadSongs();
     loadLykaPhotos();
     loadContent();
@@ -964,6 +1002,132 @@ document.getElementById('vnDeleteBtn').addEventListener('click', function() {
         })
         .catch(function(err) {
             setStatus(vnStatus, 'err', 'Delete failed: ' + err.message);
+            uploadBtn.style.display = 'inline-flex';
+            deleteBtn.style.display = 'inline-flex';
+        });
+    });
+});
+
+// ================================================================
+//  LITTLE VOICE NOTE
+// ================================================================
+var LVN_CONTENT_KEY = 'little_voice_note_url';
+var lvnFile      = document.getElementById('lvnFile');
+var lvnUploadBtn = document.getElementById('lvnUploadBtn');
+var lvnStatus    = document.getElementById('lvnStatus');
+
+function loadLittleVoiceNote() {
+    if (!sbOK) return;
+    sbFetch('/rest/v1/site_content?key=eq.' + LVN_CONTENT_KEY + '&select=value')
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+        var deleteBtn = document.getElementById('lvnDeleteBtn');
+        if (rows && rows[0] && rows[0].value) {
+            var url = rows[0].value;
+            document.getElementById('lvnCurrentWrap').style.display = 'flex';
+            document.getElementById('lvnCurrentName').textContent = url.split('/').pop().replace(/%20/g,' ');
+            var aud = document.getElementById('lvnAudio');
+            aud.src = url;
+            aud.style.display = 'block';
+            if (deleteBtn) deleteBtn.style.display = 'inline-flex';
+        } else {
+            document.getElementById('lvnCurrentWrap').style.display = 'none';
+            var aud = document.getElementById('lvnAudio');
+            aud.src = ''; aud.style.display = 'none';
+            if (deleteBtn) deleteBtn.style.display = 'none';
+        }
+    }).catch(function(){});
+}
+
+lvnFile.addEventListener('change', function() {
+    if (lvnFile.files[0]) {
+        document.getElementById('lvnPreview').innerHTML =
+            '<div class="upload-preview-label">' + lvnFile.files[0].name + '<small>ready to upload</small></div>';
+        lvnUploadBtn.disabled = false;
+    }
+});
+
+lvnUploadBtn.addEventListener('click', function() {
+    var file = lvnFile.files[0];
+    if (!file) return;
+    if (!sbOK) { setStatus(lvnStatus, 'err', 'Supabase not configured.'); return; }
+
+    lvnUploadBtn.disabled = true;
+    var progress = document.getElementById('lvnProgress');
+    var fill = document.getElementById('lvnProgressFill');
+    progress.classList.add('visible');
+    setStatus(lvnStatus, 'loading', 'Uploading…');
+
+    uploadFile(VN_BUCKET, file, function(pct) { fill.style.width = pct + '%'; })
+    .then(function(result) {
+        return sbFetch('/rest/v1/site_content', {
+            method: 'POST',
+            headers: { 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify({ key: LVN_CONTENT_KEY, value: result.url }),
+        });
+    })
+    .then(function() {
+        setStatus(lvnStatus, 'ok', 'Little voice note updated ♡');
+        progress.classList.remove('visible');
+        lvnUploadBtn.disabled = false;
+        loadLittleVoiceNote();
+    })
+    .catch(function(err) {
+        setStatus(lvnStatus, 'err', err.message);
+        lvnUploadBtn.disabled = false;
+        progress.classList.remove('visible');
+    });
+});
+
+document.getElementById('lvnDeleteBtn').addEventListener('click', function() {
+    var deleteBtn = document.getElementById('lvnDeleteBtn');
+    var uploadBtn = document.getElementById('lvnUploadBtn');
+    deleteBtn.style.display = 'none';
+    uploadBtn.style.display = 'none';
+    var row = document.getElementById('lvnBtnRow');
+    var confirm = document.createElement('div');
+    confirm.id = 'lvnDelConfirmRow';
+    confirm.style.cssText = 'display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;';
+    confirm.innerHTML =
+        '<span style="font-size:0.72rem;color:var(--text-light);flex:1">Delete little voice note?</span>' +
+        '<button class="btn btn-secondary btn-sm" id="lvnDelCancel">Cancel</button>' +
+        '<button class="btn btn-danger btn-sm" id="lvnDelConfirm">Yes, delete</button>';
+    row.appendChild(confirm);
+
+    document.getElementById('lvnDelCancel').addEventListener('click', function() {
+        confirm.remove();
+        uploadBtn.style.display = 'inline-flex';
+        deleteBtn.style.display = 'inline-flex';
+    });
+
+    document.getElementById('lvnDelConfirm').addEventListener('click', function() {
+        confirm.remove();
+        setStatus(lvnStatus, 'loading', 'Deleting…');
+        sbFetch('/rest/v1/site_content?key=eq.' + LVN_CONTENT_KEY + '&select=value')
+        .then(function(r) { return r.json(); })
+        .then(function(rows) {
+            var del = Promise.resolve();
+            if (rows && rows[0] && rows[0].value) {
+                var marker = '/storage/v1/object/public/' + VN_BUCKET + '/';
+                var path = rows[0].value.split(marker)[1];
+                if (path) del = sbFetch('/storage/v1/object/' + VN_BUCKET + '/' + path, { method: 'DELETE' }).catch(function(){});
+            }
+            return del;
+        })
+        .then(function() {
+            return sbFetch('/rest/v1/site_content?key=eq.' + LVN_CONTENT_KEY, { method: 'DELETE' });
+        })
+        .then(function() {
+            setStatus(lvnStatus, 'ok', 'Little voice note deleted ✓');
+            lvnFile.value = '';
+            document.getElementById('lvnPreview').innerHTML =
+                '<div class="upload-preview-label">tap to choose audio file<small>m4a · mp3 · aac · wav</small></div>';
+            uploadBtn.disabled = true;
+            uploadBtn.style.display = 'inline-flex';
+            loadLittleVoiceNote();
+        })
+        .catch(function(err) {
+            setStatus(lvnStatus, 'err', 'Delete failed: ' + err.message);
             uploadBtn.style.display = 'inline-flex';
             deleteBtn.style.display = 'inline-flex';
         });
