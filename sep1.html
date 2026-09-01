@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy First Monthsarry — Lyka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --rose: #c4727f;
+    --rose-light: #e8a0aa;
+    --rose-pale: #f5dde0;
+    --sage: #8a9a7b;
+    --sage-light: #b5c4a8;
+    --sage-pale: #e4ebe0;
+    --cream: #faf8f5;
+    --blush: #faf0f2;
+    --warm: #f5f0eb;
+    --text: #3a3535;
+    --text-light: #7a7070;
+    --text-faint: #b0a5a5;
+    --gold: #d4a574;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    min-height: 100svh;
+    background: linear-gradient(180deg, var(--cream) 0%, var(--blush) 45%, var(--cream) 100%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Soft background blobs (same motif as the main page hero) ── */
+.bg-blobs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.bg-blobs .blob {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35;
+    animation: drift 20s ease-in-out infinite alternate;
+}
+.bg-blobs .blob:nth-child(1) { width: 60vw; height: 60vw; max-width: 500px; max-height: 500px; background: var(--rose-pale); top: -10%; right: -15%; }
+.bg-blobs .blob:nth-child(2) { width: 50vw; height: 50vw; max-width: 400px; max-height: 400px; background: var(--sage-pale); bottom: -5%; left: -10%; animation-delay: -7s; }
+@keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,-20px) scale(1.05); } }
+
+/* ── Page shell ── */
+.page {
+    position: relative; z-index: 1;
+    min-height: 100svh;
+    display: flex; flex-direction: column;
+    align-items: center;
+}
+
+/* ── Nav ── */
+.topnav {
+    width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 1.5rem;
+    flex-shrink: 0;
+}
+.back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--rose); text-decoration: none;
+    transition: color 0.25s;
+}
+.back-link:hover { color: var(--text); }
+.back-link svg { width: 12px; height: 12px; }
+
+/* ── Content ── */
+.content {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 620px;
+    padding: 0.5rem 1.25rem 5rem;
+}
+
+.page-header {
+    text-align: center; padding: 1.5rem 0.5rem 2.5rem;
+    opacity: 0; animation: fadeUp 1s ease 0.2s forwards;
+}
+.page-label {
+    font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--sage); margin-bottom: 0.9rem;
+}
+.page-heading {
+    font-family: 'Cormorant Garamond', serif; font-weight: 400; font-style: italic;
+    font-size: clamp(2.1rem, 8vw, 3.1rem); line-height: 1.2; color: var(--text);
+}
+.page-heading em { font-style: italic; color: var(--gold); }
+.page-sub {
+    margin-top: 0.9rem;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 1rem; color: var(--text-light);
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Botanical corner ornaments (same motif as the letter on the main page) ── */
+.botanical-frame { position: relative; }
+.botanical-corner {
+    position: absolute;
+    width: 90px; height: 90px;
+    opacity: 0.18;
+    pointer-events: none;
+}
+.botanical-corner.top-left { top: -6px; left: -6px; }
+.botanical-corner.top-right { top: -6px; right: -6px; transform: scaleX(-1); }
+.botanical-corner.bottom-left { bottom: -6px; left: -6px; transform: scaleY(-1); }
+.botanical-corner.bottom-right { bottom: -6px; right: -6px; transform: scale(-1); }
+
+/* ── Tape ── */
+.tape {
+    position: absolute; width: 60px; height: 18px;
+    background: linear-gradient(135deg, rgba(250, 240, 220, 0.85), rgba(245, 230, 205, 0.75));
+    border-left: 1px dashed rgba(180, 150, 120, 0.25);
+    border-right: 1px dashed rgba(180, 150, 120, 0.25);
+    box-shadow: 0 2px 4px rgba(120, 80, 60, 0.1);
+    z-index: 5; pointer-events: none;
+}
+.tape.tape-tl { top: -9px; left: 22px; transform: rotate(-8deg); }
+.tape.tape-tr { top: -9px; right: 22px; transform: rotate(6deg); }
+
+/* ── The letter itself ── */
+.letter {
+    position: relative;
+    padding: 3rem 1.75rem 2.5rem;
+    background: rgba(255,255,255,0.55);
+    border-radius: 22px;
+    border: 1px solid var(--rose-pale);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 20px 60px rgba(196,114,127,0.12), 0 4px 16px rgba(0,0,0,0.04);
+    opacity: 0;
+    animation: fadeUp 1s ease 0.5s forwards;
+}
+.letter::before {
+    content: '\201C';
+    position: absolute;
+    top: 0.2rem;
+    left: 1.1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 5rem;
+    color: var(--rose-pale);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.letter p {
+    font-size: 0.98rem;
+    line-height: 1.9;
+    color: var(--text-light);
+    margin-bottom: 1.4rem;
+}
+.letter p:first-of-type::first-letter {
+    font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 500;
+    float: left; line-height: 1; margin-right: 0.5rem; margin-top: 0.1rem; color: var(--rose);
+}
+
+/* Standalone emphasis lines */
+.letter .beat {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--rose);
+    margin: 1.8rem 0;
+}
+.letter .beat.big {
+    font-size: 1.9rem;
+    color: var(--gold);
+}
+
+.letter-sign {
+    margin-top: 2.2rem; padding-top: 1.5rem; border-top: 1px solid var(--rose-pale);
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 1.2rem; color: var(--rose); line-height: 1.7;
+}
+.letter-sign .name {
+    display: block; margin-top: 0.4rem;
+    font-size: 1.5rem; color: var(--text);
+}
+
+footer {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 2.5rem 1rem 2.5rem;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+footer span { color: var(--rose); }
+
+@media (min-width: 640px) {
+    .letter { padding: 3.5rem 3rem 3rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-blobs"><div class="blob"></div><div class="blob"></div></div>
+
+<div class="page">
+    <nav class="topnav">
+        <a href="index.html#return" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            back
+        </a>
+    </nav>
+
+    <div class="content">
+        <div class="page-header">
+            <p class="page-label">a little letter</p>
+            <h1 class="page-heading">Happy First <em>Monthsarry</em></h1>
+            <p class="page-sub">from Matheson, to his Dearest Lyka</p>
+        </div>
+
+        <div class="letter botanical-frame">
+            <svg class="botanical-corner top-left" viewBox="0 0 100 100" fill="none"><path d="M0 0 C20 10, 30 30, 25 50 C22 60, 15 65, 5 60 C-2 56, 0 48, 8 48 C14 48, 18 55, 12 60" stroke="var(--sage)" stroke-width="1.5" fill="none"/><path d="M0 0 C10 20, 8 40, 15 55 C18 62, 25 65, 30 60" stroke="var(--sage-light)" stroke-width="1" fill="none"/><circle cx="25" cy="50" r="3" fill="var(--rose-pale)"/><circle cx="15" cy="55" r="2" fill="var(--rose-pale)" opacity="0.6"/></svg>
+            <svg class="botanical-corner top-right" viewBox="0 0 100 100" fill="none"><path d="M0 0 C20 10, 30 30, 25 50 C22 60, 15 65, 5 60 C-2 56, 0 48, 8 48 C14 48, 18 55, 12 60" stroke="var(--sage)" stroke-width="1.5" fill="none"/><path d="M0 0 C10 20, 8 40, 15 55 C18 62, 25 65, 30 60" stroke="var(--sage-light)" stroke-width="1" fill="none"/><circle cx="25" cy="50" r="3" fill="var(--rose-pale)"/></svg>
+            <svg class="botanical-corner bottom-left" viewBox="0 0 100 100" fill="none"><path d="M0 0 C20 10, 30 30, 25 50 C22 60, 15 65, 5 60" stroke="var(--sage)" stroke-width="1.5" fill="none"/><circle cx="25" cy="50" r="3" fill="var(--rose-pale)"/></svg>
+            <svg class="botanical-corner bottom-right" viewBox="0 0 100 100" fill="none"><path d="M0 0 C20 10, 30 30, 25 50 C22 60, 15 65, 5 60" stroke="var(--sage)" stroke-width="1.5" fill="none"/><circle cx="25" cy="50" r="3" fill="var(--rose-pale)"/></svg>
+            <span class="tape tape-tl"></span>
+            <span class="tape tape-tr"></span>
+
+            <p>My Dearest Lyka, the one who is the most precious and important person to me in this world!</p>
+
+            <p class="beat big">Happy First Monthsarry!!!</p>
+
+            <p>I'm not quite sure where to start, the words don't seem to come in the way I want them to, and this is the fourth time I'm starting over again, since August 5! (I've tried multiple times to write this, but I just couldn't seem to find the words).</p>
+
+            <p>My words in writing may fail to describe and tell of how amazing you are and how thankfully I am for YOU. I have tried my best to put down my thoughts and feeling, but it still doesn't seem to express it fully. But here it goes, as I want to tell you, as it's truly from my heart.</p>
+
+            <p>I always wondered how would I know when I have found the woman, the one I would marry? How would I know that this is the woman that God chose for me? How would I know that this is the woman that would love me with her whole heart? That the love she professed was not just words, but that she really meant it? That she would not just leave me if someone else came along.</p>
+
+            <p>I just wanted someone who would always be there for me. Someone to stand by my side. Someone to share and experience life with. Someone to grow old together with. Someone that I could share the little moments of the day with. Someone who would help me deepen my relationship with God. Someone to be my lifelong companion and best friend. But most importantly, someone that would be with me to serve Him, wherever He calls.</p>
+
+            <p>These are the things I thought a lot about and prayed for continuously…</p>
+
+            <p class="beat">And then….</p>
+            <p class="beat">I met YOU!!</p>
+            <p class="beat">That's when I knew my prayers were answered!</p>
+
+            <p>I am still blown away that you are my girlfriend!!! I have the most wonderful, loving, kind, caring, compassionate, generous girlfriend! The one who is truly mine! I could go on, and on and on about YOU!!! But it's amazing how God brought you to my life, He seemed to know exactly the type of person I wanted and who I needed and that was YOU!! In everything, from what I dreamed of in a woman, the type of person I preferred, even the unprayed for qualities in someone, (because I didn't want to limit God). You have them all and way more besides! More than I ever asked or prayed for!</p>
+
+            <p>I never would've thought that we would celebrate our first month together, from that first seemingly chance meeting at PYC last June. But yet, here we are!!! I remember in the months after we first met, of dreaming and hoping that maybe you would somehow, in a very tiny and minuscule chance, come to like me, but that idea seemed so utterly far and impossible that I had to check myself, because in reality, for me, there was no way in the whole world that would be possible. It was probably more likely for me to win the lottery, or get struck by lightning, or land on the moon. But now, what I thought would only be fairytale fiction is now really true! YOU ARE MY GIRLFRIEND!!!! (I'm smiling so much just writing this out xD)</p>
+
+            <p>Words still fail to express the deep gratitude that I have for you, and my thankfulness to God for bringing you into my life. Looking back, this was the perfect timing! Every day, I still thank God for YOU!!!! Because of how He answered all my prayers in the most remarkable and clear manner! Really making it crystal clear, that He is the one who led YOU to me, and will continue to guide our relationship! With the providential answers to prayers with YOU, I have never doubted that you were the one for me. Now, hearing your side, and what you shared with how you've been praying also, and how He answered your questions and prayers in a very clear way, makes me even more amazed and happy that God wasn't just leading me to you, but that He was also leading you to me!!! Knowing it was not just my prayers being answered but yours also… leaves me just speechless!!! He is a really good, kind, and loving God!!!</p>
+
+            <p>I know our relationship won't always be easy and without issues in the future, but we need to remember how God has led us together, and not let the enemy divide us! Whatever may happen, I will always be by your side, loving you the best I know (and I want to learn how to love you even better), being with you through the easy and the tough times, and supporting you in the decisions that you make! Forever!!! ♾️ Until He returns to take us to a better place!!! As we continue our life journey together I look forward to how God will continue to guide! I KNOW He has led us this far, and I want Him to continue to lead forever. Because when we are in the center of His will, that's where we are the happiest and safest!</p>
+
+            <p>Forever and for eternity, I want to always be with YOU!!! I LOVE YOU, my Dearest Lyka!!!</p>
+
+            <p style="margin-top:2rem; font-style:italic;">For our first monthsarry of countless millions more (we can still celebrate them in heaven ;&gt;)</p>
+
+            <div class="letter-sign">
+                The Boyfriend who won't ever let YOU out of his mind or heart!
+                <span class="name">&mdash; Matheson</span>
+            </div>
+        </div>
+    </div>
+
+    <footer>made with <span>&hearts;</span> for you</footer>
+</div>
+
+</body>
+</html>
